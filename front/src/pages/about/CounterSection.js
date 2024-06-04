@@ -28,13 +28,15 @@ const AboutCounter = () => {
             countNum: stats.userCount,
             countTitle: 'Users',
             counterPrefix: '',
-            countIcon: countIcon1
+            countIcon: countIcon1,
+            vr: '/admin/edu'
         },
         {
             countNum: stats.teacherCount,
             countTitle: 'Average CGPA',
             counterPrefix: '',
-            countIcon: countIcon2
+            countIcon: countIcon2,
+            vr: '/admin/ens'
         },
         {
             countNum: stats.courseCount,
@@ -65,8 +67,10 @@ const AboutCounter = () => {
                         {counters &&
                             <div className="row rs-counter couter-area">
                                 {counters.map((counter, num) => (
+                                    
                                     <div key={num} className="col-md-4 sm-mb-30">
-                                        <div className={`counter-item ${['one', 'two', 'three'][num]}`}>
+                                     
+                                        <div  className={`counter-item ${['one', 'two', 'three'][num]}`}>
                                             <img className="count-img" src={counter.countIcon} alt="" />
                                             <h2 className="number rs-count">
                                                 <CountUp start={state ? 0 : counter.countNum} end={counter.countNum} duration={10} onEnd={() => setState(false)} />
@@ -77,9 +81,10 @@ const AboutCounter = () => {
                                                 )}
                                                 <span className="counter-prefix">{counter.counterPrefix}</span>
                                             </h2>
-                                            <h4 className="title mb-0">{counter.countTitle}</h4>
+                                           <a href={counter.vr}><h4 className="title mb-0">{counter.countTitle}</h4></a> 
                                         </div>
                                     </div>
+                                    
                                 ))}
                             </div>
                         }

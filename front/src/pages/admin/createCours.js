@@ -34,9 +34,25 @@ const CreateCours = () => {
         image:null,
         duration:null
     });
+    const [categories, setCategories] = useState([]);
+    const [level, setLevel] = useState([]);
     const [err, setErr] = useState(null);
     const navigate = useNavigate();
 
+   
+    
+    useEffect(() => {
+        const fetchLevel = async () => {
+            try {
+                const response = await axios.get('http://localhost:8801/api/level/getAllLevel');
+                setLevel(response.data);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des catégories:", error);
+            }
+        };
+
+        fetchLevel();
+    }, []);
     // Gestionnaire d'événements pour les champs de texte
 const handleInputChange = (e) => {
     setInputs(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -193,11 +209,22 @@ const handleImageChange = (e) => {
                                         <input type="text" id="description" name="description" value={inputs.description} placeholder="Description" onChange={handleInputChange} required />
                                     </div>
                                     <div className="form-group col-lg-12">
-                                        <input type="text" id="type" name="type" value={inputs.type} placeholder="Type" onChange={handleInputChange} required />
+                                        <select id="type" name="type" value={inputs.type} onChange={handleInputChange} required>
+                                            <option value="">Sélectionner une catégorie</option>
+                                            {categories.map(category => (
+                                                <option key={category.id} value={category.id}>{category.title}</option>
+                                            ))}
+                                        </select>
                                     </div>
                                     <div className="form-group col-lg-12">
-                                        <input type="text" id="level" name="level" value={inputs.level} placeholder="Level" onChange={handleInputChange} required />
+                                        <select id="type" name="level" value={inputs.level} onChange={handleInputChange} required>
+                                            <option value="">Sélectionner une level</option>
+                                            {level.map(lev => (
+                                                <option key={lev.id} value={lev.id}>{lev.title}</option>
+                                            ))}
+                                        </select>
                                     </div>
+                                    
                                     <div className="form-group col-lg-12">
                                         <input type="number" id="duration" name="duration" value={inputs.duration} placeholder="duration par heur" onChange={handleInputChange} required />
                                     </div>

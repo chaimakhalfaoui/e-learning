@@ -1,5 +1,5 @@
 import express from "express";
-import { register, login, logout,checkUserRole,checkUserRoleA,countUsers,getLatestTeachers ,getUserById,getAdminById,updateprofil,updateAdminById,getStatistics} from "../controllers/auth.js";
+import { register, login, logout,checkUserRole,checkUserRoleA,deleteUser,countUsers,getLatestTeachers ,getUserById,getAdminById,updateprofil,updateAdminById,getStatistics,getAllTeachers,getAllStudents} from "../controllers/auth.js";
 
 
 const router = express.Router();
@@ -16,6 +16,9 @@ router.get("/latestTeachers", getLatestTeachers);
 router.put("/updateprofil/:id", updateprofil);
 router.put("/updateAdminById/:id", updateAdminById);
 router.get("/getStatistics", getStatistics);
+router.get("/getAllTeachers", getAllTeachers);
+router.get("/getAllStudents", getAllStudents);
+router.delete("/deleteUser/:id",deleteUser );
 
 
 

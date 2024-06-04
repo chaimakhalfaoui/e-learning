@@ -12,8 +12,10 @@ import lectureRoutes from "./routes/lecture.js";
 import qrRoutes from "./routes/qr.js";
 import avcRoutes from "./routes/avc.js";
 import quizRoutes from "./routes/quiz.js";
+import categorieRoutes from "./routes/categorie.js";
 import certaficatRoutes from "./routes/certaficat.js";
 import commentaireRoutes from "./routes/commentaire.js";
+import levelRoutes from "./routes/level.js";
 import cookieParser from "cookie-parser";
 
 
@@ -44,6 +46,8 @@ app.use("/api/avc", avcRoutes);
 app.use("/api/qr", qrRoutes);
 app.use("/api/certaficat", certaficatRoutes);
 app.use("/api/commentaire", commentaireRoutes);
+app.use("/api/categorie", categorieRoutes);
+app.use("/api/level", levelRoutes);
 
 
 app.listen(8801, () => {

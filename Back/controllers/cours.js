@@ -43,8 +43,8 @@ export const createCours = (req, res) => {
             return res.status(400).json("Tous les champs sont requis.");
         }
 
-        const insertCoursQuery = "INSERT INTO Cours ( titre, description, dateCre, type, level, id_user ,image,duration) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
-        const values = [titre, description, dateCre, type, level, id_user , imageName,duration];
+        const insertCoursQuery = "INSERT INTO Cours ( titre, description, dateCre, id_user ,image,duration,categorie,id_level) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
+        const values = [titre, description, dateCre, id_user , imageName,duration, type,level];
 
         db.query(insertCoursQuery, values, (err, data) => {
             if (err) {

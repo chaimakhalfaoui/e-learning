@@ -65,6 +65,8 @@ import CreateActivite from '../pages/admin/CreateActivite';
 import CreateQuestionQuiz from '../pages/admin/createQuestionQuiz';
 import ModifierCours from '../pages/admin/ModifierCours';
 import ModifierEvent from '../pages/admin/ModifierEvent';
+import Edu from '../pages/admin/Edu';
+import Ens from '../pages/admin/Ens';
 
 
 const App = () => {
@@ -143,7 +145,8 @@ const App = () => {
                     <Route path="/profile" element={<TeamSingle/>} />
                     <Route path="/cours/modifier/:id" element={<ModifierCours/>} />
                     <Route path="/event/modifier/:id" element={<ModifierEvent/>} />
-                    
+                    <Route path="/admin/edu" element={<Edu/>} />
+                    <Route path="/admin/ens" element={<Ens/>} />
                 </Routes>
                 </AuthContextProvider>
                 </Router>

@@ -53,7 +53,7 @@ const TeamSingleMain = () => {
         setIsEditing(true);
     };
 
-    const handleSaveClick = () => {
+    const handleSaveClick = async () => {
         const formData = new FormData();
         formData.append("username", userData.username);
         formData.append("age", userData.age);
@@ -63,8 +63,8 @@ const TeamSingleMain = () => {
         if (userData.image instanceof File) {
             formData.append("image", userData.image);
         }
-    
-        axios.put(`http://localhost:8801/api/auth/updateprofil/1`, formData, {
+        
+        axios.put(`http://localhost:8801/api/auth/updateprofil/${userData.id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

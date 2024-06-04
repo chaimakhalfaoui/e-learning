@@ -175,6 +175,13 @@
                                         font-weight: 600;
                                         min-width: 100px;
                                     }
+                                    select{
+                                        border: 1px solid rgba(54,54,54,.1);
+                                        padding: 10px 15px;
+                                        margin-bottom: 10px;
+                                        outline: none;
+                                        width: 50%;
+                                    }
                                     input {
                                         border: 1px solid rgba(54,54,54,.1);
                                         padding: 10px 15px;
@@ -982,6 +989,25 @@ body .rs-checkout .full-grid{
                 border-color:#ff6262;
             }
         }
+        select{
+            position:relative;
+            height:50px;
+            padding:6px 30px;
+            width:100%;
+            color:#222222;
+            font-size:16px;
+            border-radius:0px;
+            transition:all 500ms ease;
+            -moz-transition:all 500ms ease;
+            -webkit-transition:all 500ms ease;
+            -ms-transition:all 500ms ease;
+            -o-transition:all 500ms ease;
+            border: none;
+            box-shadow: 0 0 30px #eee;
+            &:focus{
+                border-color:#ff6262;
+            }
+    }
         textarea{
             position:relative;
             height:150px;

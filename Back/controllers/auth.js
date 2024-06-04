@@ -336,3 +336,265 @@ export const getStatistics = (req, res) => {
     });
   });
 };
+
+
+export const getAllTeachers = (req, res) => {
+  const getAllTeachersQuery = "SELECT id, username, email, image, age, telephone, genre,role FROM users WHERE role = 'enseignant'";
+
+  db.query(getAllTeachersQuery, (err, data) => {
+    if (err) {
+      console.error("Erreur lors de la récupération des enseignants :", err);
+      return res.status(500).json("Une erreur s'est produite lors de la récupération des enseignants.");
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json("Aucun enseignant trouvé.");
+    }
+
+    return res.status(200).json(data);
+  });
+};
+
+
+export const getAllStudents = (req, res) => {
+  const getAllStudentsQuery = "SELECT id, username, email, image, age, telephone, genre,role FROM users WHERE role = 'user'";
+
+  db.query(getAllStudentsQuery, (err, data) => {
+    if (err) {
+      console.error("Erreur lors de la récupération des étudiants :", err);
+      return res.status(500).json("Une erreur s'est produite lors de la récupération des étudiants.");
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json("Aucun étudiant trouvé.");
+    }
+
+    return res.status(200).json(data);
+  });
+};
+
+
+const deleteCourseByUser = (userId, callback) => {
+  const deleteCourseQuery = "SELECT id FROM Cours WHERE id_user = ?";
+  db.query(deleteCourseQuery, [userId], (err, courses) => {
+      if (err) {
+          return callback(err);
+      }
+
+      // Supprimer chaque cours trouvé
+      const tasks = courses.map(course => {
+          return new Promise((resolve, reject) => {
+              const id_cours = course.id;
+
+              // Commencez une transaction pour assurer que toutes les suppressions soient atomiques
+              db.beginTransaction(err => {
+                  if (err) {
+                      return reject(err);
+                  }
+
+                  // Supprimer les enregistrements associés aux cours
+                  const deleteReponsesQuery = `
+                    DELETE FROM reponse
+                    WHERE idquestion IN (
+                      SELECT id
+                      FROM question
+                      WHERE id_quiz IN (
+                        SELECT id
+                        FROM Quiz
+                        WHERE id_cours = ?
+                      )
+                    )
+                  `;
+                  db.query(deleteReponsesQuery, [id_cours], (err) => {
+                      if (err) {
+                          return db.rollback(() => reject(err));
+                      }
+
+                      const deleteLectureQuery = "DELETE FROM lecture WHERE id_cours = ?";
+                      db.query(deleteLectureQuery, [id_cours], (err) => {
+                          if (err) {
+                              return db.rollback(() => reject(err));
+                          }
+
+                          const deleteAVCQuery = "DELETE FROM avc WHERE idCours = ?";
+                          db.query(deleteAVCQuery, [id_cours], (err) => {
+                              if (err) {
+                                  return db.rollback(() => reject(err));
+                              }
+
+                              const deleteActivitiesQuery = `
+                                  DELETE Activite FROM Activite
+                                  JOIN Chapitre ON Activite.id_chapitre = Chapitre.id_chapitre
+                                  WHERE Chapitre.id_cours = ?
+                              `;
+                              db.query(deleteActivitiesQuery, [id_cours], (err) => {
+                                  if (err) {
+                                      return db.rollback(() => reject(err));
+                                  }
+
+                                  const deleteChaptersQuery = "DELETE FROM Chapitre WHERE id_cours = ?";
+                                  db.query(deleteChaptersQuery, [id_cours], (err) => {
+                                      if (err) {
+                                          return db.rollback(() => reject(err));
+                                      }
+
+                                      const deleteQuizQuestionsQuery = `
+                                          DELETE question FROM question
+                                          JOIN Quiz ON question.id_quiz = Quiz.id
+                                          WHERE Quiz.id_cours = ?
+                                      `;
+                                      db.query(deleteQuizQuestionsQuery, [id_cours], (err) => {
+                                          if (err) {
+                                              return db.rollback(() => reject(err));
+                                          }
+
+                                          const deleteQuizzesQuery = "DELETE FROM Quiz WHERE id_cours = ?";
+                                          db.query(deleteQuizzesQuery, [id_cours], (err) => {
+                                              if (err) {
+                                                  return db.rollback(() => reject(err));
+                                              }
+
+                                              const deleteCertificatQuery = "DELETE FROM certificat WHERE idCours = ?";
+                                              db.query(deleteCertificatQuery, [id_cours], (err) => {
+                                                  if (err) {
+                                                      return db.rollback(() => reject(err));
+                                                  }
+
+                                                  const deleteCourseQuery = "DELETE FROM Cours WHERE id = ?";
+                                                  db.query(deleteCourseQuery, [id_cours], (err) => {
+                                                      if (err) {
+                                                          return db.rollback(() => reject(err));
+                                                      }
+
+                                                      db.commit(err => {
+                                                          if (err) {
+                                                              return db.rollback(() => reject(err));
+                                                          }
+
+                                                          resolve();
+                                                      });
+                                                  });
+                                              });
+                                          });
+                                      });
+                                  });
+                              });
+                          });
+                      });
+                  });
+              });
+          });
+      });
+
+      Promise.all(tasks)
+          .then(() => callback(null))
+          .catch(callback);
+  });
+};
+
+const deleteUserAssociations = (userId, callback) => {
+  db.beginTransaction(err => {
+      if (err) {
+          console.error("Erreur lors du début de la transaction :", err);
+          return callback(err);
+      }
+
+      const deleteLectureQuery = "DELETE FROM lecture WHERE id_user = ?";
+      db.query(deleteLectureQuery, [userId], (err) => {
+          if (err) {
+              return db.rollback(() => callback(err));
+          }
+
+          const deleteReponseQuery = "DELETE FROM reponse WHERE idUser = ?";
+          db.query(deleteReponseQuery, [userId], (err) => {
+              if (err) {
+                  return db.rollback(() => callback(err));
+              }
+
+              db.commit(err => {
+                  if (err) {
+                      return db.rollback(() => callback(err));
+                  }
+
+                  callback(null);
+              });
+          });
+      });
+  });
+};
+export const deleteUser = (req, res) => {
+  const userId = req.params.id;
+
+  const getUserQuery = "SELECT role FROM users WHERE id = ?";
+  db.query(getUserQuery, [userId], (err, results) => {
+      if (err) {
+          console.error("Erreur lors de la récupération de l'utilisateur :", err);
+          return res.status(500).json("Une erreur s'est produite lors de la récupération de l'utilisateur.");
+      }
+
+      if (results.length === 0) {
+          return res.status(404).json("Utilisateur non trouvé.");
+      }
+      
+
+      const userRole = results[0].role;
+
+      if (userRole === 'enseignant') {
+          deleteCourseByUser(userId, (err) => {
+              if (err) {
+                  console.error("Erreur lors de la suppression des cours de l'utilisateur :", err);
+                  return res.status(500).json("Une erreur s'est produite lors de la suppression des cours de l'utilisateur.");
+              }
+              const deleteEvenementQuery = "DELETE FROM evenement WHERE iduser = ?";
+              db.query(deleteEvenementQuery, [userId], (err) => {
+                  if (err) {
+                      return db.rollback(() => callback(err));
+                  }
+                  const deleteCommentaireQuery = "DELETE FROM commentaire WHERE iduser = ?";
+              db.query(deleteCommentaireQuery, [userId], (err) => {
+                  if (err) {
+                      return db.rollback(() => callback(err));
+                  }
+
+              const deleteUserQuery = "DELETE FROM users WHERE id = ?";
+              db.query(deleteUserQuery, [userId], (err) => {
+                  if (err) {
+                      console.error("Erreur lors de la suppression de l'utilisateur :", err);
+                      return res.status(500).json("Une erreur s'est produite lors de la suppression de l'utilisateur.");
+                  }
+
+                  return res.status(200).json("Utilisateur supprimé avec succès.");
+              });
+            });
+          });
+          });
+      } else if (userRole === 'user') {
+          deleteUserAssociations(userId, (err) => {
+              if (err) {
+                  console.error("Erreur lors de la suppression des associations de l'utilisateur :", err);
+                  return res.status(500).json("Une erreur s'est produite lors de la suppression des associations de l'utilisateur.");
+              }
+
+              const deleteUserQuery = "DELETE FROM users WHERE id = ?";
+              db.query(deleteUserQuery, [userId], (err) => {
+                  if (err) {
+                      console.error("Erreur lors de la suppression de l'utilisateur :", err);
+                      return res.status(500).json("Une erreur s'est produite lors de la suppression de l'utilisateur.");
+                  }
+
+                  return res.status(200).json("Utilisateur supprimé avec succès.");
+              });
+          });
+      } else {
+          const deleteUserQuery = "DELETE FROM users WHERE id = ?";
+          db.query(deleteUserQuery, [userId], (err) => {
+              if (err) {
+                  console.error("Erreur lors de la suppression de l'utilisateur :", err);
+                  return res.status(500).json("Une erreur s'est produite lors de la suppression de l'utilisateur.");
+              }
+
+              return res.status(200).json("Utilisateur supprimé avec succès.");
+          });
+      }
+  });
+};
