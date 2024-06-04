@@ -26,6 +26,7 @@ const CoursePart = () => {
         try {
             const response = await axios.get("http://localhost:8801/api/cours/getAllCourses");
             setCourses(response.data);
+            console.log(response.data[0])
         } catch (error) {
             console.error("Erreur lors de la récupération des événements :", error);
         }

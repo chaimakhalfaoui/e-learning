@@ -61,7 +61,12 @@ export const createCours = (req, res) => {
 };
 
 export const getAllCourses = (req, res) => {
-    const selectCoursesQuery = "SELECT * FROM Cours";
+    const selectCoursesQuery = `
+        SELECT C.*, cat.title AS type, lvl.title AS level
+        FROM Cours AS C
+        INNER JOIN categorie AS cat ON C.categorie = cat.id
+        INNER JOIN level AS lvl ON C.id_level = lvl.id
+    `;
 
     db.query(selectCoursesQuery, (err, data) => {
         if (err) {
@@ -75,9 +80,15 @@ export const getAllCourses = (req, res) => {
 
 
 export const getAllCoursesId = (req, res) => {
-    const id_user = req.params.id; // Assuming id_user is passed as a parameter in the URL
+    const id_user = req.params.id; 
     
-    const selectCoursesQuery = "SELECT * FROM Cours WHERE id_user = ?";
+    const selectCoursesQuery = `
+        SELECT C.*, cat.title AS type, lvl.title AS level
+        FROM Cours AS C 
+        INNER JOIN categorie AS cat ON C.categorie = cat.id 
+        INNER JOIN level AS lvl ON C.id_level = lvl.id
+        WHERE C.id_user = ?
+    `;
 
     db.query(selectCoursesQuery, id_user, (err, data) => {
         if (err) {
@@ -93,7 +104,13 @@ export const getAllCoursesId = (req, res) => {
 export const getCourse = (req, res) => {
     const id_cours = req.params.id; 
     
-    const selectCoursesQuery = "SELECT * FROM Cours WHERE id = ?";
+    const selectCoursesQuery = `
+        SELECT C.*, cat.title AS type, lvl.title AS level
+        FROM Cours AS C 
+        INNER JOIN categorie AS cat ON C.categorie = cat.id 
+        INNER JOIN level AS lvl ON C.id_level = lvl.id
+        WHERE C.id = ?
+    `;
 
     db.query(selectCoursesQuery, id_cours, (err, data) => {
         if (err) {

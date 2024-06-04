@@ -52,6 +52,7 @@ export const createCertificate = (req, res) => {
     }
 };
 
+
 export const getCertificateByIds = (req, res) => {
     const { idCours, idUser } = req.params;
 
@@ -62,11 +63,14 @@ export const getCertificateByIds = (req, res) => {
 
     // Requête SQL pour récupérer le certificat correspondant aux ID de cours et d'utilisateur
     const getCertificateQuery = `
-        SELECT Certificat.*,Cours.level, Cours.titre AS titreCours, Cours.type AS typeCours, Users.username 
+        SELECT Certificat.*, Cours.titre AS titreCours, cat.title AS typeCours, lvl.title AS level, Users.username 
         FROM Certificat 
         INNER JOIN Cours ON Certificat.idCours = Cours.id
+        INNER JOIN categorie AS cat ON Cours.categorie = cat.id
+        INNER JOIN level AS lvl ON Cours.id_level = lvl.id
         INNER JOIN Users ON Certificat.idUser = Users.id
-        WHERE Certificat.idCours = ? AND Certificat.idUser = ?`;
+        WHERE Certificat.idCours = ? AND Certificat.idUser = ?
+    `;
 
     const getCertificateValues = [idCours, idUser];
 

@@ -163,25 +163,92 @@ const FaqPart = () => {
             const response = await axios.get(`http://localhost:8801/api/certaficat/getCertificateByIds/${id}/${userid}`);
             const certificateData = response.data;
     
-            const doc = new jsPDF();
-            const marginLeft = 15;
-            const marginTop = 15;
-            const lineHeight = 10;
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'cm',
+                format: [29.9, 21]
+            });
+            
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const marginLeft = 2; // 2 cm margin
+            const marginTop = 2;  // 2 cm margin
+            const lineHeight = 1; // 1.5 cm line height
+            
+            // Ajouter une marge entre le texte "Certificat de Réussite" et la bordure
+            const titleMarginTop = 1; // 1 cm de marge
+            
+            // Couleurs
+            const primaryColor = [41, 41, 41];  // Dark gray
+            const secondaryColor = [21, 42, 68]; // Dark blue
+            const orangeColor = [255, 165, 0];  // Orange
+            const greenColor = [0, 128, 0];  // Green
+            
+            // Titre du certificat
+            doc.setFont('Times', 'bold');
+            doc.setFontSize(60); // Augmenter la taille du texte
+            doc.setTextColor(...orangeColor); // Changer la couleur du texte en orange
+            doc.text("Certificat de Réussite", pageWidth / 2, marginTop + titleMarginTop, { align: 'center' });
+            
+            // Texte intermédiaire
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(22);
+            doc.setTextColor(...primaryColor);
+            doc.text("This is to proudly certify that", pageWidth / 2, marginTop + titleMarginTop + 2 * lineHeight, { align: 'center' });
+            
+            // Nom de l'utilisateur
+            doc.setFont('Times', 'italic');
+            doc.setFontSize(50);
+            doc.setTextColor(...primaryColor);
+            doc.text(certificateData.username, pageWidth / 2, marginTop + titleMarginTop + 4 * lineHeight, { align: 'center' });
+            
+            // Texte de description
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(22);
+            doc.setTextColor(...primaryColor);
+            doc.text("has successfully completed the course", pageWidth / 2, marginTop + titleMarginTop + 6 * lineHeight, { align: 'center' });
+            
+            // Titre du cours
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(30);
+            doc.setTextColor(...secondaryColor);
+            doc.text(certificateData.titreCours, pageWidth / 2, marginTop + titleMarginTop + 8 * lineHeight, { align: 'center' });
     
+           // Type de cours
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(18);
+            doc.setTextColor(...primaryColor);
+            doc.text(`Type de cours: ${certificateData.typeCours}`, pageWidth / 2, marginTop + titleMarginTop + 10 * lineHeight, { align: 'center' });
+    
+           // Score
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(18);
+    doc.setTextColor(...greenColor);
+    doc.text(`Score: ${certificateData.note}%`, pageWidth / 2, marginTop + titleMarginTop + 12 * lineHeight, { align: 'center' });
+            
+            // ID du certificat et Date
+            doc.setFont('Inter', 'normal');
             doc.setFontSize(12);
-            doc.text(`ID du certificat: ${certificateData.id}`, marginLeft, marginTop);
-            doc.text(`Titre du cours: ${certificateData.titreCours}`, marginLeft, marginTop + lineHeight);
-            doc.text(`Type du cours: ${certificateData.typeCours}`, marginLeft, marginTop + 2 * lineHeight);
-            doc.text(`Nom de l'utilisateur: ${certificateData.username}`, marginLeft, marginTop + 4 * lineHeight);
-            doc.text(`Note: ${certificateData.note}%`, marginLeft, marginTop + 5 * lineHeight);
-    
-            // Styling the text
-    
-            // Adding a border
-            doc.rect(10, 10, doc.internal.pageSize.getWidth() - 20, doc.internal.pageSize.getHeight() - 20, 'S');
-    
-            // Saving the document
+            doc.setTextColor(41, 41, 41);
+            doc.text(`ID du certificat: ${certificateData.id}`, marginLeft, pageHeight - 3);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, marginLeft, pageHeight - 2);
+            
+            // Ligne de signature
+            doc.setFont('Inter', 'normal');
+            doc.setFontSize(14);
+            doc.text("Signature: _____________________", pageWidth - marginLeft - 10, pageHeight - 3);
+            
+            // Ajout des bordures
+            doc.setLineWidth(0.2); // 0.2 cm line width
+            doc.setDrawColor(...orangeColor);
+            doc.rect(0.5, 0.5, pageWidth - 1, pageHeight - 1, 'S');
+            doc.setDrawColor(0, 0, 0); // black
+            doc.rect(1, 1, pageWidth - 2, pageHeight - 2, 'S');
+            
+            
+            // Enregistrement du document PDF
             doc.save('certificat.pdf');
+    
         } catch (error) {
             console.error("Erreur lors de l'export du certificat :", error);
         }
@@ -260,3 +327,23 @@ const FaqPart = () => {
 };
 
 export default FaqPart;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
