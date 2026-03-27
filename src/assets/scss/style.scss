@@ -1,0 +1,135 @@
+.container {
+    .contact-widget {
+        padding: 60px;
+        margin-top: 50px;
+        
+        
+            
+            &:active,
+            &:focus {
+                outline: none;
+            }
+            .form-control {
+                padding: 10px 18px;
+                border-radius: 3px;
+                border: 1px solid #F1F1F1;
+                box-shadow: 0 0 30px #eee;
+                color: #767676;
+                background-color: #F1F1F1;
+                width: 100%;
+                max-width: 100%;
+                outline: none;
+
+            textarea {
+                height: 140px;
+                width: 100%;
+                outline: none;
+                padding: 10px;
+                border-radius: 3px;
+                border: 1px solid #F1F1F1;
+                box-shadow: 0 0 30px #eee;
+                color: #767676;
+                background-color: #F1F1F1;
+                resize: vertical;
+
+                &:active,
+                &:focus {
+                    outline: none;
+                    border-color: #ff4d4d;
+                }
+            }
+
+            .error {
+                color: #ff4d4d;
+                font-size: 14px;
+                margin-top: 10px;
+            }
+
+            .success {
+                color: #4caf50;
+                font-size: 14px;
+                margin-top: 10px;
+            }
+
+            button {
+                box-shadow: 0px 28px 50px 0px rgba(0, 0, 0, 0.05);
+                outline: none;
+                border: none;
+                padding: 12px 40px;
+                border-radius: 3px;
+                display: inline-block;
+                font-size: 16px;
+                font-weight: 500;
+                color: #ffff;
+                background: #ff5421 ;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+                width: 100%;
+                text-transform: uppercase;
+                margin-top: 15px;
+
+                &:hover {
+                    opacity: 0.90;
+                }
+            }
+        }
+    }
+}
+.supprimer-event {
+    background: transparent;
+    border: none;
+    position: absolute;
+    left: 87%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1;
+    &:hover {
+        background-color: #ff5421; // Changez la couleur de fond lors du hover
+        color: #fff; // Changez la couleur du texte lors du hover
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); // Ajoutez une ombre pour l'effet de profondeur
+
+        img {
+            filter: brightness(0) invert(1); // Inversez les couleurs de l'image pour la rendre blanche
+        }
+    }
+
+    img {
+        transition: filter 0.3s ease; // Ajoutez une transition pour l'image
+    }
+}
+
+
+.supprimer-cours {
+    
+    background: transparent;
+    border: none;
+    position: absolute;
+    
+    cursor: pointer; // Ajoutez un curseur pointer pour indiquer qu'il est cliquable
+    transition: background-color 0.3s ease, color 0.3s ease; // Ajoutez une transition pour un effet fluide
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px; // Ajoutez des coins légèrement arrondis
+
+    &:hover {
+        background-color: #ff5421; // Changez la couleur de fond lors du hover
+        color: #fff; // Changez la couleur du texte lors du hover
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); // Ajoutez une ombre pour l'effet de profondeur
+
+        img {
+            filter: brightness(0) invert(1); // Inversez les couleurs de l'image pour la rendre blanche
+        }
+    }
+
+    img {
+        transition: filter 0.3s ease; // Ajoutez une transition pour l'image
+    }
+}
