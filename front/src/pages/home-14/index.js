@@ -26,7 +26,7 @@ const HomeFourteen = () => {
                 TopBarClass="topbar-area home11-topbar modify1"
                 phoneNumber='(+01) 999-999-4444'
                 emailAddress='support@website.com'
-                Location='374 William S Canning Blvd, MA 2721, USA '
+                Location='Cité Erriadh - B.P 135'
             />
             <HomeFourteenMain />
             <Footer

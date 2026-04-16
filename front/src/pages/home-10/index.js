@@ -28,8 +28,8 @@ const HomeTen = () => {
                 headerClass="full-width-header home8-style4 home9 modify-home10"
                 TopBar='enable'
                 TopBarClass="topbar-area home9-topbar"
-                emailAddress=' support@website.com'
-                Location=' 374 William S Canning Blvd, MA 2721, USA '
+                emailAddress='admin@isetso.rnu.tn'
+                Location=' Cité Erriadh - B.P 135'
             />
             <HomeTenMain />
             <FooterStyleTwo

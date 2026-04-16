@@ -27,6 +27,8 @@ const CourseSingleThree = (props) => {
                     <ul className="course-meta">
                         <li className="course-user">
                             <i className="fa fa-user"></i> {studentQuantity ? studentQuantity : '245'}
+                            <span> Étudiants </span>
+                         
                         </li>
                         <li className="ratings">
                             <i className="fa fa-star"></i>
@@ -40,7 +42,6 @@ const CourseSingleThree = (props) => {
                 </div>
             </div>
             <div className="price-btn">
-                <Link to="/course/course-single">{coursePrice ? coursePrice : '$55.00'} <i className="flaticon-next"></i></Link>
             </div>
         </div>
 

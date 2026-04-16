@@ -38,7 +38,6 @@ const BlogPartFour = () => {
             <Slider {...blogSettings}>
                 <SinglePostFour
                     blogImage={blogImg1}
-                    blogAuthor="admin"
                     categoryClass="categories uppercase color-bg3"
                     blogCategory='University'
                     blogPublishedDate='June 15, 2019'
@@ -46,7 +45,6 @@ const BlogPartFour = () => {
                 />
                 <SinglePostFour
                     blogImage={blogImg2}
-                    blogAuthor="admin"
                     categoryClass="categories uppercase color-bg1"
                     blogCategory='Primary'
                     blogPublishedDate='August 12, 2021'
@@ -54,7 +52,6 @@ const BlogPartFour = () => {
                 />
                 <SinglePostFour
                     blogImage={blogImg3}
-                    blogAuthor="admin"
                     blogCategory='Primary'
                     blogPublishedDate='May 5, 2020'
                     categoryClass="categories uppercase color-bg1"
@@ -62,7 +59,6 @@ const BlogPartFour = () => {
                 />
                 <SinglePostFour
                     blogImage={blogImg4}
-                    blogAuthor="admin"
                     categoryClass="categories uppercase color-bg2"
                     blogCategory='High School'
                     blogPublishedDate='March 23, 2020'

@@ -17,6 +17,10 @@ import certaficatRoutes from "./routes/certaficat.js";
 import commentaireRoutes from "./routes/commentaire.js";
 import levelRoutes from "./routes/level.js";
 import cookieParser from "cookie-parser";
+import usersRoutes from "./routes/users.js";
+import enseignantsRoutes from "./routes/enseignant.js"
+import etudiantsRoutes from "./routes/etudiant.js"
+import coordinateursRoutes from "./routes/coordinateurs.js";
 
 
 
@@ -32,6 +36,7 @@ app.use(cookieParser());
 
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
 app.use("/api/event", eventRoutes);
 app.use("/api/image", imageRoutes);
 app.use("/api/video", videoRoutes);
@@ -48,6 +53,11 @@ app.use("/api/certaficat", certaficatRoutes);
 app.use("/api/commentaire", commentaireRoutes);
 app.use("/api/categorie", categorieRoutes);
 app.use("/api/level", levelRoutes);
+app.use("/api/enseignants",enseignantsRoutes);
+app.use("/api/etudiants",etudiantsRoutes);
+app.use("/api/coordinateurs",coordinateursRoutes);
+app.use("/uploads", express.static("uploads"));
+
 
 
 app.listen(8801, () => {

@@ -4,7 +4,7 @@ import { getAllLevel } from "../controllers/level.js";
 
 const router = express.Router();
 
-router.get('/getAllLevel', getAllLevel);
+router.get('/', getAllLevel);
 
 
 

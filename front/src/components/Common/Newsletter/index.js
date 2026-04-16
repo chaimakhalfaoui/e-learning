@@ -17,7 +17,7 @@ const Newsletter = (props) => {
                                     <div className="title-icon md-mb-14">
                                         <img src={iconPath ? iconPath : newsletterIcon} alt="icon" />
                                     </div>
-                                    <h2 className={titleClass ? titleClass : 'title mb-0 white-color'}>Subscribe to Newsletter</h2>
+                                    <h2 className={titleClass ? titleClass : 'title mb-0 white-color'}>S'abonner à la Newsletter</h2>
                                 </div>
                             </div>
                         </div>

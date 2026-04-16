@@ -13,12 +13,12 @@ const Cta = () => {
                             <SectionTitle
                                 sectionClass="sec-title3 mb-40"
                                 titleClass="title white-color mb-16"
-                                title="20% Offer Running - Join Today"
+                                title="Plateforme entièrement ouverte – Inscrivez-vous dès aujourd’hui."
                                 descClass="desc white-color pr-100 md-pr-0"
-                                description="We denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of your moment, so blinded by desire those who fail in their duty through weakness. These cases are perfectly simple and easy every pleasure is to be welcomed and every pain avoided."
+                                description=""
                             />
                             <div className="btn-part">
-                                <Link className="readon orange-btn transparent" to="/register">Register Now</Link>
+                                <Link className="readon orange-btn transparent" to="/register">s’inscrire</Link>
                             </div>
                         </div>
                     </div>

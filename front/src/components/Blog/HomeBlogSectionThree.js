@@ -38,28 +38,24 @@ const BlogPartThree = () => {
             <Slider {...blogSettings}>
                 <SinglePostFour
                     blogImage={blogImg1}
-                    blogAuthor="admin"
                     blogCategory='Health'
                     blogPublishedDate='June 15, 2019'
                     blogTitle='Open Source Job Report Show More Openings'
                 />
                 <SinglePostFour
                     blogImage={blogImg2}
-                    blogAuthor="admin"
                     blogCategory='Education'
                     blogPublishedDate='August 12, 2021'
                     blogTitle='Modern School The Lovely Valley Team Work'
                 />
                 <SinglePostFour
                     blogImage={blogImg3}
-                    blogAuthor="admin"
                     blogCategory='General'
                     blogPublishedDate='May 5, 2020'
                     blogTitle='High School Program Starting Soon 2021'
                 />
                 <SinglePostFour
                     blogImage={blogImg4}
-                    blogAuthor="admin"
                     blogCategory='Business'
                     blogPublishedDate='March 23, 2020'
                     blogTitle='While The Lovely Valley Team Work'

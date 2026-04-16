@@ -160,22 +160,42 @@ export const getLatestEvents = (req, res) => {
   });
 };
 
+
 // Fonction pour supprimer un événement
 export const deleteEvent = (req, res) => {
   const eventId = req.params.id;
+  
+  console.log("Tentative de suppression de l'événement ID:", eventId);
+  
+  // Vérifier si l'ID est valide
+  if (!eventId || isNaN(eventId)) {
+    return res.status(400).json({ message: "ID d'événement invalide" });
+  }
+
   const deleteEventQuery = "DELETE FROM evenement WHERE id = ?";
 
   db.query(deleteEventQuery, [eventId], (err, result) => {
     if (err) {
       console.error("Erreur lors de la suppression de l'événement :", err);
-      return res.status(500).json("Une erreur s'est produite lors de la suppression de l'événement.");
+      return res.status(500).json({ 
+        success: false,
+        message: "Une erreur s'est produite lors de la suppression de l'événement.",
+        error: err.message 
+      });
     }
 
     if (result.affectedRows === 0) {
-      return res.status(404).json("Événement non trouvé.");
+      return res.status(404).json({ 
+        success: false,
+        message: "Événement non trouvé." 
+      });
     }
 
-    return res.status(200).json("L'événement a été supprimé avec succès.");
+    console.log("Événement supprimé avec succès, ID:", eventId);
+    return res.status(200).json({ 
+      success: true,
+      message: "L'événement a été supprimé avec succès." 
+    });
   });
 };
 

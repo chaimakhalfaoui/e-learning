@@ -15,54 +15,54 @@ const FaqSection = () => {
 
     return (
         <div className="rs-faq-part style1 orange-style pt-100 pb-100 md-pt-70 md-pb-70">
-            <ModalVideo channel='youtube' isOpen={isOpen} videoId='YLN1Argi7ik' onClose={() => { openModal(); }} />
+            <ModalVideo channel='youtube' isOpen={isOpen} videoId='x85Dw2Nowlo' onClose={() => { openModal(); }} />
             <div className="container">
                 <div className="row">
                     <div className="col-lg-6 padding-0">
                         <div className="main-part">
                             <div className="title mb-40 md-mb-14">
-                                <h2 className="text-part">Frequently Asked Questions</h2>
+                                <h2 className="text-part">Questions Fréquemment Posées</h2>
                             </div>
                             <div className="faq-content">
                                 <Accordion className="accordion-style1" preExpanded={'a'}>
                                     <AccordionItem className="accordion-item" uuid="a">
                                         <AccordionItemHeading className="card-header">
                                             <AccordionItemButton className="card-link">
-                                                What are the requirements ?
+                                               Quelles sont les prérequis ?
                                             </AccordionItemButton>
                                         </AccordionItemHeading>
                                         <AccordionItemPanel className="card-body">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+                                            Il suffit d’avoir un ordinateur ou un smartphone et une connexion Internet. Aucun prérequis compliqué n’est nécessaire.
                                         </AccordionItemPanel>
                                     </AccordionItem>
                                     <AccordionItem className="accordion-item" uuid="b">
                                         <AccordionItemHeading className="card-header">
                                             <AccordionItemButton className="card-link">
-                                                Does Educavo offer free courses?
+                                                La plateforme propose-t-elle des cours gratuits ?
                                             </AccordionItemButton>
                                         </AccordionItemHeading>
                                         <AccordionItemPanel className="card-body">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+                                            Oui, certains cours sont gratuits et accessibles à tous.
                                         </AccordionItemPanel>
                                     </AccordionItem>
                                     <AccordionItem className="accordion-item" uuid="c">
                                         <AccordionItemHeading className="card-header">
                                             <AccordionItemButton className="card-link">
-                                                What is the transfer application process?
+                                                Comment s'inscrire à une formation ?
                                             </AccordionItemButton>
                                         </AccordionItemHeading>
                                         <AccordionItemPanel className="card-body">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+                                            Pour vous inscrire à une formation, il vous suffit de créer un compte sur notre plateforme et de sélectionner le cours de votre choix.
                                         </AccordionItemPanel>
                                     </AccordionItem>
                                     <AccordionItem className="accordion-item" uuid="d">
                                         <AccordionItemHeading className="card-header">
                                             <AccordionItemButton className="card-link">
-                                                What is distance education?
+                                                Qu'est-ce que la formation à distance ?
                                             </AccordionItemButton>
                                         </AccordionItemHeading>
                                         <AccordionItemPanel className="card-body">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+                                            Apprenez à votre propre rythme, C’est apprendre en ligne depuis chez soi, sans se déplacer physiquement dans une école.
                                         </AccordionItemPanel>
                                     </AccordionItem>
                                 </Accordion>

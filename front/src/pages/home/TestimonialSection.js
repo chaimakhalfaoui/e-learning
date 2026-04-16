@@ -36,9 +36,9 @@ const Testimonial = () => {
                     <SectionTitle
                         sectionClass="sec-title3 mb-50 md-mb-30 text-center"
                         subtitleClass="sub-title primary"
-                        subtitle="Testimonial"
+                        subtitle=""
                         titleClass="title white-color"
-                        title="What Students Saying"
+                        title="Avis des étudiants"
                         effectClass="heading-line"
                     />
                     <Slider {...testimonialSettings}>
@@ -46,25 +46,25 @@ const Testimonial = () => {
                             itemClass="testi-item"
                             quoteImage={quote}
                             authorImage={author1}
-                            Title="David Warner"
-                            Designation="Web Developer"
-                            Description="Professional, responsive, and able to keep up with ever-changing demand and tight deadlines: That’s how I would describe Jeramy and his team at The Lorem Ipsum Company. When it comes to content marketing, you’ll definitely get the 5-star treatment from the Lorem Ipsum Company."
+                            Title="Amin W."
+                            Designation="Développeur Web"
+                            Description="Cette plateforme a complètement transformé ma façon d'apprendre. Les cours sont clairs, bien structurés et accessibles à tout moment. Je recommande vivement à tous ceux qui souhaitent évoluer professionnellement."
                         />
                         <SingleTestimonial
                             itemClass="testi-item"
                             quoteImage={quote}
                             authorImage={author2}
-                            Title="Mitchel Starc"
-                            Designation="App Developer"
-                            Description="Professional, responsive, and able to keep up with ever-changing demand and tight deadlines: That’s how I would describe Jeramy and his team at The Lorem Ipsum Company. When it comes to content marketing, you’ll definitely get the 5-star treatment from the Lorem Ipsum Company."
+                            Title="Mohamed S. "
+                            Designation="Développeur d'applications"
+                            Description="J'ai suivi plusieurs formations en ligne, mais celle-ci se démarque vraiment. Les instructeurs sont compétents et toujours disponibles pour répondre aux questions. Une expérience d'apprentissage exceptionnelle !"
                         />
                         <SingleTestimonial
                             itemClass="testi-item"
                             quoteImage={quote}
                             authorImage={author3}
-                            Title="Steve Smith"
-                            Designation="Web Designer"
-                            Description="Professional, responsive, and able to keep up with ever-changing demand and tight deadlines: That’s how I would describe Jeramy and his team at The Lorem Ipsum Company. When it comes to content marketing, you’ll definitely get the 5-star treatment from the Lorem Ipsum Company."
+                            Title="Karim T."
+                            Designation="Concepteur Web"
+                            Description="Grâce à cette plateforme, j'ai pu acquérir de nouvelles compétences tout en travaillant à plein temps. Les cours sont flexibles et parfaitement adaptés à mon emploi du temps chargé."
                         />
                     </Slider>
                 </div>

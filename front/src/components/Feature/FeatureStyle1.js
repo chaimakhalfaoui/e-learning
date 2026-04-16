@@ -14,24 +14,25 @@ const FeatureStyle1 = (props) => {
                         <FeatureSingle
                             itemClass="features-wrap"
                             itemImg={image1}
-                            itemTitle="5,320 online courses"
-                            itemDesc="Enjoy a variety of fresh topics"
+                            itemTitle=" XX course en Ligne "
+                            itemDesc="Profitez d’une variété de sujets récents.
+"
                         />
                     </div>
                     <div className="col-lg-4 col-md-12 md-mb-30">
                         <FeatureSingle
                             itemClass="features-wrap"
                             itemImg={image2}
-                            itemTitle="Expert instruction"
-                            itemDesc="Find the right instructor"
+                            itemTitle="Instruction d’expert"
+                            itemDesc="Trouvez le bon enseignant"
                         />
                     </div>
                     <div className="col-lg-4 col-md-12">
                         <FeatureSingle
                             itemClass="features-wrap"
                             itemImg={image3}
-                            itemTitle="Lifetime access"
-                            itemDesc="Learn on your schedule"
+                            itemTitle="Création"
+                            itemDesc="Février 2026"
                         />
                     </div>
                 </div>
@@ -41,3 +42,5 @@ const FeatureStyle1 = (props) => {
 }
 
 export default FeatureStyle1
+
+

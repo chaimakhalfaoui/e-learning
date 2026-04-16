@@ -51,11 +51,11 @@ const fetchEdu = async () => {
                     <h4>{course && course.titre}</h4>
                     <p>{course && course.description}</p>
                     <ul className="student-list">
-                        <li>{edu && edu} Total Students</li>
+                        <li>{edu && edu} Nombre total d'étudiants</li>
                         {/* <li><span className="theme_color">4.5</span> <span className="fa fa-star"></span><span className="fa fa-star"></span><span className="fa fa-star"></span><span className="fa fa-star"></span><span className="fa fa-star"></span> (1254 Rating)</li>
                         <li>256 Reviews</li> */}
                     </ul>
-                    <h3>What you’ll learn?</h3>
+                    <h3>Qu’allez-vous apprendre ?</h3>
                     <ul className="review-list">
                     {chapitre && chapitre.map((chapitre, index) => (
                         <li>{chapitre.nom_chapitre}</li>

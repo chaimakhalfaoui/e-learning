@@ -150,7 +150,7 @@ const CurriculumPart = () => {
                                                                 <div className='img-modal-ext'>
                                                                 <video controls>
                                                                     <source src={`http://localhost:8801/api/video/${activite.contenu}`} type="video/mp4" />
-                                                                    Your browser does not support the video tag.
+                                                                    Votre navigateur ne prend pas en charge la balise vidéo.
                                                                 </video>
                                                                 </div>
                                                             </div>

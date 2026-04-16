@@ -33,9 +33,9 @@ const CourseDetailsTab = () => {
             
         };
 
-    let tab1 = "Overview",
-        tab2 = "Curriculum",
-        tab3 = "Instructor",
+    let tab1 = "Résumé",
+        tab2 = "Parcours",
+        tab3 = "Enseignant",
         tab4 = "Quiz",
         tab5 = "Quiz"
         

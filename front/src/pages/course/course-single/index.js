@@ -27,7 +27,7 @@ const CourseSingle = () => {
                 const userRole = response.data.role;
 
                 // Vérifier le rôle de l'utilisateur et agir en conséquence
-                if (userRole !== 'user') {
+                if (userRole !== 'user' && userRole !== 'enseignant' && userRole !== 'etudiant' ) {
                     // Rediriger l'utilisateur non administrateur vers une autre page ou afficher un message d'erreur
                     navigate('/404'); // Exemple de redirection vers la page d'accueil
                 }
@@ -54,14 +54,14 @@ const CourseSingle = () => {
                 headerClass="full-width-header header-style1 home8-style4"
                 TopBar='enable'
                 TopBarClass="topbar-area home8-topbar"
-                emailAddress='support@website.com'
-                Location='374 William S Canning Blvd, MA 2721, USA '
+                emailAddress='admin@isetso.rnu.tn'
+                Location='Cité Erriadh - B.P 135'
             />
 
             {/* breadcrumb-area-start */}
             <SiteBreadcrumb
-                pageTitle="Learn User Interface and User Experience"
-                pageName="Course Details"
+                pageTitle="Détails du cours"
+                pageName="Détails du cours"
                 breadcrumbsImg={bannerbg}
             />
             {/* breadcrumb-area-start */}

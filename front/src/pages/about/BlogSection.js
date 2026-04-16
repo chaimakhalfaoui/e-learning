@@ -15,9 +15,9 @@ const Blog = () => {
                     <SectionTitle
                         sectionClass="sec-title mb-50 md-mb-30 text-center"
                         subtitleClass="sub-title orange"
-                        subtitle="News Update"
+                        subtitle="Actualités"
                         titleClass="title mb-0"
-                        title="Latest News & Events"
+                        title="Dernières Actualités & Événements"
                     />
                     <div className="row">
                         <div className="col-lg-7 pr-60 md-pr-14 md-mb-30">

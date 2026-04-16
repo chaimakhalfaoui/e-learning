@@ -15,7 +15,6 @@ const CourseSingleSix = (props) => {
             </div>
             <div className="course-info">
                 <ul className="meta-part">
-                    <li><span className="price">{coursePrice ? coursePrice : '$55.00'}</span></li>
                     <li className="user"><i className="fa fa-user"></i> {userCount ? userCount : '245'}</li>
                 </ul>
                 <h3 className="course-title"><Link to="/course/course-single">{courseTitle ? courseTitle : 'Become a PHP Master and Make Money Fast'}</Link></h3>

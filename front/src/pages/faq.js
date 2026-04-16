@@ -42,7 +42,7 @@ const Faq = () => {
                 TopBar='enable'
                 TopBarClass="topbar-area home8-topbar"
                 emailAddress='support@website.com'
-                Location='374 William S Canning Blvd, MA 2721, USA '
+                Location='Cité Erriadh - B.P 135'
             />
 
             {/* breadcrumb-area-start */}

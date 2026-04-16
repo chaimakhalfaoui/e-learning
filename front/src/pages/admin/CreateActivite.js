@@ -502,7 +502,7 @@ useEffect(() => {
                 TopBar='enable'
                 TopBarClass="topbar-area home8-topbar"
                 emailAddress='support@website.com'
-                Location='374 William S Canning Blvd, MA 2721, USA '
+                Location='Cité Erriadh - B.P 135'
             />
 
             {/* breadcrumb-area-start */}
@@ -529,7 +529,7 @@ useEffect(() => {
                     <div class="notice-bord style1">
                     
                         <div>
-                            <h4 class="title">les Activité de Chapitre  : <span style={{color:"black" , fontSize:"16px" , marginLeft:"10px"}}></span></h4>
+                            <h4 class="title">les Activités et les Ressourses de Chapitre  : <span style={{color:"black" , fontSize:"16px" , marginLeft:"10px"}}></span></h4>
                         </div>
                         <div className='chap-f-b'>
 

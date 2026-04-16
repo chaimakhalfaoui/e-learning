@@ -1,0 +1,1 @@
+# TODO: Pousser le projet sur GitHub\n\nÉtapes :\n\n- [ ] 1. Créer/ajuster .gitignore pour Back/\n- [ ] 2. git add .\n- [ ] 3. git commit -m \"Mise à jour complète\"\n- [ ] 4. git push origin master\n- [ ] 5. Vérifier sur GitHub\n\nStatut: Plan approuvé, en cours d&#39;exécution

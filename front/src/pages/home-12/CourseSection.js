@@ -18,9 +18,9 @@ const Courses = () => {
                 <SectionTitle
                     sectionClass="sec-title4 text-center mb-50"
                     subtitleClass="sub-title"
-                    subtitle="Select Courses"
+                    subtitle="Sélectionnez des cours."
                     titleClass="title"
-                    title="Explore Popular Courses"
+                    title="Découvrez les cours populaires."
                 />
                 <div className="row">
                     <div className="col-lg-4 col-md-6 mb-30">

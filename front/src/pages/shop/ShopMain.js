@@ -44,7 +44,6 @@ const ShopMain = () => {
 						<SingleProduct
 							title="Digital Hand Watch"
 							image={shopImg2}
-							price="$55.00"
 						/>
 					</div>
 					<div className="col-lg-4 col-md-6 mb-80 md-mb-40">

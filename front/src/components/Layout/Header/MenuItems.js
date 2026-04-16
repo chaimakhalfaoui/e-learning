@@ -28,56 +28,127 @@ const MenuItems = (props) => {
         <React.Fragment>
             <li className={parentMenu === 'home' ? 'rs-mega-menu menu-item-has-children current-menu-item' : 'rs-mega-menu menu-item-has-children'}><Link to="/">Home</Link>
             </li>
-            
-            
-            <li className={parentMenu === 'course' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
-            <Link to="/course" as="#">Courses</Link>
-                {rol && ( rol === 'enseignant') && (
-                    <ul className="sub-menu">
-                        <li>
-                            <Link to="/admin/mycours" className={location.pathname === "/admin/mycours" ? "active-menu" : ""}>My Courses</Link>
-                        </li>
-                        <li>
-                            <Link to="/admin/createcours" className={location.pathname === "/admin/createcours" ? "active-menu" : ""}>Add Courses</Link>
-                        </li>
-                    </ul>
-                )}
 
-                
-            </li>
+            {rol === 'admin' || rol === 'coordinateur' ? (
+   <li className={parentMenu === 'statistiques' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
+                <Link to="/admin/statistiques">Statistiques</Link>
+            </li>   
+            ) : null}
+           
+            {rol !== 'admin' && rol !== 'coordinateur' ? (
+            <li className={parentMenu === 'course' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
+            <Link to="/course">Courses</Link>
+                {rol === 'enseignant' ? (
+                    <ul className="sub-menu">
+                        <li>
+                            <Link to="/admin/mycours" className={location.pathname === "/admin/mycours" ? "active-menu" : ""}>Liste des Cours</Link>
+                        </li>
+                        <li>
+                            <Link to="/admin/createcours" className={location.pathname === "/admin/createcours" ? "active-menu" : ""}>Ajouter un Cours</Link>
+                        </li>
+                    </ul>
+                ) : null}
+            </li>) : null}
             
-            <li className={parentMenu === 'event' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
-                <Link to="/event">Evenement</Link>
-                {rol && ( rol === 'enseignant') && (
+              {rol === 'coordinateur' ? (
+            <li className={parentMenu === 'categories' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
+            <Link to="">Categories</Link>
                     <ul className="sub-menu">
                         <li>
-                            <Link to="/admin/myevent" className={location.pathname === "/admin/myevent" ? "active-menu" : ""}>My Event</Link>
+                            <Link to="/coordinateur/listecategorie" 
+                            className={location.pathname === "/coordinateur/listecategorie" ? "active-menu" : ""}>Liste Categories</Link>
                         </li>
                         <li>
-                            <Link to="/admin/createvt" className={location.pathname === "/admin/createvt" ? "active-menu" : ""}>Add Evenement</Link>
+                            <Link to="/coordinateur/createcategorie" 
+                            className={location.pathname === "/coordinateur/createcategorie" ? "active-menu" : ""}>Ajouter Categorie</Link>
                         </li>
-                        
                     </ul>
-                )}
-                
-            </li>
-            {rol && (rol === 'admin') && (
-            <li className={parentMenu === 'enseignant' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
-                <Link to="#">enseignant</Link>
-                
-                    <ul className="sub-menu">
-                        <li>
-                            <Link to="/admin/createns" className={location.pathname === "/admin/createns" ? "active-menu" : ""}>Add enseignant</Link>
-                        </li>
-                       
-                        
-                    </ul>
-               
-            </li>
-             )}
-            <li className={parentMenu === 'about' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
-                <Link to="/about">About</Link>
-                
+                  
+            </li>) : null}
+        {rol === 'admin' && (
+  <li className={parentMenu === 'users' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
+    <Link to="">Users</Link>
+    <ul className="sub-menu">
+      <li>
+        <Link 
+          to="/admin/Coordinateur" 
+          className={location.pathname === "/admin/Coordinateur" ? "active-menu" : ""}
+        >
+          Liste des Coordinateurs
+        </Link>
+      </li>
+      <li>
+        <Link 
+          to="/admin/enseignant" 
+          className={location.pathname === "/admin/enseignant" ? "active-menu" : ""}
+        >
+          Liste des Enseignants
+        </Link>
+      </li>
+      <li>
+        <Link 
+          to="/admin/etudiant" 
+          className={location.pathname === "/admin/etudiant" ? "active-menu" : ""}
+        >
+          Liste des Étudiants
+        </Link>
+      </li>
+    </ul>
+  </li>
+)}
+
+{rol === 'coordinateur' && (
+  <li className={parentMenu === 'event' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
+    <Link to="">Users</Link>
+    <ul className="sub-menu">
+      <li>
+        <Link 
+          to="/admin/enseignant" 
+          className={location.pathname === "/admin/enseignant" ? "active-menu" : ""}
+        >
+          Liste des Enseignants
+        </Link>
+      </li>
+      <li>
+        <Link 
+          to="/admin/etudiant" 
+          className={location.pathname === "/admin/etudiant" ? "active-menu" : ""}
+        >
+          Liste des Étudiants
+        </Link>
+      </li>
+    </ul>
+  </li>
+)}
+
+
+ {(rol === 'coordinateur' || rol === 'admin'  || rol === 'enseignant' || rol === 'etudiant') && (
+  <li className={parentMenu === 'evenements' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
+    <Link to="">Événements</Link>
+    <ul className="sub-menu">
+      {/* Liste des événements - visible pour tous */}
+      <li>
+        <Link 
+          to="/admin/myevent" 
+          className={location.pathname === "/admin/myevent" ? "active-menu" : ""}>
+          Liste des Événements
+        </Link>
+      </li>
+      {(rol === 'coordinateur' || rol === 'admin' ) && (
+      <li>
+        <Link 
+          to="/admin/createvt" 
+          className={location.pathname === "/admin/createvt" ? "active-menu" : ""}
+        >
+          Ajouter Événement
+        </Link>
+      </li>
+  
+)}  </ul>
+  </li>
+ )}
+    <li className={parentMenu === 'about' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
+                <Link to="/about">About</Link>  
             </li>
             <li className={parentMenu === 'contact' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
                 <Link to="/contact">

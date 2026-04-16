@@ -15,13 +15,14 @@ const Footer = (props) => {
                     <div className="row">
                         <div className="col-lg-3 col-md-12 col-sm-12 footer-widget md-mb-50">
                             <div className="footer-logo mb-30">
-                                <Link to="/" as="/">
-                                    <img src={footerLogo ? footerLogo : footerLogo1} alt="Logo" />
-                                </Link>
+                                {/* 
+<Link to="/" as="/">
+    <img src={footerLogo ? footerLogo : footerLogo1} alt="Logo" />
+</Link> 
+*/}
                             </div>
                             <div className="textwidget pr-60 md-pr-14">
-                                <p>Sedut perspiciatis unde omnis iste natus error sitlutem acc usantium doloremque denounce with illo inventore veritatis</p>
-                            </div>
+{/* <p>Sedut perspiciatis unde omnis iste natus error sitlutem acc usantium doloremque denounce with illo inventore veritatis</p> */}                            </div>
                             <ul className="footer_social">
                                 <li>
                                     <a href="#">
@@ -55,15 +56,17 @@ const Footer = (props) => {
                             <ul className="address-widget">
                                 <li>
                                     <i className="flaticon-location"></i>
-                                    <div className="desc">374 William S Canning Blvd, River MA 2721, USA</div>
+                                    <div className="desc">Cité Erriadh - B.P 135</div>
                                 </li>
                                 <li>
                                     <i className="flaticon-call"></i>
-                                    <div className="desc"><a href="tel:(+880)155-69569">(+880)155-69569</a></div>
+                                    <div className="desc"><a href="tel:(+880)155-69569"> +216 73 307 960/73 307 961</a></div>
+                                     <div className="desc"><a href="tel:(+880)155-69569"> </a></div>
+
                                 </li>
                                 <li>
                                     <i className="flaticon-email"></i>
-                                    <div className="desc"><a href="mailto:support@rstheme.com">support@rstheme.com</a></div>
+                                    <div className="desc"><a href="mailto:support@rstheme.com"> admin@isetso.rnu.tn</a></div>
                                 </li>
                             </ul>
                         </div>
@@ -85,11 +88,12 @@ const Footer = (props) => {
                                 </div>
                                 <div className="post-item">
                                     <div className="post-desc">
-                                        <Link to="/blog/single-post-right-sidebar">High school program starting soon 2021</Link>
-                                    </div>
+                                        <Link to="/blog/single-post-right-sidebar"></Link>
+                                    </div> 
+
                                     <span className="post-date">
                                         <i className="fa fa-calendar-check-o"></i>
-                                        October 15, 2020
+                                        
                                     </span>
                                 </div>
                             </div>
@@ -99,11 +103,11 @@ const Footer = (props) => {
                                 </div>
                                 <div className="post-item">
                                     <div className="post-desc">
-                                        <Link to="/blog/single-post-right-sidebar">Shutdown of schools extended to Aug 31 </Link>
+                                        <Link to="/blog/single-post-right-sidebar"></Link>
                                     </div>
                                     <span className="post-date">
                                         <i className="fa fa-calendar-check-o"></i>
-                                        April 25, 2020
+                                      
                                     </span>
                                 </div>
                             </div>

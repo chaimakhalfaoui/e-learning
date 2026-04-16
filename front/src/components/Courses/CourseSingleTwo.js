@@ -84,7 +84,6 @@ const CourseSingleTwo = (props) => {
             </div>
             <div className="content-part">
                 <ul className="meta-part">
-                    <li><span className="price">{coursePrice ? coursePrice : '55.00'}</span></li>
                     <li><Link className="categorie" to={catLink ? catLink : 'course-categories'}>{courseCategory ? courseCategory : 'Web Development'}</Link></li>
                 </ul>
                 <h3 className="title"><Link to="#">{courseTitle ? courseTitle : 'Become a PHP Master and Make Money Fast'}</Link></h3>

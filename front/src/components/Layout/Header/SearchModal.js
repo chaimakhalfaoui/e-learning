@@ -21,7 +21,7 @@ const SearchModal = () => {
                         <div className="search-block clearfix">
                             <form>
                                 <div className="form-group">
-                                    <input className="form-control" placeholder="Search Here..." type="text" />
+                                    <input className="form-control" placeholder="Recherchez ici..." type="text" />
                                 </div>
                             </form>
                         </div>

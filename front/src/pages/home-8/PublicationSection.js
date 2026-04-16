@@ -61,7 +61,6 @@ const Publications = () => {
                         <SingleProduct 
                             title = "Digital Hand Watch"
                             image = {shopImg2}
-                            price = "$55.00"
                         />
                         <SingleProduct 
                             title = "Digital Sound Mk"

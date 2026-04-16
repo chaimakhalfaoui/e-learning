@@ -16,8 +16,11 @@ const Footer = (props) => {
                     <div className="row">
                         <div className="col-xl-3 col-lg-3 col-md-4">
                             <div className="footer-logo">
-                                <Link to="/" ><img src={footerLogo ? footerLogo : footerLogo1} alt="Logo" /></Link>
-                            </div>
+ {/* 
+<Link to="/" as="/">
+    <img src={footerLogo ? footerLogo : footerLogo1} alt="Logo" />
+</Link> 
+*/}                            </div>
                             <div className="textwidget pb-30">
                                 <p>Sedut perspiciatis unde omnis iste natus error sitlutem acc usantium doloremque denounce with illo inventore veritatis</p>
                             </div>

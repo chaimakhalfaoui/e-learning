@@ -19,8 +19,8 @@ const Newsletter = () => {
                         <h2 className="title mb-40">Subscribe to Our Newsletter!</h2>
                     </div>
                     <form className="newsletter-form">
-                        <input type="email" id="email" name="email" placeholder="Enter Your Email" required="" />
-                        <button type="submit">Submit</button> 
+                        <input type="email" id="email" name="email" placeholder="Entrez votre email" required="" />
+                        <button type="submit">S'abonner</button> 
                     </form> 
                 </div>
             </div>

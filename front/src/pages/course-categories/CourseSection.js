@@ -34,16 +34,16 @@ const CoursePart = (props) => {
                                     <button onClick={listClassRemove} className="view-grid mr-10"><i className="fa fa-th-large"></i></button>
                                     <button onClick={listClassAdd} className="view-list"><i className="fa fa-list-ul"></i></button>
                                 </div>
-                                <div className="view-text">Showing 1-4 of 4 results</div>
+                                <div className="view-text">Affichage des résultats 1 à 4 sur 4</div>
                             </div>
                             <div className="type-form">
                                 <form method="post" action="#">
                                     <div className="form-group mb-0">
                                         <div className="custom-select-box">
                                             <select id="timing">
-                                                <option>Default</option>
-                                                <option>Newest</option>
-                                                <option>Old</option>
+                                                <option>Défaut</option>
+                                                <option>Nouveautés</option>
+                                                <option>Vieux</option>
                                             </select>
                                         </div>
                                     </div>

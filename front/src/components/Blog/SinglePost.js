@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 
 const SinglePost = (props) => {
-    const { blogClass, blogImage, blogTitle, contentClass, blogDesc, blogCategory, blogAuthor, blogPublishedDate, blogButtonClass, blogButtonText } = props;
+    const { blogClass, blogImage, blogTitle, contentClass, blogDesc, blogCategory,  blogPublishedDate, blogButtonClass, blogButtonText } = props;
     return (
         <div className={blogClass ? blogClass : 'blog-item mb-44'}>
             <div className="image-part">
@@ -16,7 +16,6 @@ const SinglePost = (props) => {
             <div className={contentClass ? contentClass : 'blog-content'}>
                 <ul className="blog-meta">
                     <li className="date"><i className="fa fa-calendar-check-o"></i> {blogPublishedDate ? blogPublishedDate : ' January 21, 2021'}</li>
-                    <li className="admin"><i className="fa fa-user-o"></i> {blogAuthor ? blogAuthor : 'admin'}</li>
                 </ul>
                 <h3 className="title">
                     <Link to="#r">

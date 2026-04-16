@@ -87,10 +87,10 @@ const Header = (props) => {
 							<div className="row y-middle">
 								<div className="col-lg-2">
 									<div className="logo-area hidden-md">
-										<Link to="/">
+										{/*<Link to="/">
 											<img className="normal-logo" src={headerNormalLogo ? headerNormalLogo : normalLogo} alt="" />
-											<img className="sticky-logo" src={headerStickyLogo ? headerStickyLogo : darkLogo} alt="" />
-										</Link>
+											<img className="sticky-logo" src={headerStickyLogo ? headerStickyLogo : darkLogo} alt="" />   
+										</Link> */}
 									</div>
 								</div>
 								<div className="col-lg-8 text-end">

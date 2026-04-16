@@ -7,7 +7,7 @@ import CourseSingleTwo from '../../components/Courses/CourseSingleTwo';
 
 const CoursePart = () => {
     const [courses, setCourses] = useState([]);
-    const [sortOption, setSortOption] = useState("Default");
+    const [sortOption, setSortOption] = useState("Défaut");
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     
@@ -24,7 +24,7 @@ const CoursePart = () => {
 
     const fetchCourses = async () => {
         try {
-            const response = await axios.get("http://localhost:8801/api/cours/getAllCourses");
+            const response = await axios.get("http://localhost:8801/api/cours");
             setCourses(response.data);
             console.log(response.data[0])
         } catch (error) {
@@ -53,9 +53,9 @@ const CoursePart = () => {
 
     const sortCourses = () => {
         let sortedCourses = [...courses];
-        if (sortOption === "Newest") {
+        if (sortOption === "Nouveautés") {
             sortedCourses.sort((a, b) => new Date(b.dateCre) - new Date(a.dateCre));
-        } else if (sortOption === "Old") {
+        } else if (sortOption === "Vieux") {
             sortedCourses.sort((a, b) => new Date(a.dateCre) - new Date(b.dateCre));
         }
         setCourses(sortedCourses);
@@ -107,9 +107,9 @@ const CoursePart = () => {
                                     <div className="form-group mb-0">
                                         <div className="custom-select-box">
                                             <select id="timing" onChange={handleSortChange}>
-                                                <option value="Default">Default</option>
-                                                <option value="Newest">Newest</option>
-                                                <option value="Old">Old</option>
+                                                <option value="Défaut">Défaut</option>
+                                                <option value="Nouveautés">Nouveautés</option>
+                                                <option value="Vieux">Vieux</option>
                                             </select>
                                         </div>
                                     </div>
@@ -123,7 +123,6 @@ const CoursePart = () => {
                                     courseClass="courses-item"
                                     courseImg={`http://localhost:8801/api/image/${cours.image}`}
                                     courseTitle={cours.titre}
-                                    coursePrice="FREE"
                                     courseCategory={cours.type}
                                     courseid={cours.id}
                                 />
@@ -140,7 +139,7 @@ const CoursePart = () => {
                                 ))}
                                 {currentPage < totalPages && (
                                     <li>
-                                        <Link to="#" onClick={() => handlePageChange(currentPage + 1)}>Next <i className="fa fa-long-arrow-right"></i></Link>
+                                        <Link to="#" onClick={() => handlePageChange(currentPage + 1)}>Suivant <i className="fa fa-long-arrow-right"></i></Link>
                                     </li>
                                 )}
                             </ul>

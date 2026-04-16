@@ -30,7 +30,9 @@ import CourseCategoryPage from '../pages/course-categories';
 import Team from '../pages/team';
 import TeamTwo from '../pages/team-2';
 import TeamSingle from '../pages/team/team-single';
-import Event from '../pages/event';
+import Users from '../pages/Users';
+import Enseignants from '../pages/enseignant';
+import Etudiants from '../pages/etudiant';
 import EventTwo from '../pages/event-2';
 import EventThree from '../pages/event-3';
 import Gallery from '../pages/gallery';
@@ -67,7 +69,18 @@ import ModifierCours from '../pages/admin/ModifierCours';
 import ModifierEvent from '../pages/admin/ModifierEvent';
 import Edu from '../pages/admin/Edu';
 import Ens from '../pages/admin/Ens';
-
+import Coordinateurs from '../pages/coordinateur';
+import EditEns from '../pages/admin/EditEns';
+import EditCoord from '../pages/admin/EditCoord';
+import CreateCoord from '../pages/admin/CreateCoord'
+import EditUser from '../pages/admin/EditUser';
+import CreateEtd from '../pages/admin/CreateEtd';
+import EditEtd from '../pages/admin/EditEtd';
+import CreateCategorie from '../pages/coordinateur/CreateCategorie';
+import ListeCategorie  from '../pages/coordinateur/ListeCategorie';
+import ListeCoursParCategorie from '../pages/coordinateur/ListeCoursParCategorie';
+import Event from '../pages/event';
+import Statistiques from '../pages/Statistiques';
 
 const App = () => {
     return (
@@ -95,20 +108,17 @@ const App = () => {
                     <Route path="/home-15" element={<HomeFifteen/>} />
                     <Route path="/about" element={<About/>} />
                     <Route path="/about-2" element={<AboutTwo/>} />
-                    
                     <Route path="/course-2" element={<CourseTwo/>} />
-                   
                     <Route path="/course-4" element={<CourseFour/>} />
                     <Route path="/course-5" element={<CourseFive/>} />
                     <Route path="/course-6" element={<CourseSix/>} />
-                   
                     <Route path="/course-categories" element={<CourseCategoryPage/>} />
                     <Route path="/team" exact element={<Team/>} />
                     <Route path="/team-2" element={<TeamTwo/>} />
-                    
-                    
+                    <Route path="/coordinateur/createcategorie"  element={<CreateCategorie/>}/>
+                    <Route path="/coordinateur/listecategorie" element={<ListeCategorie/>}/>
+                     <Route path="/coordinateur/listecours/:idCategorie" element={<ListeCoursParCategorie/>} />
                     <Route path="/event-2" element={<EventTwo/>} />
-                    
                     <Route path="/gallery" element={<Gallery/>} />
                     <Route path="/gallery-2" element={<GalleryTwo/>} />
                     <Route path="/gallery-3" element={<GalleryThree/>} />
@@ -132,8 +142,19 @@ const App = () => {
                     <Route path="/contact-4" element={<ContactFour/>} />
                     <Route path="/404" element={<Error/>} />
                     <Route path="/admin/createns" element={<CreateEns/>} />
+                    <Route path="/admin/createetudiant" element={<CreateEtd/>} />
+                    <Route path="/etudiants/edit/:id" element={<EditEtd/>} />
+                    <Route path="/admin/createcoordinateur" element={<CreateCoord/>} />
+                    <Route path="/admin/statistiques" element={<Statistiques />} />
+                    <Route path="/enseignants/edit/:id" element={<EditEns />} />
+                    <Route path="/users/edit/:id" element={<EditUser />} />
+                    <Route path="/coordinateurs/edit/:id" element={<EditCoord />} />
                     <Route path="/admin/createvt" element={<CreateEvt/>} />
-                    <Route path="/admin/myevent" element={<Event/>} />
+                    <Route path="/admin/listeusers" element={<Users/>} />
+                    <Route path="/admin/enseignant" element={<Enseignants />} />
+                    <Route path="/admin/etudiant" element={<Etudiants />} />
+                    <Route path="/admin/coordinateur" element={<Coordinateurs />} />
+                    <Route path="/admin/myevent" element={<Event />} />
                     <Route path="/event" element={<EventThree/>} />
                     <Route path="/admin/createcours" element={<CreateCours/>} />
                     <Route path="/admin/mycours" element={<CourseThree/>} />

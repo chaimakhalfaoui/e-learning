@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 
 const SinglePostFour = (props) => {
-    const { blogClass, blogImage, blogTitle, contentClass, blogAuthor, blogPublishedDate, categoryClass, blogCategory } = props;
+    const { blogClass, blogImage, blogTitle, contentClass,  blogPublishedDate, categoryClass, blogCategory } = props;
     return (
         <div className={blogClass ? blogClass : 'blog-item'}>
             <div className="image-part">
@@ -21,7 +21,6 @@ const SinglePostFour = (props) => {
                     </Link>
                 </h3>
                 <ul className="blog-meta">
-                    <li className="admin"><i className="fa fa-user-o"></i> {blogAuthor ? blogAuthor : 'admin'}</li>
                     <li className="date"><i className="fa fa-calendar-check-o"></i> {blogPublishedDate ? blogPublishedDate : 'June 15, 2019'}</li>
                 </ul>
             </div>

@@ -87,10 +87,10 @@ const BannerStyleEight = () => {
                                     </div>
                                     <div className="content-part">
                                         <h4 className="title">
-                                            <span className="watermark">Lifetime access</span>
+                                            <span className="watermark">Création </span>
                                         </h4>
                                         <p className="dese">
-                                            Learn on your schedule
+                                            septembre 1995
                                         </p>
                                     </div>
                                 </div>

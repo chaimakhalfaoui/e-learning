@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 
 const SinglePostSix = (props) => {
-    const { blogClass, blogImage, blogTitle, blogAuthor, blogPublishedDate, blogCategory, blogDesc, blogButtonClass, blogButtonText } = props;
+    const { blogClass, blogImage, blogTitle,  blogPublishedDate, blogCategory, blogDesc, blogButtonClass, blogButtonText } = props;
     return (
         <div className={blogClass ? blogClass : 'blog-item'}>
             <div className="blog-img">
@@ -24,11 +24,6 @@ const SinglePostSix = (props) => {
                         <li>
                             <div className="blog-date">
                                 <i className="fa fa-calendar-check-o"></i> {blogPublishedDate ? blogPublishedDate : 'September 14, 2020'}
-                            </div>
-                        </li>
-                        <li>
-                            <div className="author">
-                                <i className="fa fa-user-o"></i> {blogAuthor ? blogAuthor : 'Admin'}
                             </div>
                         </li>
                         <li>

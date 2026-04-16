@@ -6,6 +6,7 @@ import FeatureStyle1 from '../Feature/FeatureStyle1';
 const SliderDefault = () => {
 
     const sliderSettings = {
+         
         dots: false,
         centerMode: false,
         infinite: true,
@@ -26,13 +27,13 @@ const SliderDefault = () => {
         <React.Fragment>
             <div className="rs-slider main-home">
                 <Slider {...sliderSettings}>
-                    <div className="slider-content slide1">
+                    <div className="slider-content slide2">
                         <div className="container">
                             <div className="content-part">
-                                <div className="sl-sub-title">Start to learning today</div>
-                                <h1 className="sl-title">Online Courses From Leading Experts</h1>
+                                <div className="sl-sub-title"> ISET SOUSSE</div>
+                                <h1 className="sl-title">PROFITEZ DE L'AVENTURE</h1>
                                 <div className="sl-btn">
-                                    <Link className="readon orange-btn main-home" to="/course">Find Course</Link>
+                                    <Link className="readon orange-btn main-home" to="/course">Trouvez un cours</Link>
                                 </div>
                             </div>
                         </div>
@@ -41,10 +42,10 @@ const SliderDefault = () => {
                     <div className="slider-content slide2">
                         <div className="container">
                             <div className="content-part">
-                                <div className="sl-sub-title">Start to learning today</div>
-                                <h1 className="sl-title">Explore Interests and Career With Courses</h1>
+                                <div className="sl-sub-title">ISET SOUSSE</div>
+                                <h1 className="sl-title">PROFITEZ DE L'AVENTURE</h1>
                                 <div className="sl-btn">
-                                    <Link className="readon orange-btn main-home" to="/course">Find Course</Link>
+                                    <Link className="readon orange-btn main-home" to="/course">Trouvez un cours</Link>
                                 </div>
                             </div>
                         </div>

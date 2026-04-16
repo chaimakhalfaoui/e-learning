@@ -88,10 +88,12 @@ const Header = (props) => {
 							<div className="row y-middle">
 								<div className="col-lg-2">
 									<div className="logo-area hidden-md">
-										<Link to="/">
-											<img className="normal-logo" src={headerNormalLogo ? headerNormalLogo : normalLogo} alt="" />
-											<img className="sticky-logo" src={headerStickyLogo ? headerStickyLogo : darkLogo} alt="" />
-										</Link>
+										{/* 
+<Link to="/">
+	<img className="normal-logo" src={headerNormalLogo ? headerNormalLogo : normalLogo} alt="" />
+	<img className="sticky-logo" src={headerStickyLogo ? headerStickyLogo : darkLogo} alt="" />
+</Link>
+*/}
 									</div>
 								</div>
 								<div className="col-lg-8 text-end">
@@ -124,7 +126,7 @@ const Header = (props) => {
 											
 											{nam ?<>
 											<li className="user-icon last-icon hidden-lg">
-												<Link to="/profile"><i className="fa fa-user-o" aria-hidden="true"></i></Link>
+												<Link to="/profile"><i className="fa-regular fa-user" aria-hidden="true"></i></Link>
 											</li>
 											</>  : <>
 											<Link style={{color:"#ffff"}} to="/login">Login</Link>   </>}

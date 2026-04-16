@@ -10,9 +10,9 @@ const Blog = () => {
                     <SectionTitle
                         sectionClass="sec-title3 text-center mb-50"
                         subtitleClass="sub-title"
-                        subtitle="News Update"
+                        subtitle=" Actualités"
                         titleClass="title"
-                        title="Latest News & events"
+                        title="Dernières Actualités & Événements"
                     />
                     <BlogPart />
                 </div>

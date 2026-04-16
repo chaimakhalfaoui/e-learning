@@ -63,15 +63,15 @@ const CourseSidebar = () => {
                 <Link className="popup-videos" >
                     <i className="fa fa-play"></i>
                 </Link>
-                <h4>Preview this course</h4>
+                <h4>Aperçu de ce cours</h4>
             </div>
             <div className="course-features-info">
                 <ul>
-                    {/* <li className="lectures-feature">
-                        <i className="fa fa-files-o"></i>
+                     <li className="lectures-feature">
+                        <i className="fa fa-book"></i>
                         <span className="label">Lectures</span>
                         <span className="value">3</span>
-                    </li> */}
+                    </li> 
                     
                     <li className="quizzes-feature">
                         <i className="fa fa-puzzle-piece"></i>
@@ -80,27 +80,27 @@ const CourseSidebar = () => {
                     </li>
                     
                     <li className="duration-feature">
-                        <i className="fa fa-clock-o"></i>
-                        <span className="label">Duration</span>
-                        <span className="value">{courses.duration && courses.duration} heur</span>
+                        <i className="fa fa-clock"></i>
+                        <span className="label">Durée</span>
+                        <span className="value">{courses.duration && courses.duration} h</span>
                     </li>
                     
                     <li className="students-feature">
                         <i className="fa fa-users"></i>
-                        <span className="label">Students</span>
+                        <span className="label">Etudiants</span>
                         <span className="value">{edu && edu}</span>
                     </li>
                     
-                    {/* <li className="assessments-feature">
-                        <i className="fa fa-check-square-o"></i>
-                        <span className="label">Assessments</span>
-                        <span className="value">Yes</span>
+                    {/*<li className="assessments-feature">
+                        <i className="fa fa-check-square"></i>
+                        <span className="label">Évaluations</span>
+                        <span className="value">OUI</span>
                     </li> */}
                 </ul>
             </div>          
             <div class="max-w-sm mx-auto bg-white dark:bg-zinc-800 shadow-md rounded-lg overflow-hidden">
                 <div class="px-5 py-3 flex justify-between items-center">
-                    <h3 class="text-zinc-900 dark:text-white text-lg">Progress</h3>
+                    <h3 class="text-zinc-900 dark:text-white text-lg">Progrès</h3>
                     <svg
                     stroke-width="2"
                     stroke="currentColor"

@@ -328,7 +328,7 @@ const handleUpdateQuiz = async (e) => {
                 TopBar='enable'
                 TopBarClass="topbar-area home8-topbar"
                 emailAddress='support@website.com'
-                Location='374 William S Canning Blvd, MA 2721, USA '
+                Location='Cité Erriadh - B.P 135 '
             />
 
             {/* breadcrumb-area-start */}
@@ -353,7 +353,6 @@ const handleUpdateQuiz = async (e) => {
                 <div className="container">
                 <div style={{width: "100%"}} class="col-lg-4 order-last">
                     <div class="notice-bord style1">
-                    
                         <div>
                             <h4 class="title">les Chapitre  de Cours : <span style={{color:"black" , fontSize:"16px" , marginLeft:"10px"}}>{course && course[0].titre}</span></h4>
                         </div>
@@ -403,6 +402,7 @@ const handleUpdateQuiz = async (e) => {
                                     </div>
                                 
                         </>}
+                        
                         
                         <div class="form-group mb-0">
                             <button class="re-button" onClick={()=>setOpenModal(true)}>Ajouter Chapitre</button>
