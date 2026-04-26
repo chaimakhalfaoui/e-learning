@@ -1,59 +1,106 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '../../../context/authContext';
 
 const Q = () => {
     const { id } = useParams();
+    const { idUser } = useAuth();
+    
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
-    
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [enseignantId, setEnseignantId] = useState(null);
 
-    const idCours = 1; // Remplacez par la valeur appropriée
-    const idUser = 1; // Remplacez par la valeur appropriée
-    const idEns = 1; // Remplacez par la valeur appropriée
+    useEffect(() => {
+        const fetchEnseignantId = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8801/api/cours/getUserIdByCourseId/${id}`);
+                setEnseignantId(response.data);
+            } catch (error) {
+                console.error("Erreur:", error);
+            }
+        };
+        fetchEnseignantId();
+    }, [id]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Vérification si le message est vide
+        
         if (!message.trim()) {
-            setError('Le message ne peut pas être vide.');
+            setError('Veuillez saisir un message.');
+            setTimeout(() => setError(''), 3000);
             return;
         }
 
+        setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8801/api/qr/createMessage', {
+            const userid = await idUser();
+            await axios.post('http://localhost:8801/api/qr/createMessage', {
                 idCours: id,
-                idUser: 1,
-                idEns: 1,
-                message,
-                sentBy: 'user' 
+                idUser: userid,
+                idEns: enseignantId,
+                message: message,
+                sentBy: 'user'
             });
-
-            if (response.status === 200) {
-                // Message créé avec succès, vous pouvez effectuer des actions supplémentaires ici
-                setMessage(''); // Effacer le champ de message après la soumission réussie
-            }
+            
+            setSuccess('Message envoyé avec succès !');
+            setMessage('');
+            setTimeout(() => setSuccess(''), 3000);
         } catch (error) {
-            console.error('Erreur lors de la création du message :', error);
-            setError('Une erreur s\'est produite lors de la création du message.');
+            setError('Erreur lors de l\'envoi.');
+            setTimeout(() => setError(''), 3000);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="content pt-30 pb-30 white-bg">
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="message">Message :</label>
+            <div style={{ maxWidth: '500px', margin: '0 auto', padding: '20px' }}>
+                <h3 style={{ marginBottom: '20px', textAlign: 'center' }}>
+                    💬 Contacter l'enseignant
+                </h3>
+                
+                <form onSubmit={handleSubmit}>
                     <textarea
-                        id="message"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                    ></textarea>
-                </div>
-                {error && <p>{error}</p>}
-                <button type="submit">Envoyer</button>
-            </form>
+                        placeholder="Votre message..."
+                        rows="5"
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            border: '1px solid #ddd',
+                            borderRadius: '8px',
+                            marginBottom: '15px',
+                            fontSize: '14px'
+                        }}
+                        disabled={loading}
+                    />
+                    
+                    {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+                    {success && <p style={{ color: 'green', marginBottom: '10px' }}>{success}</p>}
+                    
+                    <button 
+                        type="submit" 
+                        disabled={loading}
+                        style={{
+                            width: '100%',
+                            backgroundColor: '#ff5421',
+                            color: 'white',
+                            border: 'none',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            fontSize: '16px'
+                        }}
+                    >
+                        {loading ? 'Envoi...' : 'Envoyer'}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };

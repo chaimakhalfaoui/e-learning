@@ -35,7 +35,7 @@ const MenuItems = (props) => {
             </li>   
             ) : null}
            
-            {rol !== 'admin' && rol !== 'coordinateur' ? (
+            {rol !== 'admin' && rol !== 'coordinateur'  && rol !== 'etudiant' ? (
             <li className={parentMenu === 'course' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
             <Link to="/course">Courses</Link>
                 {rol === 'enseignant' ? (
@@ -49,6 +49,19 @@ const MenuItems = (props) => {
                     </ul>
                 ) : null}
             </li>) : null}
+               {rol === 'etudiant' ? (
+            <li className={parentMenu === 'course' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
+            <Link to="">Courses</Link>
+                    <ul className="sub-menu">
+                        <li>
+                            <Link to="/course" className={location.pathname === "/course" ? "active-menu" : ""}>Tous Les Cours</Link>
+                        </li>
+                        <li>
+                            <Link to="/etucours" className={location.pathname === "/etucours" ? "active-menu" : ""}>Mes Cours  Suivis</Link>
+                        </li>
+                    </ul>
+            </li>) : null}
+            
             
               {rol === 'coordinateur' ? (
             <li className={parentMenu === 'categories' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
@@ -122,11 +135,10 @@ const MenuItems = (props) => {
 )}
 
 
- {(rol === 'coordinateur' || rol === 'admin'  || rol === 'enseignant' || rol === 'etudiant') && (
+ {/*{(rol === 'coordinateur' || rol === 'admin'  || rol === 'enseignant' || rol === 'etudiant') && (
   <li className={parentMenu === 'evenements' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
     <Link to="">Événements</Link>
     <ul className="sub-menu">
-      {/* Liste des événements - visible pour tous */}
       <li>
         <Link 
           to="/admin/myevent" 
@@ -146,7 +158,7 @@ const MenuItems = (props) => {
   
 )}  </ul>
   </li>
- )}
+ )}*/}
     <li className={parentMenu === 'about' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
                 <Link to="/about">About</Link>  
             </li>

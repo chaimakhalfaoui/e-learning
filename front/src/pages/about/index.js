@@ -19,9 +19,9 @@ import ImageElearning from '../../assets/img/about/about-testing.png';
 // Importation des sections
 import Team from './TeamSection';
 import Blog from './BlogSection';
-import AboutVideo from './VideoSection';
+//import AboutVideo from './VideoSection';
 import AboutCounter from './CounterSection';
-import Testimonial from './TestimonialSection';
+//import Testimonial from './TestimonialSection';
 
 const AboutMain = () => {
     return (
@@ -192,17 +192,17 @@ const AboutMain = () => {
             {/* Section Compteurs */}
             <AboutCounter />
 
-            {/* Section Vidéo */}
-            <AboutVideo />
+            {/* Section Vidéo 
+            <AboutVideo />*/}
 
             {/* Section Équipe */}
             <Team />
 
-            {/* Section Témoignages */}
-            <Testimonial />
+            {/* Section Témoignages 
+            <Testimonial />*/}
 
-            {/* Section Blog */}
-            <Blog />
+            {/* Section Blog 
+            <Blog />*/}
 
             {/* Section Newsletter */}
             <Newsletter

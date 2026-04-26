@@ -1,10 +1,10 @@
-import React from 'react';
-import BlogPart from '../../components/Blog/HomeBlogSection';
-import SectionTitle from '../../components/Common/SectionTitle';
+//import React from 'react';
+//import BlogPart from '../../components/Blog/HomeBlogSection';
+//import SectionTitle from '../../components/Common/SectionTitle';
 
 const Blog = () => {
     return (
-        <React.Fragment>
+       {/* <React.Fragment>
             <div id="rs-blog" className="rs-blog main-home pb-100 pt-100 md-pt-70 md-pb-70">
                 <div className="container">
                     <SectionTitle
@@ -17,7 +17,7 @@ const Blog = () => {
                     <BlogPart />
                 </div>
             </div>
-        </React.Fragment>
+        </React.Fragment>*/}
     );
 
 }

@@ -45,7 +45,7 @@ const CourseSingle = () => {
         <React.Fragment>
             <OffWrap />
             <Header
-                parentMenu='course'
+                parentMenu='cours'
                 headerNormalLogo={Logo}
                 headerStickyLogo={Logo}
                 CanvasLogo={Logo}

@@ -97,7 +97,7 @@ const FaqPart = () => {
             const firstFalseResponse = await axios.post(`http://localhost:8801/api/repense/create-false/${idq}/${userid}`);
             
             
-            console.log("All responses updated as false");
+            console.log("Toutes les réponses ont été mises à jour comme étant fausses.");
     
             fetchQuiz();
         } catch (error) {
@@ -194,7 +194,7 @@ const FaqPart = () => {
             doc.setFont('Helvetica', 'normal');
             doc.setFontSize(22);
             doc.setTextColor(...primaryColor);
-            doc.text("This is to proudly certify that", pageWidth / 2, marginTop + titleMarginTop + 2 * lineHeight, { align: 'center' });
+            doc.text("Nous certifions avec fierté que", pageWidth / 2, marginTop + titleMarginTop + 2 * lineHeight, { align: 'center' });
             
             // Nom de l'utilisateur
             doc.setFont('Times', 'italic');
@@ -206,7 +206,7 @@ const FaqPart = () => {
             doc.setFont('Helvetica', 'normal');
             doc.setFontSize(22);
             doc.setTextColor(...primaryColor);
-            doc.text("has successfully completed the course", pageWidth / 2, marginTop + titleMarginTop + 6 * lineHeight, { align: 'center' });
+            doc.text("a réussi le cours", pageWidth / 2, marginTop + titleMarginTop + 6 * lineHeight, { align: 'center' });
             
             // Titre du cours
             doc.setFont('Helvetica', 'bold');

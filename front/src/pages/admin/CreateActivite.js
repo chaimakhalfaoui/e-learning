@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { useParams,Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,7 +12,6 @@ import OffWrap from '../../components/Layout/Header/OffWrap';
 import SiteBreadcrumb from '../../components/Common/Breadcumb';
 import SearchModal from '../../components/Layout/Header/SearchModal';
 import { useAuth } from '../../context/authContext'; 
-import img from '../../assets/img/breadcrumbs/upload.png';
 import '../../assets/scss/modal.scss';
 // Image
 import favIcon from '../../assets/img/fav-orange.png';
@@ -21,364 +20,178 @@ import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/inner7.jpg';
 
 const CreateActivite = () => {
-    const [openModal,setOpenModal]=useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [openModalRessource, setOpenModalRessource] = useState(false);
     const [isAddingActive, setIsAddingActiv] = useState(true);
-    const [openModalText,setOpenModalText]=useState(false);
-    const [openModalImage,setOpenModalImage]=useState(false);
-    const [openModalVideo,setOpenModalVideo]=useState(false);
-    const [activite, setActivite] = useState(null);
-    const [chapitre, setChapitre] = useState(null);
+    const [isAddingRessource, setIsAddingRessource] = useState(true);
+    const [openModalText, setOpenModalText] = useState(false);
+    const [openModalImage, setOpenModalImage] = useState(false);
+    const [openModalVideo, setOpenModalVideo] = useState(false);
+    const [openModalRessourceFile, setOpenModalRessourceFile] = useState(false);
+    const [activite, setActivite] = useState([]);
+    const [ressources, setRessources] = useState([]);
+    const [activeTab, setActiveTab] = useState('activites');
+    const [loading, setLoading] = useState(true);
     const { id } = useParams();
     const { idUser } = useAuth();
     const [inputs, setInputs] = useState({
-        id:"",
+        id: "",
         titre: "",
-        categorie:"",
-        contenu:"",
-        duration:"",
-        image :null,
-        video:null
+        categorie: "",
+        contenu: "",
+        duration: "",
+        image: null,
+        video: null,
+        fichier: null,
+        fichierUrl: null,
+        fichierName: "",
+        type_fichier: "",
+        description: ""
     });
-    const [err, setErr] = useState(null);
     const navigate = useNavigate();
 
-    const [openIndex, setOpenIndex] = useState(null); 
+    const [openIndex, setOpenIndex] = useState(null);
+    const [openIndexRessource, setOpenIndexRessource] = useState(null);
 
     const toggleActivite = (index) => {
-        setOpenIndex(openIndex === index ? null : index); 
+        setOpenIndex(openIndex === index ? null : index);
     };
 
-    // Gestionnaire d'événements pour les champs de texte
-const handleInputChange = (e) => {
-    setInputs(prev => ({ ...prev, [e.target.name]: e.target.value }));
-};
-const handleImageChange = (e) => {
-    const selectedImage = e.target.files[0];
-    const imageUrl = URL.createObjectURL(selectedImage); // Créer une URL pour l'image sélectionnée
-    setInputs(prev => ({ ...prev, image: selectedImage, imageUrl: imageUrl }));
-};
+    const toggleRessource = (index) => {
+        setOpenIndexRessource(openIndexRessource === index ? null : index);
+    };
 
-const handleVideoChange = (e) => {
-    const selectedVideo = e.target.files[0];
-    const videoUrl = URL.createObjectURL(selectedVideo);
-    if (selectedVideo) {
-        setInputs(prev => ({ ...prev, video: selectedVideo , videoUrl: videoUrl }));
-        
-    }
-    else {
-        console.error("Aucun fichier vidéo sélectionné.");
-    }
-};
+    const handleInputChange = (e) => {
+        setInputs(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
 
-useEffect(() => {
-    const fetchUserData = async () => {
-        try {
-            const userId = await idUser(); // Récupérer l'ID de l'utilisateur à partir du contexte d'authentification
-            const response = await axios.get(`http://localhost:8801/api/auth/checkUserRole/${userId}`);
-            const userRole = response.data.role;
+    const handleImageChange = (e) => {
+        const selectedImage = e.target.files[0];
+        const imageUrl = URL.createObjectURL(selectedImage);
+        setInputs(prev => ({ ...prev, image: selectedImage, imageUrl: imageUrl }));
+    };
 
-            // Vérifier le rôle de l'utilisateur et agir en conséquence
-            if (userRole !== 'enseignant') {
-                // Rediriger l'utilisateur non administrateur vers une autre page ou afficher un message d'erreur
-                navigate('/404'); // Exemple de redirection vers la page d'accueil
-            }
-        } catch (error) {
-            console.error("Erreur lors de la récupération du rôle de l'utilisateur :", error);
-            // Afficher un message d'erreur ou rediriger vers une autre page en cas d'erreur
+    const handleVideoChange = (e) => {
+        const selectedVideo = e.target.files[0];
+        const videoUrl = URL.createObjectURL(selectedVideo);
+        if (selectedVideo) {
+            setInputs(prev => ({ ...prev, video: selectedVideo, videoUrl: videoUrl }));
         }
     };
 
-    fetchUserData(); // Appel de la fonction pour récupérer et vérifier le rôle de l'utilisateur
-}, [idUser, navigate]);
-
-
-    const handleSubmit = async (e) => {
+    const handleFichierChange = (e) => {
+        const selectedFile = e.target.files[0];
+        const fileUrl = URL.createObjectURL(selectedFile);
+        const fileType = selectedFile.type;
+        let type_fichier = 'other';
         
-        e.preventDefault();
-        try {
-           
-            await axios.post("http://localhost:8801/api/activite/createActivite", {
-                titre : inputs.titre,
-                categorie : inputs.categorie,
-                contenu:inputs.contenu,
-                duration:inputs.duration,
-                id_chapitre:id
-            });
-            toast.success('Activité créé avec succès', {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
-            setInputs({
-                titre : "",
-                contenu:"",
-                categorie:"",
-                duration:"",
-                image:null,
-                video:null
-            });
-            fetchActivite();
-            setOpenModalText(false);
-            setOpenModal(true)
-        } catch (err) {
-            if (err.response && err.response.data) {
-                toast.error(err.response.data);
-            } else {
-                toast.error('Une erreur inattendue s\'est produite lors de la création de l\'événement.');
-            }
+        if (fileType === 'application/pdf') {
+            type_fichier = 'pdf';
+        } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+                   fileType === 'application/msword') {
+            type_fichier = 'word';
+        } else if (fileType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ||
+                   fileType === 'application/vnd.ms-powerpoint') {
+            type_fichier = 'powerpoint';
+        } else if (fileType === 'application/vnd.ms-excel' ||
+                   fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+            type_fichier = 'excel';
+        }
+        
+        if (selectedFile) {
+            setInputs(prev => ({ 
+                ...prev, 
+                fichier: selectedFile, 
+                fichierUrl: fileUrl, 
+                fichierName: selectedFile.name,
+                type_fichier: type_fichier
+            }));
         }
     };
-    const handleSubmitim = async (e) => {
-        
-        e.preventDefault();
-        try {
-            const formData = new FormData();
-            formData.append('titre', inputs.titre);
-            formData.append('categorie', inputs.categorie);
-            formData.append('image', inputs.image);
-            formData.append('duration', inputs.duration);
-            formData.append('id_chapitre', id);
-            await axios.post("http://localhost:8801/api/activite/createActivitei",formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const userId = await idUser();
+                const response = await axios.get(`http://localhost:8801/api/auth/checkUserRole/${userId}`);
+                const userRole = response.data.role;
+                if (userRole !== 'enseignant') {
+                    navigate('/404');
                 }
-            });
-            toast.success('Activité créé avec succès', {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
-            setInputs({
-                titre : "",
-                contenu:"",
-                duration:"",
-                image:null,
-                categorie:""
-            });
-            fetchActivite();
-            setOpenModalImage(false);
-            setOpenModal(true)
-        } catch (err) {
-            if (err.response && err.response.data) {
-                toast.error(err.response.data);
-            } else {
-                toast.error('Une erreur inattendue s\'est produite lors de la création de l\'événement.');
+            } catch (error) {
+                console.error("Erreur:", error);
             }
-        }
-    };
-    const handleSubmitvi = async (e) => {
-        console.log(inputs.video)
-        e.preventDefault();
-        try {
-            const formData = new FormData();
-            formData.append('titre', inputs.titre);
-            formData.append('categorie', inputs.categorie);
-            formData.append('video', inputs.video);
-            formData.append('duration', inputs.duration);
-            formData.append('id_chapitre', id);
-            await axios.post("http://localhost:8801/api/activite/createActivitev",formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            toast.success('Activité créé avec succès', {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
-            setInputs({
-                titre : "",
-                contenu:"",
-                duration:"",
-                video : null,
-                categorie:""
-            });
-            fetchActivite();
-            setOpenModalVideo(false);
-            setOpenModal(true)
-            
-            
-        } catch (err) {
-            if (err.response && err.response.data) {
-                toast.error(err.response.data);
-            } else {
-                toast.error('Une erreur inattendue s\'est produite lors de la création de l\'événement.');
-            }
-        }
-    };
-    
+        };
+        fetchUserData();
+    }, [idUser, navigate]);
+
     const fetchActivite = async () => {
         try {
             const response = await axios.get(`http://localhost:8801/api/activite/getAllActiviteId/${id}`);
             setActivite(response.data);
-           console.log(response.data)
         } catch (error) {
-            console.error("Erreur lors de la récupération des événements :", error);
+            console.error("Erreur:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const fetchid = async () => {
-        try { 
-          
-          const userid = await idUser();
-          setInputs(prev => ({ ...prev, idUse: userid }));
+    const fetchRessources = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8801/api/ressource/getAllRessourceId/${id}`);
+            setRessources(response.data);
         } catch (error) {
-          console.error("Erreur lors de la récupération du id:", error);
+            console.error("Erreur:", error);
         }
-      };
+    };
 
-    
     useEffect(() => {
         fetchActivite();
-        fetchid();
-       
-      }, [id]);
+        fetchRessources();
+    }, [id]);
 
-      const modalText=() =>{
-        
-            setInputs(prev => ({ ...prev, categorie : "text" }));
-        
-        setOpenModalText(true);
-        setOpenModal(false)
-      }
-      const modalImage=() =>{
-        setInputs(prev => ({ ...prev, categorie : "image" }));
-        setOpenModalImage(true);
-        setOpenModal(false)
-      }
-      const modalvideo=() =>{
-        setInputs(prev => ({ ...prev, categorie : "video" }));
-        setOpenModalVideo(true);
-        setOpenModal(false)
-      }
-      const openCat=()=>{
-        setOpenModal(true);
-        setOpenModalVideo(false);
-        setOpenModalImage(false);
-        setOpenModalText(false);
-      }
-      const handleUpdateActivitTModal = (id, titre, contenu, categorie, duration) => {
-        setInputs(prev => ({ ...prev, id: id, titre: titre, contenu: contenu, categorie: categorie, duration: duration }));
-        setOpenModalText(true);
-        setIsAddingActiv(false);
-    };
-
-    
-    const handleUpdateActivitIModal = (id, titre, contenu, categorie, duration) => {
-        const imageUrl = `http://localhost:8801/api/image/${contenu}`;
-        setInputs(prev => ({ ...prev, id: id, titre: titre, image: contenu, categorie: categorie, duration: duration, imageUrl: imageUrl }));
-        setOpenModalImage(true);
-        setIsAddingActiv(false);
-    };
-    const handleUpdateActivitVModal = (id, titre, contenu, categorie, duration) => {
-        const videoUrl = `http://localhost:8801/api/video/${contenu}`;
-        setInputs(prev => ({ ...prev, id: id, titre: titre, video: contenu, categorie: categorie, duration: duration,videoUrl:videoUrl }));
-        setOpenModalVideo(true);
-        setIsAddingActiv(false);
-    };
-
-      const handleUpdateActiviteText = async (e) => {
+    // Activités
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Envoyer la requête de mise à jour
-            await axios.put(`http://localhost:8801/api/activite/updateActiviteText/${inputs.id}`, {
+            await axios.post("http://localhost:8801/api/activite/createActivite", {
                 titre: inputs.titre,
                 categorie: inputs.categorie,
                 contenu: inputs.contenu,
                 duration: inputs.duration,
                 id_chapitre: id
             });
-            // Afficher un message de succès
-            toast.success('L\'activité a été mise à jour avec succès.', {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
-            
-            // Rechargez la liste des activités après la mise à jour
+            toast.success('Activité créée avec succès');
+            setInputs({ titre: "", contenu: "", categorie: "", duration: "", image: null, video: null });
             fetchActivite();
-            closModalT();
+            setOpenModalText(false);
+            setOpenModal(true);
         } catch (err) {
-            console.error("Erreur lors de la mise à jour de l'activité :", err);
-            if (err.response && err.response.data) {
-                toast.error(err.response.data);
-            } else {
-                toast.error('Une erreur inattendue s\'est produite lors de la mise à jour de l\'activité.');
-            }
+            toast.error(err.response?.data || 'Erreur lors de la création');
         }
     };
 
-    const updateActiviteI = async (e) => {
+    const handleSubmitim = async (e) => {
         e.preventDefault();
         try {
-          const formData = new FormData();
-          formData.append('titre', inputs.titre);
-          formData.append('categorie', inputs.categorie);
-          formData.append('duration', inputs.duration);
-          formData.append('id_chapitre', id);
-      
-          // Vérifier s'il y a une nouvelle image
-          if (inputs.image) {
+            const formData = new FormData();
+            formData.append('titre', inputs.titre);
+            formData.append('categorie', inputs.categorie);
             formData.append('image', inputs.image);
-          }
-          console.log(inputs)
-      
-          // Vérifier si inputs contient un ID pour déterminer s'il s'agit d'une création ou d'une mise à jour
-          if (inputs.id) {
-            // S'il y a un ID, il s'agit d'une mise à jour
-            await axios.put(`http://localhost:8801/api/activite/updateActiviteI/${inputs.id}`, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            });
-            toast.success('Activité mise à jour avec succès', {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-            });
-          } else {
-            // S'il n'y a pas d'ID, il s'agit d'une création
-            // Faire une requête POST pour créer une nouvelle activité
-            // Assurez-vous de configurer cette partie en fonction de votre backend
-          }
-      
-          // Fermer le modal et actualiser les données si nécessaire
-          closModalI();
-          fetchActivite();
-          setOpenModalImage(false);
-          setOpenModal(true);
+            formData.append('duration', inputs.duration);
+            formData.append('id_chapitre', id);
+            await axios.post("http://localhost:8801/api/activite/createActivitei", formData);
+            toast.success('Image ajoutée avec succès');
+            setInputs({ titre: "", duration: "", image: null, categorie: "" });
+            fetchActivite();
+            setOpenModalImage(false);
+            setOpenModal(true);
         } catch (err) {
-          // Gérer les erreurs
-          if (err.response && err.response.data) {
-            toast.error(err.response.data);
-          } else {
-            toast.error('Une erreur inattendue s\'est produite lors de la création ou de la mise à jour de l\'activité.');
-          }
+            toast.error(err.response?.data || 'Erreur');
         }
-      };
+    };
 
-
-    const updateActiviteVideo = async (e) => {
+    const handleSubmitvi = async (e) => {
         e.preventDefault();
         try {
             const formData = new FormData();
@@ -387,379 +200,496 @@ useEffect(() => {
             formData.append('video', inputs.video);
             formData.append('duration', inputs.duration);
             formData.append('id_chapitre', id);
-    
-            // Vérifier s'il y a un ID pour déterminer s'il s'agit d'une création ou d'une mise à jour
-            if (inputs.id) {
-                // S'il y a un ID, il s'agit d'une mise à jour
-                
-                await axios.put(`http://localhost:8801/api/activite/updateActiviteVideo/${inputs.id}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-                toast.success('Activité mise à jour avec succès', {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
-            
-            }
-           
-            // Réinitialiser les valeurs après la création ou la mise à jour
-            closModalV();
+            await axios.post("http://localhost:8801/api/activite/createActivitev", formData);
+            toast.success('Vidéo ajoutée avec succès');
+            setInputs({ titre: "", duration: "", video: null, categorie: "" });
             fetchActivite();
-            setOpenModalImage(false);
+            setOpenModalVideo(false);
             setOpenModal(true);
         } catch (err) {
-            if (err.response && err.response.data) {
-                toast.error(err.response.data);
-            } else {
-                toast.error('Une erreur inattendue s\'est produite lors de la création ou de la mise à jour de l\'activité.');
-            }
+            toast.error(err.response?.data || 'Erreur');
         }
     };
-       
 
-      const handleDeleteActivite = async (idActivite) => {
-        try {
-            await axios.delete(`http://localhost:8801/api/activite/deleteActivite/${idActivite}`);
-            toast.success('Activité supprimée avec succès', {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
-            fetchActivite(); // Rechargez la liste des activités après suppression
-        } catch (err) {
-            console.error("Erreur lors de la suppression de l'activité :", err);
-            if (err.response && err.response.data) {
-                toast.error(err.response.data);
-            } else {
-                toast.error('Une erreur inattendue s\'est produite lors de la suppression de l\'activité.');
+    const handleDeleteActivite = async (idActivite) => {
+        if (window.confirm("Supprimer cette activité ?")) {
+            try {
+                await axios.delete(`http://localhost:8801/api/activite/deleteActivite/${idActivite}`);
+                toast.success('Activité supprimée');
+                fetchActivite();
+            } catch (err) {
+                toast.error('Erreur lors de la suppression');
             }
         }
     };
-    const closModalT=()=>{
-        setIsAddingActiv(true)
+
+    // Ressources
+    const handleSubmitFichier = async (e) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData();
+            formData.append('titre', inputs.titre);
+            formData.append('description', inputs.description || '');
+            formData.append('fichier', inputs.fichier);
+            formData.append('type_fichier', inputs.type_fichier);
+            formData.append('id_chapitre', id);
+            
+            await axios.post("http://localhost:8801/api/ressource/createRessource", formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            
+            toast.success('Ressource ajoutée');
+            setInputs({ titre: "", description: "", fichier: null, fichierUrl: null, fichierName: "", type_fichier: "" });
+            fetchRessources();
+            setOpenModalRessourceFile(false);
+            setOpenModalRessource(true);
+        } catch (err) {
+            toast.error(err.response?.data || 'Erreur');
+        }
+    };
+
+    const handleDeleteRessource = async (idRessource) => {
+        if (window.confirm("Supprimer cette ressource ?")) {
+            try {
+                await axios.delete(`http://localhost:8801/api/ressource/deleteRessource/${idRessource}`);
+                toast.success('Ressource supprimée');
+                fetchRessources();
+            } catch (err) {
+                toast.error('Erreur lors de la suppression');
+            }
+        }
+    };
+
+    const handleUpdateRessource = async (e) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData();
+            formData.append('titre', inputs.titre);
+            formData.append('description', inputs.description || '');
+            if (inputs.fichier && typeof inputs.fichier !== 'string') {
+                formData.append('fichier', inputs.fichier);
+            }
+            formData.append('type_fichier', inputs.type_fichier);
+            formData.append('id_chapitre', id);
+            
+            await axios.put(`http://localhost:8801/api/ressource/updateRessource/${inputs.id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            
+            toast.success('Ressource mise à jour');
+            fetchRessources();
+            closModalRessourceFile();
+            setOpenModalRessource(true);
+        } catch (err) {
+            toast.error('Erreur lors de la mise à jour');
+        }
+    };
+
+    const handleUpdateRessourceModal = (id, titre, description, fichier, type_fichier) => {
+        const fileUrl = `http://localhost:8801/api/ressource/fichier/${fichier}`;
         setInputs({
-            id :"",
-            titre : "",
-            contenu:"",
-            duration:"",
-            categorie:""
+            id, titre, description: description || '',
+            fichier, fichierUrl: fileUrl, fichierName: fichier, type_fichier
         });
-        setOpenModalText(false)
-        
+        setOpenModalRessourceFile(true);
+        setIsAddingRessource(false);
+    };
+
+    // Modales
+    const modalText = () => {
+        setInputs(prev => ({ ...prev, categorie: "text" }));
+        setOpenModalText(true);
+        setOpenModal(false);
+    };
+
+    const modalImage = () => {
+        setInputs(prev => ({ ...prev, categorie: "image" }));
+        setOpenModalImage(true);
+        setOpenModal(false);
+    };
+
+    const modalvideo = () => {
+        setInputs(prev => ({ ...prev, categorie: "video" }));
+        setOpenModalVideo(true);
+        setOpenModal(false);
+    };
+
+    const openRessourceModal = () => setOpenModalRessource(true);
+    const modalFichier = () => {
+        setOpenModalRessourceFile(true);
+        setOpenModalRessource(false);
+    };
+    const openCat = () => {
+        setOpenModal(true);
+        setOpenModalVideo(false);
+        setOpenModalImage(false);
+        setOpenModalText(false);
+    };
+    const openCatRessource = () => {
+        setOpenModalRessource(true);
+        setOpenModalRessourceFile(false);
+    };
+
+    const closModalT = () => {
+        setIsAddingActiv(true);
+        setInputs({ id: "", titre: "", contenu: "", duration: "", categorie: "" });
+        setOpenModalText(false);
+    };
+
+    const closModalI = () => {
+        setIsAddingActiv(true);
+        setInputs({ id: "", titre: "", image: null, imageUrl: null, duration: "", categorie: "" });
+        setOpenModalImage(false);
+    };
+
+    const closModalV = () => {
+        setIsAddingActiv(true);
+        setInputs({ id: "", titre: "", video: null, videoUrl: null, duration: "", categorie: "" });
+        setOpenModalVideo(false);
+    };
+
+    const closModalRessourceFile = () => {
+        setIsAddingRessource(true);
+        setInputs({ id: "", titre: "", description: "", fichier: null, fichierUrl: null, fichierName: "", type_fichier: "" });
+        setOpenModalRessourceFile(false);
+    };
+
+    const getFileIcon = (type_fichier) => {
+        const icons = {
+            pdf: '📄',
+            word: '📝',
+            powerpoint: '📊',
+            excel: '📈',
+            other: '📁'
+        };
+        const names = {
+            pdf: 'PDF',
+            word: 'Word',
+            powerpoint: 'PowerPoint',
+            excel: 'Excel',
+            other: 'Fichier'
+        };
+        return `${icons[type_fichier]} ${names[type_fichier]}`;
+    };
+
+    const styles = {
+        container: { padding: '30px 0' },
+        tabsHeader: { display: 'flex', gap: '10px', marginBottom: '30px', borderBottom: '2px solid #eee' },
+        tabButton: (isActive) => ({
+            padding: '12px 30px',
+            fontSize: '16px',
+            fontWeight: 600,
+            border: 'none',
+            background: 'none',
+            cursor: 'pointer',
+            color: isActive ? '#ff5421' : '#666',
+            borderBottom: isActive ? '3px solid #ff5421' : 'none',
+            transition: 'all 0.3s ease'
+        }),
+        card: { background: '#fff', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', overflow: 'hidden' },
+        cardHeader: { padding: '20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+        cardTitle: { margin: 0, fontSize: '18px', fontWeight: 600, color: '#333' },
+        addButton: { background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' },
+        listItem: { padding: '15px 20px', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', transition: 'background 0.2s' },
+        listItemHover: { background: '#fafafa' },
+        itemTitle: { fontWeight: 500, color: '#333', marginBottom: '5px' },
+        itemMeta: { fontSize: '12px', color: '#999', display: 'flex', gap: '15px' },
+        actionButtons: { display: 'flex', gap: '10px' },
+        iconButton: { background: 'none', border: 'none', cursor: 'pointer', padding: '5px', borderRadius: '4px', transition: 'all 0.2s' },
+        detailContent: { padding: '20px', background: '#f9f9f9', margin: '10px 20px 20px 20px', borderRadius: '8px' },
+        modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+        modalContent: { background: '#fff', borderRadius: '16px', width: '90%', maxWidth: '500px', maxHeight: '90vh', overflow: 'auto' },
+        modalHeader: { padding: '20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+        modalBody: { padding: '20px' },
+        modalFooter: { padding: '20px', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'flex-end', gap: '10px' },
+        categoryGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '15px' },
+        categoryItem: { textAlign: 'center', padding: '20px', border: '2px solid #eee', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s' },
+        input: { width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', marginBottom: '15px' },
+        textarea: { width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', minHeight: '100px', marginBottom: '15px' },
+        uploadArea: { border: '2px dashed #ddd', borderRadius: '12px', padding: '30px', textAlign: 'center', cursor: 'pointer', marginBottom: '15px', transition: 'all 0.2s' },
+        submitButton: { background: '#ff5421', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: 500, width: '100%' }
+    };
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <div className="spinner-border text-primary" role="status"><span className="visually-hidden">Chargement...</span></div>
+            </div>
+        );
     }
-    const closModalI=()=>{
-        setIsAddingActiv(true)
-        setInputs({
-            id :"",
-            titre : "",
-            image:null,
-            imageUrl:null,
-            duration:"",
-            categorie:""
-        });
-        setOpenModalImage(false)
-       
-    }
-    const closModalV=()=>{
-        setIsAddingActiv(true)
-        setInputs({
-            id :"",
-            titre : "",
-            video:null,
-            videoUrl:null,
-            duration:"",
-            categorie:""
-        });
-        setOpenModalVideo(false)
-        
-    }
+
     return (
         <React.Fragment>
-            <Helmet>
-                <link rel="icon" href={favIcon} />
-            </Helmet>
+            <Helmet><link rel="icon" href={favIcon} /></Helmet>
             <OffWrap />
-            <Header
-                parentMenu='course'
-                secondParentMenu='others'
-                headerNormalLogo={Logo}
-                headerStickyLogo={Logo}
-                CanvasLogo={Logo}
-                mobileNormalLogo={Logo}
-                CanvasClass="right_menu_togle hidden-md"
-                headerClass="full-width-header header-style1 home8-style4"
-                TopBar='enable'
-                TopBarClass="topbar-area home8-topbar"
-                emailAddress='support@website.com'
-                Location='Cité Erriadh - B.P 135'
-            />
+            <Header parentMenu='cours' secondParentMenu='others' headerNormalLogo={Logo}
+                headerStickyLogo={Logo} CanvasLogo={Logo} mobileNormalLogo={Logo}
+                CanvasClass="right_menu_togle hidden-md" headerClass="full-width-header header-style1 home8-style4"
+                TopBar='enable' TopBarClass="topbar-area home8-topbar"
+                emailAddress='admin@isetso.rnu.tn' Location='Cité Erriadh - B.P 135' />
 
-            {/* breadcrumb-area-start */}
-            <SiteBreadcrumb
-                pageTitle=" Activité"
-                pageName="Create Activité"
-                breadcrumbsImg={bannerbg}
-            />
-            {/* breadcrumb-area-End */}
-            { !activite ?
-            <div  className='ext-modal'>
-                <div class="col-3">
-                    <div class="snippet" data-title="dot-spin">
-                        <div class="stage">
-                        <div class="dot-spin"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-           :
-            <div style={{marginBottom:"100px"}} className="register-section pt-100 pb-100 md-pt-80 md-pb-80">
+            <SiteBreadcrumb pageTitle="Activités & Ressources" pageName="Gestion des contenus" breadcrumbsImg={bannerbg} />
+
+            <div style={styles.container} className="register-section pt-100 pb-100">
                 <div className="container">
-                <div style={{width: "100%"}} class="col-lg-4 order-last">
-                    <div class="notice-bord style1">
-                    
-                        <div>
-                            <h4 class="title">les Activités et les Ressourses de Chapitre  : <span style={{color:"black" , fontSize:"16px" , marginLeft:"10px"}}></span></h4>
-                        </div>
-                        <div className='chap-f-b'>
+                    <div style={styles.tabsHeader}>
+                        <button onClick={() => setActiveTab('activites')} style={styles.tabButton(activeTab === 'activites')}>
+                            <i className="fas fa-tasks me-2"></i>Activités
+                        </button>
+                        <button onClick={() => setActiveTab('ressources')} style={styles.tabButton(activeTab === 'ressources')}>
+                            <i className="fas fa-folder-open me-2"></i>Ressources pédagogiques
+                        </button>
+                    </div>
 
-                        <div className='ul-activite'>
-                            <ul>
-                                {activite.map((activites, index) => (
-                                    <li key={index}>
-                                        <div className='li-'>
-                                            <div style={{ display: "flex" }}>
-                                                <div className="date">
-                                                    <span>{index + 1}</span>
-                                                </div>
-                                                <div className="desc">
-                                                    <a href='#'>{activites.titre } </a>
-                                                </div>
-                                                <div className='ul-img-chap'>
-                                                <button onClick={() => toggleActivite(index)}>
-                                                        <img width="20" height="20" src="https://img.icons8.com/ios/50/1A1A1A/circled-chevron-down.png" alt="circled-chevron-down" />
-                                                    </button>
-                                               
-                                                    {activites.categorie === 'text' ? (
-                                                        <button onClick={() => handleUpdateActivitTModal(activites.id, activites.titre, activites.contenu, activites.categorie, activites.duration)}>
-                                                            <img width="20" height="20" src="https://img.icons8.com/pastel-glyph/64/1A1A1A/create-new--v2.png" alt="create-new--v2"/>
-                                                        </button>
-                                                    ) : activites.categorie === 'image' ? (
-                                                        <button onClick={() => handleUpdateActivitIModal(activites.id, activites.titre, activites.contenu, activites.categorie, activites.duration)}>
-                                                            <img width="20" height="20" src="https://img.icons8.com/pastel-glyph/64/1A1A1A/create-new--v2.png" alt="create-new--v2"/>
-                                                        </button>
-                                                    ) : activites.categorie === 'video' ? (
-                                                        <button onClick={() => handleUpdateActivitVModal(activites.id, activites.titre, activites.contenu, activites.categorie, activites.duration)}>
-                                                            <img width="20" height="20" src="https://img.icons8.com/pastel-glyph/64/1A1A1A/create-new--v2.png" alt="create-new--v2"/>
-                                                        </button>
-                                                    ) : null}
-                                            <button onClick={() => handleDeleteActivite(activites.id)}> {/* Remplacez activites.id par l'identifiant correct */}
-                                                <img width="20" height="20" src="https://img.icons8.com/wired/64/f00000/filled-trash.png" alt="delete"/>
-                                            </button>
-                                       
-                                        
-                                                   
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* Afficher la sous-activité si l'index correspond à l'index ouvert */}
-                                        {openIndex === index && (
-                                            <div className='sous-activite'>
-                                                {activites.categorie && activites.categorie === "text" ?
-                                                    <div className='modal-activite-text-aff'>
-                                                        <p>{activites.contenu}</p>
-                                                    </div>
-                                                    : activites.categorie === "image" ?
-                                                        <div className='modal-activite-text-aff'>
-                                                            <img src={`http://localhost:8801/api/image/${activites.contenu}`} alt="image" />
+                    {/* Activités */}
+                    {activeTab === 'activites' && (
+                        <div style={styles.card}>
+                            <div style={styles.cardHeader}>
+                                <h4 style={styles.cardTitle}><i className="fas fa-tasks me-2" style={{ color: '#ff5421' }}></i>Liste des activités</h4>
+                                <button style={styles.addButton} onClick={() => setOpenModal(true)}>
+                                    <i className="fas fa-plus"></i> Ajouter une activité
+                                </button>
+                            </div>
+                            <div>
+                                {activite.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '50px', color: '#999' }}>
+                                        <i className="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>Aucune activité pour le moment</p>
+                                    </div>
+                                ) : (
+                                    activite.map((item, index) => (
+                                        <div key={index}>
+                                            <div style={styles.listItem}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div style={{ flex: 1 }} onClick={() => toggleActivite(index)}>
+                                                        <div style={styles.itemTitle}>{item.titre}</div>
+                                                        <div style={styles.itemMeta}>
+                                                            <span><i className="far fa-clock me-1"></i>{item.duration || 'N/A'} min</span>
+                                                            <span><i className="fas fa-tag me-1"></i>{item.categorie}</span>
                                                         </div>
-                                                        : activites.categorie === "video" ?
-                                                            <div className='modal-activite-text-aff'>
-                                                                <video controls>
-                                                                    <source src={`http://localhost:8801/api/video/${activites.contenu}`} type="video/mp4" />
-                                                                    Your browser does not support the video tag.
-                                                                </video>
-                                                            </div>
-                                                            : ""
-                                                }
+                                                    </div>
+                                                    <div style={styles.actionButtons}>
+                                                        <button style={styles.iconButton} onClick={() => toggleActivite(index)} title="Voir détails">
+                                                            <i className="fas fa-chevron-down" style={{ color: '#999' }}></i>
+                                                        </button>
+                                                        <button style={styles.iconButton} onClick={() => handleDeleteActivite(item.id)} title="Supprimer">
+                                                            <i className="fas fa-trash-alt" style={{ color: '#dc3545' }}></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div class="form-group mb-0">
-                            <button class="re-button" onClick={()=>setOpenModal(true)}>Ajouter Activité</button>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                    
-                    
-                    <div style={{display : openModal ? "block" : "none"}} className='ext-modal'>   
-                        <div className='modal-add-act'>
-                            <button className='btn-fermer-modal' onClick={()=>setOpenModal(false)} >
-                                <img width="24" height="24" src="https://img.icons8.com/quill/100/ff5421/x.png" alt="x"/> 
-                            </button>
-                            <div className='titre-h2-modal'>
-                                <h2>Catégorie Activité</h2>
-                            </div>
-                            
-                           <div className='div-categorie-modal-activite'>
-                                <button onClick={modalText} href='#' className='categorie-activite'>
-                                    <img width="70" height="70" src="https://img.icons8.com/quill/100/ff5421/text.png" alt="text"/>
-                                </button>
-                            
-                                <button onClick={modalImage} href='#' className='categorie-activite'>
-                                    <img width="70" height="70" src="https://img.icons8.com/quill/100/ff5421/full-image.png" alt="full-image"/>
-                                </button>
-                            
-                                <button onClick={modalvideo} href='#' className='categorie-activite'>
-                                    <img width="70" height="70" src="https://img.icons8.com/quill/100/ff5421/video.png" alt="video"/>
-                                </button>
-                           </div>
-                        </div>
-
-                        
-
-
-                    </div>
-                    <div style={{display : openModalText ? "block" : "none"}} className='ext-modal'>
-                        <div  className='modal-act-add-cat'>
-                            <button className='btn-fermer-modal' onClick={closModalT} >
-                                <img width="24" height="24" src="https://img.icons8.com/quill/100/ff5421/x.png" alt="x"/> 
-                            </button>
-                            <div className='titre-h2-modal'>
-                                <h2>Text</h2>
-                            </div>
-                            <form id="" >
-                           
-                                    <div className="">
-                                    <textarea  id="contenu" name="contenu" placeholder="contenu" value={inputs.contenu} onChange={handleInputChange}  required=""></textarea>
-                                    <div className='style-2-input-cat'>
-                                    <input type="text" id="titre" name="titre"  placeholder="Titre de Activite" value={inputs.titre} onChange={handleInputChange}  required />
-                                    <input type="number" id="duration" name="duration"  placeholder="durée par min" value={inputs.duration} onChange={handleInputChange}  required />
-                                        
-                                        </div>
-                                    </div>
-                                    <button class="re-button" onClick={isAddingActive ? handleSubmit : handleUpdateActiviteText}>
-                                        {isAddingActive ? 'Ajouter' : 'Modifier'}
-                                    </button>
-                                    {isAddingActive && <div class="users-a-a">change Categorie? <a onClick={openCat}>categories</a></div>}
-                            </form>
-                        </div>
-                    </div>
-                    <div style={{display : openModalImage ? "block" : "none"}} className='ext-modal'>
-                        <div  className='modal-act-add-cat'>
-                            <button className='btn-fermer-modal' onClick={closModalI} >
-                                <img width="24" height="24" src="https://img.icons8.com/quill/100/ff5421/x.png" alt="x"/> 
-                            </button>
-                            <div className='titre-h2-modal'>
-                                <h2>Image</h2>
-                            </div>
-                            <form id="" >
-                                    <div className="">
-                                        <label htmlFor="image" style={{ cursor: "pointer", width: "50%",height:"250px",background:"#ffff",marginLeft:"25%" }}>
-                                            {inputs.imageUrl ? (
-                                                <img style={{width:"100%", height:"100%",position:"relative"}} src={inputs.imageUrl} alt="image" />
-                                            ) : (
-                                                <img style={{marginLeft:"20%",marginTop:"6%",width:"60%", height:"80%",position:"relative"}} src="https://img.icons8.com/carbon-copy/100/1A1A1A/full-image.png" alt="image"/>
+                                            {openIndex === index && (
+                                                <div style={styles.detailContent}>
+                                                    {item.categorie === 'text' && <p>{item.contenu}</p>}
+                                                    {item.categorie === 'image' && <img src={`http://localhost:8801/api/image/${item.contenu}`} alt="contenu" style={{ maxWidth: '100%', borderRadius: '8px' }} />}
+                                                    {item.categorie === 'video' && (
+                                                        <video controls style={{ width: '100%', borderRadius: '8px' }}>
+                                                            <source src={`http://localhost:8801/api/video/${item.contenu}`} type="video/mp4" />
+                                                        </video>
+                                                    )}
+                                                </div>
                                             )}
-                                            <input  type="file" id="image" name="image" onChange={handleImageChange}   hidden />
-                                        </label>
-                                        <div className='style-2-input-cat'>
-                                        
-                                        <input type="text" id="titre" name="titre"  placeholder="Titre de Activite" value={inputs.titre} onChange={handleInputChange}  required />
-                                        <input type="number" id="duration" name="duration"  placeholder="durée par min" value={inputs.duration} onChange={handleInputChange}  required />
                                         </div>
-                                    </div>
-                                    <button class="re-button" onClick={isAddingActive ? handleSubmitim : updateActiviteI}>
-                                        {isAddingActive ? 'Ajouter' : 'Modifier'}
-                                    </button>
-                                    {isAddingActive && <div class="users-a-a">change Categorie? <a onClick={openCat}>categories</a></div>}
-                            </form>
-                        </div>
-                    </div>
-                    <div style={{display : openModalVideo ? "block" : "none"}} className='ext-modal'>
-                <div  className='modal-act-add-cat'>
-                    {/* Bouton pour fermer le modal */}
-                    <button className='btn-fermer-modal' onClick={closModalV}>
-                        <img width="24" height="24" src="https://img.icons8.com/quill/100/ff5421/x.png" alt="x"/> 
-                    </button>
-                    {/* Titre du modal */}
-                    <div className='titre-h2-modal'>
-                        <h2>Vidéo</h2>
-                    </div>
-                    {/* Formulaire pour soumettre la vidéo */}
-                    <form id="" >
-                        <div className="">
-                            {/* Label pour le champ de fichier vidéo */}
-                            <label htmlFor="video" style={{ cursor: "pointer", width: "50%",height:"250px",background:"#ffff",marginLeft:"25%" }}>
-                    {inputs.videoUrl ? (
-                        <video style={{width:"100%", height:"100%",position:"relative"}} controls>
-                            <source src={inputs.videoUrl} type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
-                    ) : (
-                        <img style={{marginLeft:"30%",marginTop:"6%",width:"40%", height:"60%",position:"relative"}} src="https://img.icons8.com/quill/100/1A1A1A/video.png" alt="image"/>
-                    )}
-                    
-                    <input  type="file" id="video" name="video" onChange={handleVideoChange}    />
-                </label>
-                            <div className='style-2-input-cat'>
-                            <input type="text" id="titre" name="titre"  placeholder="Titre de Activite" value={inputs.titre} onChange={handleInputChange}  required />
-                                <input type="number" id="duration" name="duration"  placeholder="durée par min" value={inputs.duration} onChange={handleInputChange}  required />
-                               
+                                    ))
+                                )}
                             </div>
-                            
                         </div>
-                        {/* Bouton de soumission du formulaire */}
-                        <button class="re-button" onClick={isAddingActive ? handleSubmitvi : updateActiviteVideo}>
-                                        {isAddingActive ? 'Ajouter' : 'Modifier'}
-                                    </button>
-                                    {isAddingActive && <div class="users-a-a">change Categorie? <a onClick={openCat}>categories</a></div>}
-                    </form>
+                    )}
+
+                    {/* Ressources */}
+                    {activeTab === 'ressources' && (
+                        <div style={styles.card}>
+                            <div style={styles.cardHeader}>
+                                <h4 style={styles.cardTitle}><i className="fas fa-folder-open me-2" style={{ color: '#ff5421' }}></i>Documents et ressources</h4>
+                                <button style={styles.addButton} onClick={openRessourceModal}>
+                                    <i className="fas fa-plus"></i> Ajouter une ressource
+                                </button>
+                            </div>
+                            <div>
+                                {ressources.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '50px', color: '#999' }}>
+                                        <i className="fas fa-folder-open fa-3x mb-3"></i>
+                                        <p>Aucune ressource pour le moment</p>
+                                    </div>
+                                ) : (
+                                    ressources.map((item, index) => (
+                                        <div key={index}>
+                                            <div style={styles.listItem}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div style={{ flex: 1 }} onClick={() => toggleRessource(index)}>
+                                                        <div style={styles.itemTitle}><i className="fas fa-file-alt me-2" style={{ color: '#ff5421' }}></i>{item.titre}</div>
+                                                        <div style={styles.itemMeta}>
+                                                            <span>{getFileIcon(item.type_fichier)}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div style={styles.actionButtons}>
+                                                        <button style={styles.iconButton} onClick={() => toggleRessource(index)}><i className="fas fa-chevron-down" style={{ color: '#999' }}></i></button>
+                                                        <button style={styles.iconButton} onClick={() => handleUpdateRessourceModal(item.id, item.titre, item.description, item.fichier, item.type_fichier)}><i className="fas fa-edit" style={{ color: '#ffc107' }}></i></button>
+                                                        <button style={styles.iconButton} onClick={() => handleDeleteRessource(item.id)}><i className="fas fa-trash-alt" style={{ color: '#dc3545' }}></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {openIndexRessource === index && (
+                                                <div style={styles.detailContent}>
+                                                    <p><strong>Description :</strong> {item.description || 'Aucune description'}</p>
+                                                    <a href={`http://localhost:8801/api/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
+                                                        <i className="fas fa-download me-2"></i>Télécharger
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
-
-                    
+            {/* Modal choix activité */}
+            {openModal && (
+                <div style={styles.modalOverlay} onClick={() => setOpenModal(false)}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Type d'activité</h3>
+                            <button onClick={() => setOpenModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                        </div>
+                        <div style={styles.modalBody}>
+                            <div style={styles.categoryGrid}>
+                                <div style={styles.categoryItem} onClick={modalText}><i className="fas fa-paragraph fa-3x mb-2" style={{ color: '#ff5421' }}></i><div>Texte</div></div>
+                                <div style={styles.categoryItem} onClick={modalImage}><i className="fas fa-image fa-3x mb-2" style={{ color: '#ff5421' }}></i><div>Image</div></div>
+                                <div style={styles.categoryItem} onClick={modalvideo}><i className="fas fa-video fa-3x mb-2" style={{ color: '#ff5421' }}></i><div>Vidéo</div></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            }
-            {/* Register End */}
+            )}
 
-            <Newsletter
-                sectionClass="rs-newsletter style1 orange-color mb--90 sm-mb-0 sm-pb-80"
-                titleClass="title mb-0 white-color"
-            />
+            {/* Modal choix ressource */}
+            {openModalRessource && (
+                <div style={styles.modalOverlay} onClick={() => setOpenModalRessource(false)}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Type de ressource</h3>
+                            <button onClick={() => setOpenModalRessource(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                        </div>
+                        <div style={styles.modalBody}>
+                            <div style={styles.categoryGrid}>
+                                <div style={styles.categoryItem} onClick={modalFichier}><i className="fas fa-file-pdf fa-3x mb-2" style={{ color: '#ff5421' }}></i><div>Fichier</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-            <Footer
-                footerClass="rs-footer home9-style main-home"
-                footerLogo={footerLogo}
-            />
+            {/* Modal texte */}
+            {openModalText && (
+                <div style={styles.modalOverlay} onClick={closModalT}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Ajouter un texte</h3>
+                            <button onClick={closModalT} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                        </div>
+                        <form onSubmit={handleSubmit}>
+                            <div style={styles.modalBody}>
+                                <input type="text" name="titre" placeholder="Titre" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
+                                <textarea name="contenu" placeholder="Contenu" value={inputs.contenu} onChange={handleInputChange} style={styles.textarea} required />
+                                <input type="number" name="duration" placeholder="Durée (minutes)" value={inputs.duration} onChange={handleInputChange} style={styles.input} />
+                            </div>
+                            <div style={styles.modalFooter}>
+                                <button type="button" onClick={closModalT} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
+                                <button type="submit" style={{ background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>Ajouter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
-            {/* scrolltop-start */}
-            <ScrollToTop
-                scrollClassName="scrollup orange-color"
-            />
-            {/* scrolltop-end */}
+            {/* Modal image */}
+            {openModalImage && (
+                <div style={styles.modalOverlay} onClick={closModalI}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Ajouter une image</h3>
+                            <button onClick={closModalI} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                        </div>
+                        <form onSubmit={handleSubmitim}>
+                            <div style={styles.modalBody}>
+                                <input type="text" name="titre" placeholder="Titre" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
+                                <div style={styles.uploadArea} onClick={() => document.getElementById('imageInput').click()}>
+                                    {inputs.imageUrl ? <img src={inputs.imageUrl} style={{ maxWidth: '100%', maxHeight: '150px' }} alt="preview" /> : <><i className="fas fa-cloud-upload-alt fa-3x" style={{ color: '#ff5421' }}></i><p>Cliquez pour sélectionner une image</p></>}
+                                    <input type="file" id="imageInput" accept="image/*" onChange={handleImageChange} hidden />
+                                </div>
+                                <input type="number" name="duration" placeholder="Durée (minutes)" value={inputs.duration} onChange={handleInputChange} style={styles.input} />
+                            </div>
+                            <div style={styles.modalFooter}>
+                                <button type="button" onClick={closModalI} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
+                                <button type="submit" style={{ background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>Ajouter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
+            {/* Modal vidéo */}
+            {openModalVideo && (
+                <div style={styles.modalOverlay} onClick={closModalV}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Ajouter une vidéo</h3>
+                            <button onClick={closModalV} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                        </div>
+                        <form onSubmit={handleSubmitvi}>
+                            <div style={styles.modalBody}>
+                                <input type="text" name="titre" placeholder="Titre" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
+                                <div style={styles.uploadArea} onClick={() => document.getElementById('videoInput').click()}>
+                                    {inputs.videoUrl ? <video src={inputs.videoUrl} style={{ maxWidth: '100%', maxHeight: '150px' }} controls /> : <><i className="fas fa-cloud-upload-alt fa-3x" style={{ color: '#ff5421' }}></i><p>Cliquez pour sélectionner une vidéo</p></>}
+                                    <input type="file" id="videoInput" accept="video/*" onChange={handleVideoChange} hidden />
+                                </div>
+                                <input type="number" name="duration" placeholder="Durée (minutes)" value={inputs.duration} onChange={handleInputChange} style={styles.input} />
+                            </div>
+                            <div style={styles.modalFooter}>
+                                <button type="button" onClick={closModalV} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
+                                <button type="submit" style={{ background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>Ajouter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal fichier ressource */}
+            {openModalRessourceFile && (
+                <div style={styles.modalOverlay} onClick={closModalRessourceFile}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>{isAddingRessource ? 'Ajouter une ressource' : 'Modifier la ressource'}</h3>
+                            <button onClick={closModalRessourceFile} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                        </div>
+                        <form onSubmit={isAddingRessource ? handleSubmitFichier : handleUpdateRessource}>
+                            <div style={styles.modalBody}>
+                                <input type="text" name="titre" placeholder="Titre" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
+                                <textarea name="description" placeholder="Description (optionnelle)" value={inputs.description} onChange={handleInputChange} style={styles.textarea} />
+                                <div style={styles.uploadArea} onClick={() => document.getElementById('fichierInput').click()}>
+                                    {inputs.fichierUrl ? <><i className="fas fa-file fa-3x" style={{ color: '#ff5421' }}></i><p>{inputs.fichierName}</p><small>Cliquez pour changer</small></> : <><i className="fas fa-cloud-upload-alt fa-3x" style={{ color: '#ff5421' }}></i><p>Cliquez pour sélectionner un fichier</p><small>PDF, Word, PowerPoint, Excel</small></>}
+                                    <input type="file" id="fichierInput" onChange={handleFichierChange} hidden />
+                                </div>
+                            </div>
+                            <div style={styles.modalFooter}>
+                                <button type="button" onClick={closModalRessourceFile} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
+                                <button type="submit" style={{ background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>{isAddingRessource ? 'Ajouter' : 'Modifier'}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            <Newsletter sectionClass="rs-newsletter style1 orange-color mb--90 sm-mb-0 sm-pb-80" />
+            <Footer footerClass="rs-footer home9-style main-home" footerLogo={footerLogo} />
+            <ScrollToTop scrollClassName="scrollup orange-color" />
             <SearchModal />
-            <ToastContainer />
+            <ToastContainer position="top-right" autoClose={3000} />
         </React.Fragment>
-
     );
-}
+};
 
 export default CreateActivite;

@@ -6,9 +6,9 @@ node_modules/
 Back/uploads/
 *.mp4
 *.webp
-*.png
-*.jpg
-*.jpeg
+# *.png
+# *.jpg
+# *.jpeg
 
 # Environment
 .env

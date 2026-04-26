@@ -26,57 +26,64 @@ const fileFilter = (req, file, cb) => {
 // Configurer multer avec le stockage et le filtre
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
+// ==================== CRÉATION D'UN COURS ====================
 export const createCours = (req, res) => {
     upload.single('image')(req, res, function (err) {
         if (err instanceof multer.MulterError) {
             console.error("Erreur Multer :", err);
-            return res.status(500).json("Une erreur s'est produite lors du téléchargement de l'image.");
+            return res.status(500).json({ error: "Erreur lors du téléchargement de l'image." });
         } else if (err) {
-            console.error("Erreur inattendue lors du téléchargement de l'image :", err);
-            return res.status(500).json("Une erreur inattendue s'est produite lors du téléchargement de l'image.");
+            console.error("Erreur inattendue :", err);
+            return res.status(500).json({ error: err.message });
         }
 
-        const { titre, description, dateCre, type, level, id_user, duration, status } = req.body;
+        const { titre, description, dateCre, type, level, id_user, duration } = req.body;
         const imageName = req.file ? req.file.filename : null;
 
         if (!titre || !description || !dateCre || !type || !level || !id_user || !imageName || !duration) {
-            return res.status(400).json("Tous les champs sont requis.");
+            return res.status(400).json({ error: "Tous les champs sont requis." });
         }
 
-        // ✅ Statut par défaut 'hidden' si non fourni
-        const courseStatus = status || 'hidden';
-
-        const insertCoursQuery = "INSERT INTO Cours (titre, description, dateCre, id_user, image, duration, id_categorie, id_level, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        const values = [titre, description, dateCre, id_user, imageName, duration, type, level, courseStatus];
+        // ✅ Statut par défaut: 'hidden' (caché) et validation_status: 'pending' (en attente)
+        const insertCoursQuery = `
+            INSERT INTO Cours 
+            (titre, description, dateCre, id_user, image, duration, id_categorie, id_level, status, validation_status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'hidden', 'pending')
+        `;
+        
+        const values = [titre, description, dateCre, id_user, imageName, duration, type, level];
 
         db.query(insertCoursQuery, values, (err, data) => {
             if (err) {
                 console.error("Erreur lors de la création du cours :", err);
-                return res.status(500).json("Une erreur s'est produite lors de la création du cours.");
+                return res.status(500).json({ error: "Erreur lors de la création du cours." });
             }
             const coursId = data.insertId;
-            return res.status(200).json({ 
-                message: "Le cours a été créé avec succès.", 
+            return res.status(201).json({ 
+                message: "Cours créé avec succès. En attente de validation par le coordinateur.", 
                 coursId: coursId,
-                status: courseStatus 
+                status: 'hidden',
+                validation_status: 'pending'
             });
         });
     });
 };
 
+// ==================== RÉCUPÉRATION DES COURS ====================
 export const getAllCourses = (req, res) => {
     const selectCoursesQuery = `
-        SELECT C.*, cat.title AS type, lvl.title AS level
+        SELECT C.*, cat.title AS type, lvl.title AS level, u.username AS enseignant
         FROM Cours AS C
         INNER JOIN categorie AS cat ON C.id_categorie = cat.id
         INNER JOIN level AS lvl ON C.id_level = lvl.id
+        INNER JOIN users AS u ON C.id_user = u.id
         ORDER BY C.id DESC
     `;
 
     db.query(selectCoursesQuery, (err, data) => {
         if (err) {
             console.error("Erreur lors de la récupération des cours :", err);
-            return res.status(500).json("Une erreur s'est produite lors de la récupération des cours.");
+            return res.status(500).json({ error: "Erreur serveur." });
         }
         return res.status(200).json(data);
     });
@@ -97,7 +104,7 @@ export const getAllCoursesId = (req, res) => {
     db.query(selectCoursesQuery, [id_user], (err, data) => {
         if (err) {
             console.error("Error retrieving courses for user:", err);
-            return res.status(500).json("An error occurred while retrieving courses for user.");
+            return res.status(500).json({ error: "Erreur serveur." });
         }
         return res.status(200).json(data);
     });
@@ -107,19 +114,23 @@ export const getCourse = (req, res) => {
     const id_cours = req.params.id; 
     
     const selectCoursesQuery = `
-        SELECT C.*, cat.title AS type, lvl.title AS level
+        SELECT C.*, cat.title AS type, lvl.title AS level, u.username AS enseignant
         FROM Cours AS C 
         INNER JOIN categorie AS cat ON C.id_categorie = cat.id
         INNER JOIN level AS lvl ON C.id_level = lvl.id
+        INNER JOIN users AS u ON C.id_user = u.id
         WHERE C.id = ?
     `;
 
     db.query(selectCoursesQuery, [id_cours], (err, data) => {
         if (err) {
             console.error("Error retrieving course:", err);
-            return res.status(500).json("An error occurred while retrieving course.");
+            return res.status(500).json({ error: "Erreur serveur." });
         }
-        return res.status(200).json(data);
+        if (data.length === 0) {
+            return res.status(404).json({ error: "Cours non trouvé." });
+        }
+        return res.status(200).json(data[0]);
     });
 };
 
@@ -132,11 +143,11 @@ export const getUserNameByCourseId = (req, res) => {
 
     db.query(query, [id_cours], (err, data) => {
         if (err) {
-            console.error("Erreur lors de la récupération du nom de l'utilisateur :", err);
-            return res.status(500).json("Une erreur s'est produite lors de la récupération du nom de l'utilisateur.");
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur." });
         }
         if (data.length === 0) {
-            return res.status(404).json("Aucun utilisateur trouvé pour cet ID de cours.");
+            return res.status(404).json({ error: "Aucun utilisateur trouvé." });
         }
         return res.status(200).json(data[0].username);
     });
@@ -151,37 +162,38 @@ export const getUserIdByCourseId = (req, res) => {
 
     db.query(query, [id_cours], (err, data) => {
         if (err) {
-            console.error("Erreur lors de la récupération du nom de l'utilisateur :", err);
-            return res.status(500).json("Une erreur s'est produite lors de la récupération du nom de l'utilisateur.");
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur." });
         }
         if (data.length === 0) {
-            return res.status(404).json("Aucun utilisateur trouvé pour cet ID de cours.");
+            return res.status(404).json({ error: "Aucun utilisateur trouvé." });
         }
         return res.status(200).json(data[0].id);
     });
 };
 
+// ==================== SUPPRESSION D'UN COURS ====================
 export const deleteCourse = (req, res) => {
     const id_cours = req.params.id;
 
     db.beginTransaction(err => {
         if (err) {
-            console.error("Erreur lors du début de la transaction :", err);
-            return res.status(500).json("Une erreur s'est produite lors du début de la transaction.");
+            console.error("Erreur transaction:", err);
+            return res.status(500).json({ error: "Erreur serveur." });
         }
 
         const deleteLectureQuery = "DELETE FROM lecture WHERE id_cours = ?";
         db.query(deleteLectureQuery, [id_cours], (err) => {
             if (err) return db.rollback(() => {
-                console.error("Erreur lors de la suppression des enregistrements de la table lecture :", err);
-                return res.status(500).json("Une erreur s'est produite lors de la suppression des enregistrements de la table lecture.");
+                console.error("Erreur suppression lecture:", err);
+                return res.status(500).json({ error: "Erreur serveur." });
             });
 
             const deleteAVCQuery = "DELETE FROM avc WHERE idCours = ?";
             db.query(deleteAVCQuery, [id_cours], (err) => {
                 if (err) return db.rollback(() => {
-                    console.error("Erreur lors de la suppression des enregistrements de la table avc :", err);
-                    return res.status(500).json("Une erreur s'est produite lors de la suppression des enregistrements de la table avc.");
+                    console.error("Erreur suppression avc:", err);
+                    return res.status(500).json({ error: "Erreur serveur." });
                 });
 
                 const deleteActivitiesQuery = `
@@ -191,15 +203,15 @@ export const deleteCourse = (req, res) => {
                 `;
                 db.query(deleteActivitiesQuery, [id_cours], (err) => {
                     if (err) return db.rollback(() => {
-                        console.error("Erreur lors de la suppression des activités :", err);
-                        return res.status(500).json("Une erreur s'est produite lors de la suppression des activités.");
+                        console.error("Erreur suppression activités:", err);
+                        return res.status(500).json({ error: "Erreur serveur." });
                     });
 
                     const deleteChaptersQuery = "DELETE FROM Chapitre WHERE id_cours = ?";
                     db.query(deleteChaptersQuery, [id_cours], (err) => {
                         if (err) return db.rollback(() => {
-                            console.error("Erreur lors de la suppression des chapitres :", err);
-                            return res.status(500).json("Une erreur s'est produite lors de la suppression des chapitres.");
+                            console.error("Erreur suppression chapitres:", err);
+                            return res.status(500).json({ error: "Erreur serveur." });
                         });
 
                         const deleteQuizQuestionsQuery = `
@@ -209,30 +221,30 @@ export const deleteCourse = (req, res) => {
                         `;
                         db.query(deleteQuizQuestionsQuery, [id_cours], (err) => {
                             if (err) return db.rollback(() => {
-                                console.error("Erreur lors de la suppression des questions de quiz :", err);
-                                return res.status(500).json("Une erreur s'est produite lors de la suppression des questions de quiz.");
+                                console.error("Erreur suppression questions:", err);
+                                return res.status(500).json({ error: "Erreur serveur." });
                             });
 
                             const deleteQuizzesQuery = "DELETE FROM Quiz WHERE id_cours = ?";
                             db.query(deleteQuizzesQuery, [id_cours], (err) => {
                                 if (err) return db.rollback(() => {
-                                    console.error("Erreur lors de la suppression des quizzes :", err);
-                                    return res.status(500).json("Une erreur s'est produite lors de la suppression des quizzes.");
+                                    console.error("Erreur suppression quizzes:", err);
+                                    return res.status(500).json({ error: "Erreur serveur." });
                                 });
 
                                 const deleteCourseQuery = "DELETE FROM Cours WHERE id = ?";
                                 db.query(deleteCourseQuery, [id_cours], (err) => {
                                     if (err) return db.rollback(() => {
-                                        console.error("Erreur lors de la suppression du cours :", err);
-                                        return res.status(500).json("Une erreur s'est produite lors de la suppression du cours.");
+                                        console.error("Erreur suppression cours:", err);
+                                        return res.status(500).json({ error: "Erreur serveur." });
                                     });
 
                                     db.commit(err => {
                                         if (err) return db.rollback(() => {
-                                            console.error("Erreur lors de la validation de la transaction :", err);
-                                            return res.status(500).json("Une erreur s'est produite lors de la validation de la transaction.");
+                                            console.error("Erreur validation:", err);
+                                            return res.status(500).json({ error: "Erreur serveur." });
                                         });
-                                        return res.status(200).json({ message: "Le cours et ses éléments associés ont été supprimés avec succès." });
+                                        return res.status(200).json({ message: "Cours supprimé avec succès." });
                                     });
                                 });
                             });
@@ -244,14 +256,15 @@ export const deleteCourse = (req, res) => {
     });
 };
 
+// ==================== MISE À JOUR D'UN COURS ====================
 export const updateCours = (req, res) => {
     upload.single('image')(req, res, function (err) {
         if (err instanceof multer.MulterError) {
-            console.error("Erreur Multer :", err);
-            return res.status(500).json("Une erreur s'est produite lors du téléchargement de l'image.");
+            console.error("Erreur Multer:", err);
+            return res.status(500).json({ error: "Erreur lors du téléchargement." });
         } else if (err) {
-            console.error("Erreur inattendue lors du téléchargement de l'image :", err);
-            return res.status(500).json("Une erreur inattendue s'est produite lors du téléchargement de l'image.");
+            console.error("Erreur inattendue:", err);
+            return res.status(500).json({ error: err.message });
         }
 
         const { id } = req.params;
@@ -259,13 +272,12 @@ export const updateCours = (req, res) => {
         const imageName = req.file ? req.file.filename : null;
 
         if (!titre || !description || !dateCre || !type || !level || !id_user || !duration) {
-            return res.status(400).json("Tous les champs sont requis.");
+            return res.status(400).json({ error: "Tous les champs sont requis." });
         }
 
         let updateCoursQuery = "UPDATE Cours SET titre = ?, description = ?, dateCre = ?, id_categorie = ?, id_level = ?, id_user = ?, duration = ?";
         const values = [titre, description, dateCre, type, level, id_user, duration];
 
-        // ✅ Ajout du statut si fourni
         if (status && (status === 'published' || status === 'hidden')) {
             updateCoursQuery += ", status = ?";
             values.push(status);
@@ -281,103 +293,70 @@ export const updateCours = (req, res) => {
 
         db.query(updateCoursQuery, values, (err, data) => {
             if (err) {
-                console.error("Erreur lors de la mise à jour du cours :", err);
-                return res.status(500).json("Une erreur s'est produite lors de la mise à jour du cours.");
+                console.error("Erreur mise à jour:", err);
+                return res.status(500).json({ error: "Erreur serveur." });
             }
 
             if (data.affectedRows === 0) {
-                return res.status(404).json("Le cours n'existe pas.");
+                return res.status(404).json({ error: "Cours non trouvé." });
             }
 
-            return res.status(200).json("Le cours a été mis à jour avec succès.");
+            return res.status(200).json({ message: "Cours mis à jour avec succès." });
         });
     });
 };
 
+// ==================== COURS PAR CATÉGORIE ====================
 export const getCoursByCategorie = (req, res) => {
     const { idCategorie } = req.params;
     const { includeHidden } = req.query;
 
-    // Validation de l'ID
     if (!idCategorie) {
-        return res.status(400).json({ 
-            success: false,
-            message: "L'identifiant de la catégorie est requis." 
-        });
+        return res.status(400).json({ error: "ID catégorie requis." });
     }
 
     const categorieId = parseInt(idCategorie);
     if (isNaN(categorieId)) {
-        return res.status(400).json({ 
-            success: false,
-            message: "L'identifiant de la catégorie doit être un nombre valide." 
-        });
+        return res.status(400).json({ error: "ID catégorie invalide." });
     }
 
-    // ✅ CORRECTION: Supprimer 'description' de la requête
     const checkCategorieQuery = "SELECT id, title FROM categorie WHERE id = ?";
     
     db.query(checkCategorieQuery, [categorieId], (err, categorieResult) => {
         if (err) {
-            console.error("Erreur lors de la vérification de la catégorie:", err);
-            return res.status(500).json({ 
-                success: false,
-                message: "Erreur serveur." 
-            });
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur." });
         }
 
         if (categorieResult.length === 0) {
-            return res.status(404).json({ 
-                success: false,
-                message: `La catégorie avec l'ID ${categorieId} n'existe pas.` 
-            });
+            return res.status(404).json({ error: "Catégorie non trouvée." });
         }
 
-        // Construction du filtre de statut
-        let statusFilter = "AND c.status = 'published'";
+        let statusFilter = "AND c.status = 'published' AND c.validation_status = 'approved'";
         if (includeHidden === 'true') {
             statusFilter = "";
         }
 
         const query = `
             SELECT 
-                c.id,
-                c.titre,
-                c.description,
-                c.dateCre,
-                c.image,
-                c.duration,
-                c.id_categorie,
-                c.id_user,
-                c.id_level,
-                c.status,
-                cat.title AS type,
-                lvl.title AS level,
-                u.username AS enseignant
+                c.id, c.titre, c.description, c.dateCre, c.image, c.duration,
+                c.id_categorie, c.id_user, c.id_level, c.status, c.validation_status,
+                cat.title AS type, lvl.title AS level, u.username AS enseignant
             FROM Cours c
             INNER JOIN categorie cat ON c.id_categorie = cat.id
             INNER JOIN level lvl ON c.id_level = lvl.id
             INNER JOIN users u ON c.id_user = u.id
             WHERE c.id_categorie = ? ${statusFilter}
-            ORDER BY c.dateCre DESC
+            ORDER BY c.id DESC
         `;
 
         db.query(query, [categorieId], (err, coursData) => {
             if (err) {
-                console.error("Erreur lors de la récupération des cours:", err);
-                return res.status(500).json({ 
-                    success: false,
-                    message: "Erreur lors de la récupération des cours.",
-                    error: err.message 
-                });
+                console.error("Erreur:", err);
+                return res.status(500).json({ error: "Erreur serveur." });
             }
-
             return res.status(200).json({
-                success: true,
-                categorie: {
-                    id: categorieResult[0].id,
-                    nom: categorieResult[0].title
-                },
+                categorie: { id: categorieResult[0].id, nom: categorieResult[0].title },
                 total: coursData.length,
                 cours: coursData
             });
@@ -385,78 +364,58 @@ export const getCoursByCategorie = (req, res) => {
     });
 };
 
+// ==================== PUBLIER/CACHER UN COURS ====================
 export const updateCourseStatus = (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    console.log(`📝 Mise à jour du statut du cours ID ${id} vers: ${status}`);
-
     if (!id || !status) {
-        return res.status(400).json({ 
-            success: false,
-            message: "ID du cours et statut sont requis." 
-        });
+        return res.status(400).json({ error: "ID et statut requis." });
     }
 
     if (status !== 'published' && status !== 'hidden') {
-        return res.status(400).json({ 
-            success: false,
-            message: "Statut invalide. Utilisez 'published' ou 'hidden'." 
-        });
+        return res.status(400).json({ error: "Statut invalide." });
     }
 
-    // Vérifier d'abord si le cours existe
-    const checkQuery = "SELECT id, titre FROM Cours WHERE id = ?";
+    const checkQuery = "SELECT id, titre, validation_status FROM Cours WHERE id = ?";
     db.query(checkQuery, [id], (err, result) => {
         if (err) {
-            console.error("Erreur lors de la vérification du cours:", err);
-            return res.status(500).json({ 
-                success: false,
-                message: "Erreur serveur." 
-            });
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur." });
         }
 
         if (result.length === 0) {
-            return res.status(404).json({ 
-                success: false,
-                message: "Cours non trouvé." 
+            return res.status(404).json({ error: "Cours non trouvé." });
+        }
+
+        if (status === 'published' && result[0].validation_status !== 'approved') {
+            return res.status(403).json({ 
+                error: "Ce cours n'a pas encore été validé par le coordinateur. Vous ne pouvez pas le publier." 
             });
         }
 
         const query = "UPDATE Cours SET status = ? WHERE id = ?";
-        
         db.query(query, [status, id], (err, data) => {
             if (err) {
-                console.error("Erreur lors de la mise à jour du statut:", err);
-                return res.status(500).json({ 
-                    success: false,
-                    message: "Erreur serveur.",
-                    error: err.message 
-                });
+                console.error("Erreur:", err);
+                return res.status(500).json({ error: "Erreur serveur." });
             }
-
-            console.log(`✅ Statut du cours "${result[0].titre}" mis à jour en: ${status}`);
-            
             return res.status(200).json({ 
-                success: true,
-                message: `Statut mis à jour avec succès en "${status === 'published' ? 'Publié' : 'Caché'}".`,
+                message: `Cours ${status === 'published' ? 'publié' : 'caché'} avec succès.`,
                 status: status 
             });
         });
     });
 };
 
+// ==================== COURS PAR STATUT ====================
 export const getCoursesByStatus = (req, res) => {
     const { status } = req.params;
     
     if (status !== 'published' && status !== 'hidden') {
-        return res.status(400).json({ 
-            success: false,
-            message: "Statut invalide. Utilisez 'published' ou 'hidden'." 
-        });
+        return res.status(400).json({ error: "Statut invalide." });
     }
 
-    // ✅ CORRECTION: Remplacer created_at par id ou dateCre
     const query = `
         SELECT 
             C.*, 
@@ -473,17 +432,274 @@ export const getCoursesByStatus = (req, res) => {
 
     db.query(query, [status], (err, data) => {
         if (err) {
-            console.error("Erreur lors de la récupération des cours par statut:", err);
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur." });
+        }
+        return res.status(200).json({
+            count: data.length,
+            status: status,
+            cours: data
+        });
+    });
+};
+// Récupérer les cours suivis par un étudiant - VERSION CORRIGÉE
+export const getCoursesByStudent = (req, res) => {
+    const { idUser } = req.params;
+    
+    if (!idUser) {
+        return res.status(400).json({ 
+            success: false,
+            message: "L'ID de l'utilisateur est requis." 
+        });
+    }
+
+    // Version corrigée sans ORDER BY sur created_at
+    const query = `
+        SELECT DISTINCT 
+            C.*, 
+            cat.title AS type, 
+            lvl.title AS level, 
+            u.username AS enseignant,
+            COALESCE(A.avc, 0) AS progression
+        FROM Cours C
+        INNER JOIN categorie cat ON C.id_categorie = cat.id
+        INNER JOIN level lvl ON C.id_level = lvl.id
+        INNER JOIN users u ON C.id_user = u.id
+        INNER JOIN Lecture L ON C.id = L.id_cours
+        LEFT JOIN Avc A ON C.id = A.idCours AND A.idUser = ?
+        WHERE L.id_user = ? AND C.status = 'published'
+        ORDER BY C.id DESC
+    `;
+
+    db.query(query, [idUser, idUser], (err, data) => {
+        if (err) {
+            console.error("Erreur:", err);
             return res.status(500).json({ 
                 success: false,
-                message: "Erreur serveur." 
+                message: "Erreur serveur.",
+                error: err.message
             });
         }
         return res.status(200).json({
             success: true,
             count: data.length,
-            status: status,
             cours: data
         });
+    });
+};
+// ==================== COURS SUIVIS PAR UN ÉTUDIANT ====================
+export const getStudentEnrolledCourses = (req, res) => {
+    const { idUser } = req.params;
+    
+    if (!idUser) {
+        return res.status(400).json({ error: "ID utilisateur requis." });
+    }
+
+    const query = `
+        SELECT 
+            C.id,
+            C.titre,
+            C.description,
+            C.image,
+            C.duration,
+            C.status,
+            cat.title AS categorie,
+            lvl.title AS niveau,
+            u.username AS enseignant
+        FROM Cours C
+        INNER JOIN categorie cat ON C.id_categorie = cat.id
+        INNER JOIN level lvl ON C.id_level = lvl.id
+        INNER JOIN users u ON C.id_user = u.id
+        INNER JOIN Lecture L ON C.id = L.id_cours
+        WHERE L.id_user = ? AND C.status = 'published'
+        GROUP BY C.id
+        ORDER BY C.id DESC
+    `;
+
+    db.query(query, [idUser], (err, data) => {
+        if (err) {
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur." });
+        }
+        
+        // CORRECTION : Retourner une structure cohérente avec ce qu'attend le frontend
+        return res.status(200).json({
+            success: true,
+            cours: data
+        });
+    });
+};
+
+// ==================== ÉTUDIANTS INSCRITS À UN COURS ====================
+export const getEtudiantsByCours = (req, res) => {
+    const { idCours } = req.params;
+    
+    const query = `
+        SELECT DISTINCT 
+            u.id,
+            u.username,
+            u.email,
+            u.telephone,
+            u.genre,
+            u.age,
+            COALESCE(a.avc, 0) AS progression,
+            l.created_at AS date_inscription
+        FROM Users u
+        INNER JOIN Lecture l ON u.id = l.id_user
+        LEFT JOIN Avc a ON u.id = a.idUser AND a.idCours = ?
+        WHERE l.id_cours = ? AND u.role = 'etudiant'
+        ORDER BY l.id DESC
+    `;
+    
+    db.query(query, [idCours, idCours], (err, data) => {
+        if (err) {
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur" });
+        }
+        return res.status(200).json(data);
+    });
+};
+
+// ==================== VALIDATION DES COURS ====================
+
+// Demander la validation (enseignant)
+export const requestValidation = (req, res) => {
+    const { id } = req.params;
+    const { message } = req.body;
+    
+    const query = `
+        UPDATE Cours 
+        SET validation_status = 'pending', 
+            validation_comment = ?,
+            status = 'hidden'
+        WHERE id = ?
+    `;
+    
+    db.query(query, [message || 'En attente de validation', id], (err, result) => {
+        if (err) {
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur" });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Cours non trouvé." });
+        }
+        return res.status(200).json({ 
+            message: "Demande de validation envoyée au coordinateur",
+            validation_status: 'pending'
+        });
+    });
+};
+
+// Valider un cours (coordinateur)
+export const approveCourse = (req, res) => {
+    const { id } = req.params;
+    const { validated_by, comment } = req.body;
+    
+    const query = `
+        UPDATE Cours 
+        SET validation_status = 'approved',
+            validation_comment = ?,
+            validation_date = NOW(),
+            validated_by = ?
+        WHERE id = ?
+    `;
+    
+    db.query(query, [comment || 'Cours validé', validated_by, id], (err, result) => {
+        if (err) {
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur" });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Cours non trouvé." });
+        }
+        return res.status(200).json({ 
+            message: "Cours validé avec succès. L'enseignant peut maintenant le publier.",
+            validation_status: 'approved'
+        });
+    });
+};
+
+// Rejeter un cours (coordinateur)
+export const rejectCourse = (req, res) => {
+    const { id } = req.params;
+    const { comment } = req.body;
+    
+    const query = `
+        UPDATE Cours 
+        SET validation_status = 'rejected',
+            validation_comment = ?,
+            status = 'hidden'
+        WHERE id = ?
+    `;
+    
+    db.query(query, [comment || 'Cours rejeté - modifications nécessaires', id], (err, result) => {
+        if (err) {
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur" });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Cours non trouvé." });
+        }
+        return res.status(200).json({ 
+            message: "Cours rejeté. L'enseignant doit modifier et re-soumettre.",
+            validation_status: 'rejected'
+        });
+    });
+};
+
+// Récupérer les cours en attente (coordinateur)
+export const getPendingCourses = (req, res) => {
+    const query = `
+        SELECT C.*, 
+               cat.title AS categorie,
+               lvl.title AS niveau,
+               u.username AS enseignant,
+               u.email AS enseignant_email
+        FROM Cours C
+        INNER JOIN categorie cat ON C.id_categorie = cat.id
+        INNER JOIN level lvl ON C.id_level = lvl.id
+        INNER JOIN users u ON C.id_user = u.id
+        WHERE C.validation_status = 'pending'
+        ORDER BY C.id DESC
+    `;
+    
+    db.query(query, (err, data) => {
+        if (err) {
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur" });
+        }
+        return res.status(200).json(data);
+    });
+};
+
+// Récupérer les cours d'un enseignant avec statut de validation
+export const getCoursesWithValidationStatus = (req, res) => {
+    const { idUser } = req.params;
+    
+    const query = `
+        SELECT C.*, 
+               cat.title AS categorie,
+               lvl.title AS niveau,
+               C.validation_status,
+               C.validation_comment,
+               CASE 
+                   WHEN C.validation_status = 'pending' THEN 'En attente de validation'
+                   WHEN C.validation_status = 'approved' THEN 'Validé'
+                   WHEN C.validation_status = 'rejected' THEN 'Rejeté'
+                   ELSE 'Non soumis'
+               END AS validation_status_text
+        FROM Cours C
+        INNER JOIN categorie cat ON C.id_categorie = cat.id
+        INNER JOIN level lvl ON C.id_level = lvl.id
+        WHERE C.id_user = ?
+        ORDER BY C.id DESC
+    `;
+    
+    db.query(query, [idUser], (err, data) => {
+        if (err) {
+            console.error("Erreur:", err);
+            return res.status(500).json({ error: "Erreur serveur" });
+        }
+        return res.status(200).json(data);
     });
 };

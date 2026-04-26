@@ -1,13 +1,23 @@
+// routes/coordinateurs.js
 import express from "express";
-import { getAllUsers, getUserById, addUser, updateUser, deleteUser } from "../controllers/users.js";
+import {
+    getAllCoordinateurs,
+    getCoordinateurById,
+    addCoordinateur,
+    updateCoordinateur,
+    deleteCoordinateur
+} from "../controllers/coordinateur.js";
+import { updateUserRole } from "../controllers/users.js"; // 👈 Import de la fonction
 
 const router = express.Router();
 
-router.get("/", getAllUsers);        // GET tous les utilisateurs
-router.get("/:id", getUserById);     // GET un utilisateur par ID
-router.post("/", addUser);           // POST ajouter un utilisateur
-router.put("/:id", updateUser);      // PUT mettre à jour un utilisateur
-router.delete("/:id", deleteUser);   // DELETE supprimer un utilisateur
+router.get("/", getAllCoordinateurs);
+router.get("/:id", getCoordinateurById);
+router.post("/", addCoordinateur);
+router.put("/:id", updateCoordinateur);
+router.delete("/:id", deleteCoordinateur);
+
+// 👈 Ajouter cette route pour mettre à jour le rôle d'un coordinateur
+router.put("/:id/role", updateUserRole);
 
 export default router;
-

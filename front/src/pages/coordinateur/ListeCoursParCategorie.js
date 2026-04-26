@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import CourseSingleTwo from "../../components/Courses/CourseSingleTwo";
 import Header from "../../components/Layout/Header/Header";
 import Footer from "../../components/Layout/Footer/Footer";
 import SiteBreadcrumb from "../../components/Common/Breadcumb";
@@ -14,452 +13,356 @@ import Logo from "../../assets/img/logo/dark-logo.png";
 import footerLogo from "../../assets/img/logo/lite-logo.png";
 import { useAuth } from "../../context/authContext";
 
+const API_URL = 'http://localhost:8801/api';
+
 const ListeCoursParCategorie = () => {
   const { idCategorie } = useParams();
-  const { role } = useAuth();
+  const { role, idUser } = useAuth();
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [validationFilter, setValidationFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categorieName, setCategorieName] = useState("");
-  const [categorieInfo, setCategorieInfo] = useState(null);
-  const [updatingStatus, setUpdatingStatus] = useState(null);
-  const [userRole, setUserRole] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [comment, setComment] = useState("");
 
-  // Récupérer le rôle de l'utilisateur
+  const isCoordinator = role === 'coordinateur' || role === 'admin';
+
+  // Récupération des cours
+  const fetchCourses = useCallback(async () => {
+    setLoading(true);
+    try {
+      const includeHidden = isCoordinator ? '?includeHidden=true' : '';
+      const res = await axios.get(`${API_URL}/cours/categorie/${idCategorie}/cours${includeHidden}`);
+      const data = res.data.cours || res.data || [];
+      setCourses(data);
+      setFilteredCourses(data);
+      if (res.data.categorie) setCategorieName(res.data.categorie.nom);
+    } catch (err) {
+      setError("Erreur lors du chargement des cours");
+    } finally {
+      setLoading(false);
+    }
+  }, [idCategorie, isCoordinator]);
+
   useEffect(() => {
-    const getUserRole = async () => {
-      try {
-        const userRoleValue = await role();
-        setUserRole(userRoleValue);
-      } catch (error) {
-        console.error("Erreur récupération rôle:", error);
-      }
-    };
-    getUserRole();
-  }, [role]);
+    fetchCourses();
+  }, [fetchCourses]);
 
-  // Récupérer les informations de la catégorie
+  // Filtrage
   useEffect(() => {
-    const fetchCategorieInfo = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8801/api/categorie/${idCategorie}`);
-        if (response.data) {
-          setCategorieInfo(response.data);
-          setCategorieName(response.data.title || response.data.nom || `Catégorie ${idCategorie}`);
-        }
-      } catch (error) {
-        console.error("Erreur lors de la récupération du nom de la catégorie:", error);
-        setCategorieName(`Catégorie ${idCategorie}`);
-      }
-    };
+    let filtered = [...courses];
     
-    if (idCategorie) {
-      fetchCategorieInfo();
-    }
-  }, [idCategorie]);
-
-  // Récupérer les cours
-  useEffect(() => {
-    const fetchCourses = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        // Si l'utilisateur est admin ou coordinateur, inclure les cours cachés
-        const includeHidden = (userRole === 'admin' || userRole === 'coordinateur') ? '?includeHidden=true' : '';
-        const response = await axios.get(`http://localhost:8801/api/cours/categorie/${idCategorie}/cours${includeHidden}`);
-        
-        let coursesData = [];
-        if (response.data.cours && Array.isArray(response.data.cours)) {
-          coursesData = response.data.cours;
-          if (response.data.categorie) {
-            setCategorieName(response.data.categorie.nom);
-          }
-        } else if (Array.isArray(response.data)) {
-          coursesData = response.data;
-        } else {
-          coursesData = [];
-        }
-        
-        setCourses(coursesData);
-        setFilteredCourses(coursesData);
-        
-      } catch (error) {
-        console.error("Erreur:", error);
-        
-        if (error.response) {
-          if (error.response.status === 404) {
-            setError("Catégorie non trouvée");
-          } else if (error.response.status === 500) {
-            setError("Erreur serveur. Veuillez réessayer plus tard.");
-          } else {
-            setError(error.response.data?.message || "Erreur lors du chargement des cours");
-          }
-        } else if (error.request) {
-          setError("Impossible de se connecter au serveur.");
-        } else {
-          setError(error.message || "Une erreur inattendue s'est produite");
-        }
-        
-        setCourses([]);
-        setFilteredCourses([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    if (userRole !== null) {
-      fetchCourses();
-    }
-  }, [idCategorie, userRole]);
-
-  // Vérifier si l'utilisateur peut modifier le statut
-  const canModifyStatus = () => {
-    return userRole === 'admin' || userRole === 'coordinateur';
-  };
-
-  // Modifier le statut du cours
-  const updateCourseStatus = async (courseId, currentStatus) => {
-    if (!canModifyStatus()) {
-      alert("Vous n'avez pas les droits pour modifier le statut d'un cours.");
-      return;
-    }
-    
-    const newStatus = currentStatus === 'published' ? 'hidden' : 'published';
-    const actionText = newStatus === 'published' ? 'publier' : 'cacher';
-    
-    if (window.confirm(`Voulez-vous vraiment ${actionText} ce cours ?`)) {
-      setUpdatingStatus(courseId);
-      
-      try {
-        const response = await axios.put(`http://localhost:8801/api/cours/status/${courseId}`, {
-          status: newStatus
-        });
-        
-        if (response.status === 200) {
-          const updatedCourses = courses.map(course => 
-            course.id === courseId ? { ...course, status: newStatus } : course
-          );
-          setCourses(updatedCourses);
-          setFilteredCourses(updatedCourses);
-          alert(`Cours ${newStatus === 'published' ? 'publié' : 'caché'} avec succès !`);
-        }
-      } catch (error) {
-        console.error("Erreur:", error);
-        alert("Erreur lors de la modification du statut.");
-      } finally {
-        setUpdatingStatus(null);
-      }
-    }
-  };
-
-  // Recherche
-  const handleSearch = (e) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    
-    if (term === "") {
-      setFilteredCourses(courses);
-    } else {
-      const filtered = courses.filter(cours => 
-        cours.titre?.toLowerCase().includes(term) ||
-        cours.description?.toLowerCase().includes(term) ||
-        cours.type?.toLowerCase().includes(term) ||
-        cours.level?.toLowerCase().includes(term) ||
-        cours.enseignant?.toLowerCase().includes(term)
+    if (searchTerm) {
+      filtered = filtered.filter(c => 
+        c.titre?.toLowerCase().includes(searchTerm) ||
+        c.description?.toLowerCase().includes(searchTerm) ||
+        c.type?.toLowerCase().includes(searchTerm) ||
+        c.enseignant?.toLowerCase().includes(searchTerm)
       );
-      setFilteredCourses(filtered);
+    }
+    
+    if (validationFilter !== "all") {
+      filtered = filtered.filter(c => c.validation_status === validationFilter);
+    }
+    
+    setFilteredCourses(filtered);
+  }, [courses, searchTerm, validationFilter]);
+
+  const handleApprove = async (courseId) => {
+    const msg = comment || "Cours validé";
+    if (!window.confirm(`Valider ce cours ?\nCommentaire: ${msg}`)) return;
+    
+    setUpdatingId(courseId);
+    try {
+      const userId = await idUser();
+      await axios.put(`${API_URL}/cours/approve/${courseId}`, {
+        validated_by: userId,
+        comment: msg
+      });
+      
+      setCourses(prev => prev.map(c => 
+        c.id === courseId ? { ...c, validation_status: 'approved', validation_comment: msg } : c
+      ));
+      alert("✅ Cours validé !");
+      setComment("");
+    } catch (err) {
+      alert("❌ Erreur");
+    } finally {
+      setUpdatingId(null);
     }
   };
 
-  const clearSearch = () => {
-    setSearchTerm("");
-    setFilteredCourses(courses);
+  const handleReject = async (courseId) => {
+    const msg = comment || "Cours rejeté";
+    if (!window.confirm(`Rejeter ce cours ?\nMotif: ${msg}`)) return;
+    
+    setUpdatingId(courseId);
+    try {
+      await axios.put(`${API_URL}/cours/reject/${courseId}`, { comment: msg });
+      
+      setCourses(prev => prev.map(c => 
+        c.id === courseId ? { ...c, validation_status: 'rejected', validation_comment: msg } : c
+      ));
+      alert("❌ Cours rejeté");
+      setComment("");
+    } catch (err) {
+      alert("❌ Erreur");
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
-  // Styles
-  const searchContainerStyle = {
-    marginBottom: "30px",
-    display: "flex",
-    justifyContent: "center",
-    gap: "10px",
-    flexWrap: "wrap"
+  const getBadge = (status) => {
+    switch(status) {
+      case 'approved': return { text: '✓ Validé', bg: '#d4edda', color: '#155724' };
+      case 'pending': return { text: '⏳ En attente', bg: '#fff3cd', color: '#856404' };
+      case 'rejected': return { text: '✗ Rejeté', bg: '#f8d7da', color: '#721c24' };
+      default: return null;
+    }
   };
 
-  const searchInputStyle = {
-    width: "100%",
-    maxWidth: "500px",
-    padding: "12px 20px",
-    fontSize: "16px",
-    border: "2px solid #ddd",
-    borderRadius: "25px",
-    outline: "none",
-    transition: "all 0.3s ease"
+  const formatDuration = (d) => {
+    if (!d) return null;
+    const h = parseFloat(d);
+    if (isNaN(h)) return null;
+    return h === 1 ? "1 heure" : `${h} heures`;
   };
-
-  const clearButtonStyle = {
-    padding: "12px 20px",
-    fontSize: "16px",
-    border: "2px solid #ddd",
-    borderRadius: "25px",
-    backgroundColor: "#f8f9fa",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    color: "#666"
-  };
-
-  const resultCountStyle = {
-    textAlign: "center",
-    marginTop: "20px",
-    marginBottom: "20px",
-    color: "#666",
-    fontSize: "14px"
-  };
-
-  const statusButtonStyle = (status) => ({
-    padding: "5px 10px",
-    fontSize: "12px",
-    borderRadius: "5px",
-    border: "none",
-    cursor: "pointer",
-    marginTop: "10px",
-    backgroundColor: status === 'published' ? '#28a745' : '#dc3545',
-    color: "white",
-    transition: "all 0.3s ease",
-    width: "100%",
-    opacity: canModifyStatus() ? 1 : 0.5
-  });
-
-  const cardStyle = {
-    padding: "15px",
-    textAlign: "center",
-    borderRadius: "10px",
-    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-    transition: "transform 0.3s ease",
-    height: "100%",
-    position: "relative"
-  };
-
-  const statusBadgeStyle = (status) => ({
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    padding: "4px 8px",
-    borderRadius: "4px",
-    fontSize: "11px",
-    fontWeight: "bold",
-    backgroundColor: status === 'published' ? '#28a745' : '#dc3545',
-    color: "white",
-    zIndex: 10
-  });
 
   if (loading) {
     return (
-      <React.Fragment>
+      <>
         <OffWrap />
-        <Header
-          parentMenu="Cours de la catégorie"
-          secondParentMenu="others"
-          headerNormalLogo={Logo}
-          headerStickyLogo={Logo}
-          CanvasLogo={Logo}
-          mobileNormalLogo={Logo}
-          CanvasClass="right_menu_togle hidden-md"
-          headerClass="full-width-header header-style1 home8-style4"
-          TopBar="enable"
-          TopBarClass="topbar-area home8-topbar"
-          emailAddress="admin@isetso.rnu.tn"
-          Location="Cité Erriadh - B.P 135"
-        />
-        <SiteBreadcrumb
-          pageTitle="Cours de la catégorie"
-          pageName="Liste des Cours"
-          breadcrumbsImg={bannerbg}
-        />
+        <Header parentMenu="Cours" secondParentMenu="others" headerNormalLogo={Logo}
+          headerStickyLogo={Logo} CanvasLogo={Logo} mobileNormalLogo={Logo}
+          CanvasClass="right_menu_togle hidden-md" headerClass="full-width-header header-style1 home8-style4"
+          TopBar="enable" TopBarClass="topbar-area home8-topbar"
+          emailAddress="admin@isetso.rnu.tn" Location="Cité Erriadh - B.P 135" />
+        <SiteBreadcrumb pageTitle="Cours" pageName="Liste des Cours" breadcrumbsImg={bannerbg} />
         <div className="container pt-100 pb-100 text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Chargement...</span>
-          </div>
+          <div className="spinner-border text-primary" role="status"><span className="visually-hidden">Chargement...</span></div>
           <p className="mt-3">Chargement des cours...</p>
         </div>
         <Newsletter sectionClass="rs-newsletter style1 orange-color mb--90 sm-mb-0 sm-pb-80" />
         <Footer footerClass="rs-footer home9-style main-home" footerLogo={footerLogo} />
         <ScrollToTop scrollClassName="scrollup orange-color" />
         <SearchModal />
-      </React.Fragment>
+      </>
     );
   }
 
   if (error) {
     return (
-      <React.Fragment>
+      <>
         <OffWrap />
-        <Header
-          parentMenu="Cours de la catégorie"
-          secondParentMenu="others"
-          headerNormalLogo={Logo}
-          headerStickyLogo={Logo}
-          CanvasLogo={Logo}
-          mobileNormalLogo={Logo}
-          CanvasClass="right_menu_togle hidden-md"
-          headerClass="full-width-header header-style1 home8-style4"
-          TopBar="enable"
-          TopBarClass="topbar-area home8-topbar"
-          emailAddress="admin@isetso.rnu.tn"
-          Location="Cité Erriadh - B.P 135"
-        />
-        <SiteBreadcrumb
-          pageTitle="Cours de la catégorie"
-          pageName="Liste des Cours"
-          breadcrumbsImg={bannerbg}
-        />
+        <Header parentMenu="Cours" secondParentMenu="others" headerNormalLogo={Logo}
+          headerStickyLogo={Logo} CanvasLogo={Logo} mobileNormalLogo={Logo}
+          CanvasClass="right_menu_togle hidden-md" headerClass="full-width-header header-style1 home8-style4"
+          TopBar="enable" TopBarClass="topbar-area home8-topbar"
+          emailAddress="admin@isetso.rnu.tn" Location="Cité Erriadh - B.P 135" />
+        <SiteBreadcrumb pageTitle="Cours" pageName="Liste des Cours" breadcrumbsImg={bannerbg} />
         <div className="container pt-100 pb-100">
           <div className="alert alert-danger text-center">
             <h4>Erreur !</h4>
             <p>{error}</p>
-            <button className="btn btn-primary mt-2" onClick={() => window.location.reload()}>
-              Réessayer
-            </button>
+            <button className="btn btn-primary" onClick={fetchCourses}>Réessayer</button>
           </div>
         </div>
         <Newsletter sectionClass="rs-newsletter style1 orange-color mb--90 sm-mb-0 sm-pb-80" />
         <Footer footerClass="rs-footer home9-style main-home" footerLogo={footerLogo} />
         <ScrollToTop scrollClassName="scrollup orange-color" />
         <SearchModal />
-      </React.Fragment>
+      </>
     );
   }
 
-  return (
-    <React.Fragment>
-      <OffWrap />
-      <Header
-        parentMenu="Cours de la catégorie"
-        secondParentMenu="others"
-        headerNormalLogo={Logo}
-        headerStickyLogo={Logo}
-        CanvasLogo={Logo}
-        mobileNormalLogo={Logo}
-        CanvasClass="right_menu_togle hidden-md"
-        headerClass="full-width-header header-style1 home8-style4"
-        TopBar="enable"
-        TopBarClass="topbar-area home8-topbar"
-        emailAddress="admin@isetso.rnu.tn"
-        Location="Cité Erriadh - B.P 135"
-      />
+  const counts = {
+    all: courses.length,
+    pending: courses.filter(c => c.validation_status === 'pending').length,
+    approved: courses.filter(c => c.validation_status === 'approved').length,
+    rejected: courses.filter(c => c.validation_status === 'rejected').length
+  };
 
-      <SiteBreadcrumb
-        pageTitle={categorieName || "Cours par catégorie"}
-        pageName="Liste des Cours"
-        breadcrumbsImg={bannerbg}
-      />
+  const filterBtnStyle = (active) => ({
+    padding: "8px 20px",
+    fontSize: "14px",
+    border: `1px solid ${active ? '#ff5421' : '#ddd'}`,
+    borderRadius: "20px",
+    backgroundColor: active ? '#ff5421' : '#fff',
+    color: active ? '#fff' : '#666',
+    cursor: "pointer"
+  });
+
+  return (
+    <>
+      <OffWrap />
+      <Header parentMenu="Cours" secondParentMenu="others" headerNormalLogo={Logo}
+        headerStickyLogo={Logo} CanvasLogo={Logo} mobileNormalLogo={Logo}
+        CanvasClass="right_menu_togle hidden-md" headerClass="full-width-header header-style1 home8-style4"
+        TopBar="enable" TopBarClass="topbar-area home8-topbar"
+        emailAddress="admin@isetso.rnu.tn" Location="Cité Erriadh - B.P 135" />
+
+      <SiteBreadcrumb pageTitle={categorieName || "Cours"} pageName="Liste des Cours" breadcrumbsImg={bannerbg} />
       
       <div className="container pt-100 pb-100">
         <h2 className="text-center mb-30">
           <i className="fas fa-folder-open" style={{ color: '#ff5421', marginRight: '10px' }}></i>
-          {categorieName ? `Cours de la catégorie : ${categorieName}` : `Cours de la catégorie N°${idCategorie}`}
-          {filteredCourses.length > 0 && (
-            <span className="badge bg-secondary ms-2">{filteredCourses.length}</span>
-          )}
+          {categorieName || `Catégorie ${idCategorie}`}
+          <span className="badge bg-secondary ms-2">{filteredCourses.length}</span>
         </h2>
-        
-        {categorieInfo && categorieInfo.description && (
-          <div className="text-center mb-40" style={{ color: '#666', maxWidth: '800px', margin: '0 auto 30px auto' }}>
-            <p>{categorieInfo.description}</p>
+
+        {/* Filtres */}
+        <div className="text-center mb-30">
+          <div className="d-flex justify-content-center gap-2 flex-wrap">
+            <button onClick={() => setValidationFilter("all")} style={filterBtnStyle(validationFilter === "all")}>📋 Tous ({counts.all})</button>
+            <button onClick={() => setValidationFilter("pending")} style={filterBtnStyle(validationFilter === "pending")}>⏳ En attente ({counts.pending})</button>
+            <button onClick={() => setValidationFilter("approved")} style={filterBtnStyle(validationFilter === "approved")}>✅ Validés ({counts.approved})</button>
+            <button onClick={() => setValidationFilter("rejected")} style={filterBtnStyle(validationFilter === "rejected")}>❌ Rejetés ({counts.rejected})</button>
           </div>
-        )}
-        
+        </div>
+
+        {/* Recherche */}
         {courses.length > 0 && (
-          <div style={searchContainerStyle}>
-            <input
-              type="text"
-              placeholder="🔍 Rechercher un cours..."
-              value={searchTerm}
-              onChange={handleSearch}
-              style={searchInputStyle}
-              onFocus={(e) => e.target.style.borderColor = "#ff5421"}
-              onBlur={(e) => e.target.style.borderColor = "#ddd"}
-            />
-            {searchTerm && (
-              <button onClick={clearSearch} style={clearButtonStyle}>
-                ✖ Effacer
-              </button>
-            )}
+          <div className="text-center mb-30">
+            <div className="d-flex justify-content-center gap-2 flex-wrap">
+              <input
+                type="text"
+                placeholder="🔍 Rechercher..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+                style={{ width: "300px", padding: "10px 15px", border: "1px solid #ddd", borderRadius: "25px", outline: "none" }}
+              />
+              {(searchTerm || validationFilter !== "all") && (
+                <button onClick={() => { setSearchTerm(""); setValidationFilter("all"); }} style={{ padding: "10px 15px", border: "1px solid #ddd", borderRadius: "25px", background: "#f8f9fa", cursor: "pointer" }}>
+                  ✖ Effacer
+                </button>
+              )}
+            </div>
           </div>
         )}
 
-        {!loading && !error && courses.length > 0 && (
-          <div style={resultCountStyle}>
-            <i className="fas fa-chalkboard"></i> {filteredCourses.length} cours trouvé(s) sur {courses.length} total
-            {searchTerm && ` pour "${searchTerm}"`}
-          </div>
-        )}
-        
-        {filteredCourses.length === 0 && searchTerm && (
-          <div className="alert alert-warning text-center">
-            <i className="fas fa-search"></i>
-            <p className="mt-2 mb-2">
-              Aucun cours ne correspond à votre recherche "<strong>{searchTerm}</strong>"
-            </p>
-            <button className="btn btn-link" onClick={clearSearch}>
-              Afficher tous les cours
-            </button>
-          </div>
-        )}
-
-        {filteredCourses.length === 0 && !searchTerm && courses.length === 0 && (
+        {/* Message aucun résultat */}
+        {filteredCourses.length === 0 && (
           <div className="alert alert-info text-center">
             <i className="fas fa-info-circle"></i>
-            <p className="mt-2 mb-0">Aucun cours trouvé pour cette catégorie.</p>
+            <p>Aucun cours trouvé.</p>
           </div>
         )}
-        
+
+        {/* Grille des cours */}
         {filteredCourses.length > 0 && (
           <div className="row">
-            {filteredCourses.map((cours) => (
-              <div key={cours.id} className="col-lg-4 col-md-6 mb-30">
-                <div style={cardStyle}>
-                  <div style={statusBadgeStyle(cours.status || 'hidden')}>
-                    {cours.status === 'published' ? '✓ Publié' : '🔒 Caché'}
-                  </div>
-                  
-                  <CourseSingleTwo
-                    courseClass="courses-item"
-                    courseImg={cours.image ? `http://localhost:8801/api/image/${cours.image}` : "https://via.placeholder.com/400x250?text=Image+non+disponible"}
-                    courseTitle={cours.titre}
-                    courseCategory={cours.type}
-                    courseid={cours.id}
-                    coursePrice="New"
-                  />
-                  
-                  {canModifyStatus() && (
-                    <button
-                      onClick={() => updateCourseStatus(cours.id, cours.status || 'hidden')}
-                      style={statusButtonStyle(cours.status || 'hidden')}
-                      disabled={updatingStatus === cours.id}
-                    >
-                      {updatingStatus === cours.id ? (
-                        <span>Chargement...</span>
-                      ) : (
-                        cours.status === 'published' ? '🔒 Cacher' : '✓ Publier'
+            {filteredCourses.map((course) => {
+              const badge = getBadge(course.validation_status);
+              const isPending = course.validation_status === 'pending';
+              
+              return (
+                <div key={course.id} className="col-lg-4 col-md-6 mb-30">
+                  <div className="card h-100" style={{ borderRadius: "10px", overflow: "hidden", boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
+                    
+                    {/* Badge validation */}
+                    {badge && (
+                      <div style={{ position: "absolute", top: "10px", left: "10px", zIndex: 10, padding: "4px 8px", borderRadius: "4px", fontSize: "11px", fontWeight: "bold", backgroundColor: badge.bg, color: badge.color }}>
+                        {badge.text}
+                      </div>
+                    )}
+                    
+                    {/* Image */}
+                    <img 
+                      src={course.image ? `${API_URL}/image/${course.image}` : "https://via.placeholder.com/400x250"}
+                      alt={course.titre}
+                      style={{ width: "100%", height: "180px", objectFit: "cover" }}
+                      onError={(e) => e.target.src = "https://via.placeholder.com/400x250"}
+                    />
+                    
+                    <div className="card-body">
+                      <span style={{ fontSize: "12px", color: "#ff5421" }}>
+                        <i className="fas fa-tag"></i> {course.type || "Non catégorisé"}
+                      </span>
+                      
+                      <h5 className="mt-2">
+                        <a href={`/course/course/${course.id}`} style={{ color: "#333", textDecoration: "none" }}>
+                          {course.titre}
+                        </a>
+                      </h5>
+                      
+                      {course.description && (
+                        <p className="text-muted small">
+                          {course.description.length > 100 ? course.description.substring(0, 100) + "..." : course.description}
+                        </p>
                       )}
-                    </button>
-                  )}
+                      
+                      <div className="mb-2">
+                        <i className="fas fa-user" style={{ color: "#ff5421" }}></i>
+                        <span className="ms-1 small">{course.enseignant || "Enseignant"}</span>
+                      </div>
+                      
+                      {course.validation_comment && course.validation_status !== 'pending' && (
+                        <div className="alert alert-light small p-2">
+                          <i className="fas fa-comment"></i> {course.validation_comment}
+                        </div>
+                      )}
+                      
+                      <div className="d-flex justify-content-between text-muted small mb-3">
+                        <span><i className="fas fa-clock"></i> {formatDuration(course.duration) || "N/A"}</span>
+                        <span><i className="fas fa-signal"></i> {course.level || "Niveau"}</span>
+                      </div>
+                      
+                      {/* Actions coordinateur */}
+                      {isCoordinator && isPending && (
+                        <div className="mt-2">
+                          <textarea
+                            className="form-control form-control-sm mb-2"
+                            rows="2"
+                            placeholder="Commentaire..."
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                          />
+                          <div className="d-flex gap-2">
+                            <button
+                              className="btn btn-sm w-50"
+                              style={{ backgroundColor: "#ff5421", color: "white", border: "none" }}
+                              onClick={() => handleApprove(course.id)}
+                              disabled={updatingId === course.id}
+                            >
+                              {updatingId === course.id ? "..." : "✅ Valider"}
+                            </button>
+                            <button
+                              className="btn btn-sm w-50"
+                              style={{ backgroundColor: "#dc3545", color: "white", border: "none" }}
+                              onClick={() => handleReject(course.id)}
+                              disabled={updatingId === course.id}
+                            >
+                              ✗ Rejeter
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {!isCoordinator && isPending && (
+                        <div className="alert alert-info text-center mt-2" style={{ fontSize: "12px", padding: "8px" }}>
+                          <i className="fas fa-hourglass-half"></i> En attente de validation
+                        </div>
+                      )}
+                      
+                      {course.validation_status === 'rejected' && (
+                        <div className="alert alert-warning text-center mt-2" style={{ fontSize: "12px", padding: "8px" }}>
+                          <i className="fas fa-exclamation-triangle"></i> Cours rejeté
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
         
         {filteredCourses.length > 0 && (
-          <div className="text-center mt-4">
-            <small className="text-muted">
-              <i className="fas fa-chart-line me-1"></i>
-              Total: {filteredCourses.length} cours
-              {searchTerm && ` (filtré sur ${courses.length} total)`}
-            </small>
+          <div className="text-center mt-4 text-muted small">
+            <i className="fas fa-chart-line"></i> {filteredCourses.length} cours sur {courses.length}
           </div>
         )}
       </div>
@@ -468,7 +371,7 @@ const ListeCoursParCategorie = () => {
       <Footer footerClass="rs-footer home9-style main-home" footerLogo={footerLogo} />
       <ScrollToTop scrollClassName="scrollup orange-color" />
       <SearchModal />
-    </React.Fragment>
+    </>
   );
 };
 

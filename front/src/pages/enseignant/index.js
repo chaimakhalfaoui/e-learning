@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -19,126 +19,37 @@ import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/2.jpg';
 
+const API_URL = 'http://localhost:8801/api';
+
 const Enseignants = () => {
-    const { idUser, role } = useAuth();
+    const { role } = useAuth();
     const [enseignants, setEnseignants] = useState([]);
     const [filteredEnseignants, setFilteredEnseignants] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [userRole, setUserRole] = useState(null);
+    const [showRoleModal, setShowRoleModal] = useState(false);
+    const [selectedEnseignant, setSelectedEnseignant] = useState(null);
+    const [selectedRole, setSelectedRole] = useState("");
+    const [updatingRole, setUpdatingRole] = useState(false);
+    const [editingCell, setEditingCell] = useState(null);
+    const [editValue, setEditValue] = useState("");
+    const [message, setMessage] = useState(null);
     const navigate = useNavigate();
 
-    // Vérification des droits d'accès
-    useEffect(() => {
-        const checkAccess = async () => {
-            try {
-                const userRoleValue = await role();
-                setUserRole(userRoleValue);
-                
-                // Autoriser uniquement coordinateur ou admin
-                if (userRoleValue !== 'coordinateur' && userRoleValue !== 'admin') {
-                    navigate('/404');
-                }
-            } catch (error) {
-                console.error("Erreur lors de la récupération du rôle:", error);
-                navigate('/404');
-            }
-        };
-        
-        checkAccess();
-    }, [role, navigate]);
+    const rolesList = [
+        { value: 'coordinateur', label: 'Coordinateur', icon: 'fas fa-users-gear', color: '#ff5421' },
+        { value: 'etudiant', label: 'Étudiant', icon: 'fas fa-user-graduate', color: '#28a745' },
+        { value: 'enseignant', label: 'Enseignant', icon: 'fas fa-chalkboard-user', color: '#17a2b8' }
+    ];
 
-    // Récupération des enseignants
-    useEffect(() => {
-        fetchEnseignants();
+    const showMessage = useCallback((type, title, text) => {
+        setMessage({ type, title, text });
+        const timer = setTimeout(() => setMessage(null), 3000);
+        return () => clearTimeout(timer);
     }, []);
 
-    const fetchEnseignants = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.get("http://localhost:8801/api/enseignants");
-            setEnseignants(response.data);
-            setFilteredEnseignants(response.data);
-        } catch (error) {
-            console.error("Erreur lors de la récupération des enseignants:", error);
-            setError("Impossible de charger la liste des enseignants.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Fonction de recherche
-    const handleSearch = (e) => {
-        const term = e.target.value.toLowerCase();
-        setSearchTerm(term);
-        
-        if (term === "") {
-            setFilteredEnseignants(enseignants);
-        } else {
-            const filtered = enseignants.filter(ens => 
-                ens.username?.toLowerCase().includes(term) ||
-                ens.email?.toLowerCase().includes(term) ||
-                ens.telephone?.toLowerCase().includes(term) ||
-                ens.genre?.toLowerCase().includes(term) ||
-                ens.id?.toString().includes(term)
-            );
-            setFilteredEnseignants(filtered);
-        }
-    };
-
-    // Effacer la recherche
-    const clearSearch = () => {
-        setSearchTerm("");
-        setFilteredEnseignants(enseignants);
-    };
-
-    // Suppression d'un enseignant
-    const handleDelete = async (id, username) => {
-        if (window.confirm(`Voulez-vous vraiment supprimer l'enseignant "${username}" ?`)) {
-            try {
-                await axios.delete(`http://localhost:8801/api/enseignants/${id}`);
-                const updatedEnseignants = enseignants.filter(ens => ens.id !== id);
-                setEnseignants(updatedEnseignants);
-                setFilteredEnseignants(updatedEnseignants);
-                alert("Enseignant supprimé avec succès !");
-            } catch (error) {
-                console.error("Erreur lors de la suppression:", error);
-                alert("Erreur lors de la suppression de l'enseignant.");
-            }
-        }
-    };
-
-    // Styles personnalisés
-    const searchContainerStyle = {
-        marginBottom: "20px",
-        display: "flex",
-        justifyContent: "flex-end",
-        gap: "10px"
-    };
-
-    const searchInputStyle = {
-        padding: "10px 15px",
-        fontSize: "14px",
-        border: "1px solid #ddd",
-        borderRadius: "5px",
-        outline: "none",
-        width: "300px",
-        transition: "all 0.3s ease"
-    };
-
-    const clearButtonStyle = {
-        padding: "10px 15px",
-        fontSize: "14px",
-        border: "1px solid #ddd",
-        borderRadius: "5px",
-        backgroundColor: "#f8f9fa",
-        cursor: "pointer",
-        transition: "all 0.3s ease"
-    };
-
-    const addButtonStyle = {
+        const addButtonStyle = {
         backgroundColor: "#ff5421",
         color: "white",
         border: "none",
@@ -149,6 +60,266 @@ const Enseignants = () => {
         display: "inline-flex",
         alignItems: "center",
         gap: "8px"
+    };
+
+    useEffect(() => {
+        const checkAccess = async () => {
+            try {
+                const userRole = await role();
+                if (userRole !== 'admin' && userRole !== 'coordinateur') {
+                    navigate('/404');
+                }
+            } catch (error) {
+                navigate('/404');
+            }
+        };
+        checkAccess();
+    }, [role, navigate]);
+
+    useEffect(() => {
+        fetchEnseignants();
+    }, []);
+
+    const fetchEnseignants = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${API_URL}/enseignants`);
+            setEnseignants(response.data);
+            setFilteredEnseignants(response.data);
+        } catch (error) {
+            setError("Impossible de charger la liste des enseignants.");
+            showMessage('error', 'Erreur', "Impossible de charger la liste des enseignants");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSearch = (e) => {
+        const term = e.target.value.toLowerCase();
+        setSearchTerm(term);
+        
+        if (term === "") {
+            setFilteredEnseignants([...enseignants]);
+        } else {
+            const filtered = enseignants.filter(ens => 
+                ens.username?.toLowerCase().includes(term) ||
+                ens.email?.toLowerCase().includes(term) ||
+                ens.telephone?.toLowerCase().includes(term) ||
+                ens.genre?.toLowerCase().includes(term) ||
+                ens.role?.toLowerCase().includes(term) ||
+                ens.id?.toString().includes(term)
+            );
+            setFilteredEnseignants([...filtered]);
+        }
+    };
+
+    const clearSearch = () => {
+        setSearchTerm("");
+        setFilteredEnseignants([...enseignants]);
+        showMessage('info', 'Recherche', 'Filtre de recherche réinitialisé');
+    };
+
+    const handleDelete = async (id, username) => {
+        if (window.confirm(`Voulez-vous vraiment supprimer "${username}" ?`)) {
+            try {
+                await axios.delete(`${API_URL}/enseignants/${id}`);
+                const updated = enseignants.filter(ens => ens.id !== id);
+                setEnseignants([...updated]);
+                setFilteredEnseignants([...updated]);
+                showMessage('success', 'Suppression réussie', `L'enseignant "${username}" a été supprimé`);
+            } catch (error) {
+                showMessage('error', 'Erreur', `Impossible de supprimer "${username}"`);
+            }
+        }
+    };
+
+    const startEditing = (id, field, value) => {
+        setEditingCell({ id, field });
+        setEditValue(value || '');
+    };
+
+    const cancelEditing = () => {
+        setEditingCell(null);
+        setEditValue("");
+    };
+
+    const saveEditing = async () => {
+        if (!editingCell) return;
+        
+        const { id, field } = editingCell;
+        const userToUpdate = enseignants.find(u => u.id === id);
+        if (!userToUpdate) return;
+        
+        const updatedData = {
+            username: field === 'username' ? editValue : userToUpdate.username,
+            email: field === 'email' ? editValue : userToUpdate.email,
+            age: field === 'age' ? editValue : userToUpdate.age,
+            telephone: field === 'telephone' ? editValue : userToUpdate.telephone,
+            genre: field === 'genre' ? editValue : userToUpdate.genre
+        };
+        
+        try {
+            await axios.put(`${API_URL}/enseignants/${id}`, updatedData);
+            
+            const updatedEnseignants = enseignants.map(ens =>
+                ens.id === id ? { ...ens, [field]: editValue } : ens
+            );
+            setEnseignants([...updatedEnseignants]);
+            setFilteredEnseignants([...updatedEnseignants]);
+            
+            const fieldNames = {
+                username: 'Nom',
+                email: 'Email',
+                age: 'Âge',
+                telephone: 'Téléphone',
+                genre: 'Genre'
+            };
+            
+            showMessage('success', 'Succès', `${fieldNames[field]} mis à jour`);
+            cancelEditing();
+        } catch (error) {
+            console.error("Erreur modification:", error);
+            showMessage('error', 'Erreur', "Modification impossible");
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            saveEditing();
+        } else if (e.key === 'Escape') {
+            cancelEditing();
+        }
+    };
+
+    const openRoleModal = (enseignant) => {
+        setSelectedEnseignant(enseignant);
+        setSelectedRole(enseignant.role || 'enseignant');
+        setShowRoleModal(true);
+    };
+
+    const closeRoleModal = () => {
+        setShowRoleModal(false);
+        setSelectedEnseignant(null);
+        setSelectedRole("");
+    };
+
+    const updateRole = async () => {
+        if (!selectedEnseignant) return;
+        
+        setUpdatingRole(true);
+        try {
+            const response = await axios.put(`${API_URL}/users/${selectedEnseignant.id}/role`, {
+                role: selectedRole
+            });
+            
+            const updatedUsers = enseignants.map(user => 
+                user.id === selectedEnseignant.id ? { ...user, role: selectedRole } : user
+            );
+            setEnseignants([...updatedUsers]);
+            setFilteredEnseignants([...updatedUsers]);
+            
+            const nouveauRoleLabel = rolesList.find(r => r.value === selectedRole)?.label;
+            const ancienRoleLabel = rolesList.find(r => r.value === response.data.ancienRole)?.label;
+            
+            showMessage('success', 'Rôle modifié', `${selectedEnseignant.username} : ${ancienRoleLabel} → ${nouveauRoleLabel}`);
+            closeRoleModal();
+        } catch (error) {
+            console.error("Erreur mise à jour rôle:", error);
+            showMessage('error', 'Erreur', "Impossible de modifier le rôle");
+        } finally {
+            setUpdatingRole(false);
+        }
+    };
+
+    const getRoleBadge = (role) => {
+        const roleInfo = rolesList.find(r => r.value === role) || rolesList[2];
+        return (
+            <span style={{
+                backgroundColor: roleInfo.color,
+                color: 'white',
+                padding: '5px 10px',
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px'
+            }}>
+                <i className={roleInfo.icon}></i>
+                {roleInfo.label}
+            </span>
+        );
+    };
+
+    const renderEditableCell = (ens, field, displayValue, icon) => {
+        const isEditing = editingCell && editingCell.id === ens.id && editingCell.field === field;
+        
+        if (isEditing) {
+            if (field === 'genre') {
+                return (
+                    <select
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onBlur={saveEditing}
+                        onKeyPress={handleKeyPress}
+                        className="form-control form-control-sm"
+                        autoFocus
+                    >
+                        <option value="">Sélectionner</option>
+                        <option value="Homme">Homme</option>
+                        <option value="Femme">Femme</option>
+                    </select>
+                );
+            }
+            
+            return (
+                <input
+                    type={field === 'age' ? 'number' : field === 'email' ? 'email' : 'text'}
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onBlur={saveEditing}
+                    onKeyPress={handleKeyPress}
+                    className="form-control form-control-sm"
+                    autoFocus
+                />
+            );
+        }
+        
+        return (
+            <span onDoubleClick={() => startEditing(ens.id, field, displayValue)} style={{ cursor: 'pointer' }}>
+                {icon && <i className={icon} style={{ marginRight: '5px', color: '#ff5421' }}></i>}
+                {displayValue || '_'}
+                {field === 'age' && displayValue ? ' ans' : ''}
+            </span>
+        );
+    };
+
+    const MessageToast = () => {
+        if (!message) return null;
+        const colors = {
+            success: { bg: '#d4edda', border: '#28a745', text: '#155724' },
+            error: { bg: '#f8d7da', border: '#dc3545', text: '#721c24' },
+            info: { bg: '#d1ecf1', border: '#17a2b8', text: '#0c5460' }
+        };
+        const style = colors[message.type] || colors.info;
+        
+        return (
+            <div style={{
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                zIndex: 10000,
+                backgroundColor: style.bg,
+                borderLeft: `4px solid ${style.border}`,
+                padding: '12px 16px',
+                borderRadius: '4px',
+                minWidth: '300px',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+            }}>
+                <strong style={{ color: style.text }}>{message.title}</strong>
+                <div style={{ color: style.text, fontSize: '14px', marginTop: '4px' }}>{message.text}</div>
+            </div>
+        );
     };
 
     if (loading) {
@@ -176,40 +347,11 @@ const Enseignants = () => {
         );
     }
 
-    if (error) {
-        return (
-            <React.Fragment>
-                <Helmet><link rel="icon" href={favIcon} /></Helmet>
-                <OffWrap />
-                <Header parentMenu='admin' secondParentMenu='enseignants' headerNormalLogo={Logo}
-                    headerStickyLogo={Logo} CanvasLogo={Logo} mobileNormalLogo={Logo}
-                    CanvasClass="right_menu_togle hidden-md" headerClass="full-width-header header-style1 home8-style4"
-                    TopBar='enable' TopBarClass="topbar-area home8-topbar"
-                    emailAddress='isetso.rnu.tn' Location='Cité Erriadh - B.P 135' />
-                <SiteBreadcrumb pageTitle="Liste des Enseignants" pageName="Enseignants" breadcrumbsImg={bannerbg} />
-                <div className="container mt-5">
-                    <div className="alert alert-danger" role="alert">
-                        <h4 className="alert-heading">Erreur !</h4>
-                        <p>{error}</p>
-                        <hr />
-                        <button className="btn btn-primary" onClick={() => window.location.reload()}>
-                            Réessayer
-                        </button>
-                    </div>
-                </div>
-                <Newsletter sectionClass="rs-newsletter style1 orange-color mb--90 sm-mb-0 sm-pb-70" />
-                <Footer footerClass="rs-footer home9-style main-home" footerLogo={footerLogo} />
-                <ScrollToTop scrollClassName="scrollup orange-color" />
-                <SearchModal />
-            </React.Fragment>
-        );
-    }
-
     return (
         <React.Fragment>
-            <Helmet>
-                <link rel="icon" href={favIcon} />
-            </Helmet>
+            <Helmet><link rel="icon" href={favIcon} /></Helmet>
+            <MessageToast />
+            
             <OffWrap />
             <Header
                 parentMenu='admin'
@@ -249,101 +391,96 @@ const Enseignants = () => {
                     </div>
                 </div>
 
-                {/* Barre de recherche */}
-                <div style={searchContainerStyle}>
+                <div style={{
+                    marginBottom: "20px",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: "10px"
+                }}>
                     <input
                         type="text"
                         placeholder="🔍 Rechercher par nom, email, téléphone..."
                         value={searchTerm}
                         onChange={handleSearch}
-                        style={searchInputStyle}
-                        onFocus={(e) => e.target.style.borderColor = "#ff5421"}
-                        onBlur={(e) => e.target.style.borderColor = "#ddd"}
+                        style={{
+                            padding: "10px 15px",
+                            fontSize: "14px",
+                            border: "1px solid #ddd",
+                            borderRadius: "5px",
+                            outline: "none",
+                            width: "300px"
+                        }}
                     />
                     {searchTerm && (
-                        <button onClick={clearSearch} style={clearButtonStyle}>
+                        <button onClick={clearSearch} style={{
+                            padding: "10px 15px",
+                            fontSize: "14px",
+                            border: "1px solid #ddd",
+                            borderRadius: "5px",
+                            backgroundColor: "#f8f9fa",
+                            cursor: "pointer"
+                        }}>
                             ✖ Effacer
                         </button>
                     )}
                 </div>
 
-                {filteredEnseignants.length === 0 && searchTerm && (
-                    <div className="alert alert-warning text-center">
-                        <i className="fas fa-search"></i>
-                        <p className="mt-2 mb-0">
-                            Aucun enseignant ne correspond à votre recherche "<strong>{searchTerm}</strong>"
-                        </p>
-                        <button className="btn btn-link" onClick={clearSearch}>
-                            Afficher tous les enseignants
-                        </button>
+                {error && (
+                    <div className="alert alert-danger text-center">
+                        <p>{error}</p>
+                        <button className="btn btn-primary" onClick={fetchEnseignants}>Réessayer</button>
                     </div>
                 )}
 
-                {filteredEnseignants.length === 0 && !searchTerm && (
+                {!error && filteredEnseignants.length === 0 && (
                     <div className="alert alert-info text-center">
-                        <i className="fas fa-info-circle"></i>
-                        <p className="mt-2 mb-0">Aucun enseignant trouvé.</p>
-                        <Link to="/admin/createns" className="btn btn-primary mt-3">
-                            <i className="fas fa-plus me-2"></i> Ajouter votre premier enseignant
-                        </Link>
+                        <p>Aucun enseignant trouvé.</p>
                     </div>
                 )}
 
-                {filteredEnseignants.length > 0 && (
+                {!error && filteredEnseignants.length > 0 && (
                     <div className="table-responsive">
                         <table className="table table-striped table-bordered table-hover">
                             <thead className="table-dark">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Nom d'utilisateur</th>
+                                    <th>Nom</th>
                                     <th>Email</th>
                                     <th>Âge</th>
                                     <th>Téléphone</th>
                                     <th>Genre</th>
-                                    <th>Date création</th>
+                                    <th>Rôle</th>
+                                    <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredEnseignants.map(ens => (
                                     <tr key={ens.id}>
-                                        <td>{ens.id ?? '_'}</td>
+                                        <td>{ens.id}</td>
+                                        <td>{renderEditableCell(ens, 'username', ens.username, 'fas fa-chalkboard-user')}</td>
+                                        <td>{renderEditableCell(ens, 'email', ens.email, 'fas fa-envelope')}</td>
+                                        <td>{renderEditableCell(ens, 'age', ens.age, null)}</td>
+                                        <td>{renderEditableCell(ens, 'telephone', ens.telephone, 'fas fa-phone')}</td>
+                                        <td>{renderEditableCell(ens, 'genre', ens.genre, null)}</td>
                                         <td>
-                                            <i className="fas fa-chalkboard-user me-2" style={{ color: '#ff5421' }}></i>
-                                            {ens.username ?? '_'}
+                                            <button
+                                                onClick={() => openRoleModal(ens)}
+                                                style={{
+                                                    background: "none",
+                                                    border: "none",
+                                                    padding: 0,
+                                                    cursor: "pointer"
+                                                }}
+                                                title="Cliquer pour modifier le rôle"
+                                            >
+                                                {getRoleBadge(ens.role || 'enseignant')}
+                                            </button>
                                         </td>
                                         <td>
-                                            <i className="fas fa-envelope me-2" style={{ color: '#ff5421' }}></i>
-                                            {ens.email ?? '_'}
-                                        </td>
-                                        <td>{ens.age ?? '_'} ans</td>
-                                        <td>
-                                            <i className="fas fa-phone me-2" style={{ color: '#ff5421' }}></i>
-                                            {ens.telephone ?? '_'}
-                                        </td>
-                                        <td>
-                                            {ens.genre === 'Homme' ? (
-                                                <i className="fas fa-mars me-1" style={{ color: '#007bff' }}></i>
-                                            ) : ens.genre === 'Femme' ? (
-                                                <i className="fas fa-venus me-1" style={{ color: '#ff69b4' }}></i>
-                                            ) : (
-                                                <i className="fas fa-genderless me-1"></i>
-                                            )}
-                                            {ens.genre ?? '_'}
-                                        </td>
-                                        <td>
-                                            <i className="fas fa-calendar-alt me-2" style={{ color: '#ff5421' }}></i>
                                             {ens.created_at ? new Date(ens.created_at).toLocaleDateString('fr-FR') : '_'}
                                         </td>
                                         <td className="text-center">
-                                            <Link 
-                                                to={`/enseignants/edit/${ens.id}`} 
-                                                className="me-3" 
-                                                title="Modifier"
-                                                style={{ color: '#007bff', textDecoration: 'none' }}
-                                            >
-                                                <i className="fas fa-edit fa-lg"></i>
-                                            </Link>
                                             <button
                                                 onClick={() => handleDelete(ens.id, ens.username)}
                                                 style={{
@@ -365,8 +502,7 @@ const Enseignants = () => {
                     </div>
                 )}
                 
-                {/* Statistiques */}
-                {filteredEnseignants.length > 0 && (
+                {!error && filteredEnseignants.length > 0 && (
                     <div className="mt-3 text-muted text-center">
                         <small>
                             <i className="fas fa-chart-line me-1"></i>
@@ -377,20 +513,84 @@ const Enseignants = () => {
                 )}
             </div>
 
-            <Newsletter
-                sectionClass="rs-newsletter style1 orange-color mb--90 sm-mb-0 sm-pb-70"
-                titleClass="title mb-0 white-color"
-            />
+            {/* Modal Rôle */}
+            {showRoleModal && selectedEnseignant && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 9999
+                    }}
+                    onClick={closeRoleModal}
+                >
+                    <div
+                        style={{
+                            backgroundColor: "white",
+                            borderRadius: "10px",
+                            padding: "30px",
+                            width: "90%",
+                            maxWidth: "500px",
+                            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ margin: 0 }}>
+                                <i className="fas fa-user-tag" style={{ color: '#ff5421', marginRight: '10px' }}></i>
+                                Modifier le rôle
+                            </h3>
+                            <button onClick={closeRoleModal} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#999' }}>×</button>
+                        </div>
+                        
+                        <p><strong>Utilisateur :</strong> {selectedEnseignant.username}</p>
+                        <p><strong>Email :</strong> {selectedEnseignant.email}</p>
+                        <p><strong>Rôle actuel :</strong> {getRoleBadge(selectedEnseignant.role || 'enseignant')}</p>
+                        
+                        <label style={{ display: 'block', marginTop: '20px', fontWeight: 'bold' }}>Nouveau rôle :</label>
+                        <select 
+                            value={selectedRole} 
+                            onChange={(e) => setSelectedRole(e.target.value)} 
+                            style={{
+                                width: "100%",
+                                padding: "10px",
+                                marginTop: "10px",
+                                marginBottom: "20px",
+                                border: "1px solid #ddd",
+                                borderRadius: "5px",
+                                fontSize: "14px"
+                            }}
+                            disabled={updatingRole}
+                        >
+                            {rolesList.map(role => (
+                                <option key={role.value} value={role.value}>{role.label}</option>
+                            ))}
+                        </select>
+                        
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
+                            <button onClick={closeRoleModal} style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }} disabled={updatingRole}>
+                                Annuler
+                            </button>
+                            <button onClick={updateRole} style={{ padding: '10px 20px', backgroundColor: '#ff5421', color: 'white', border: 'none', borderRadius: '5px', cursor: updatingRole ? 'not-allowed' : 'pointer' }} disabled={updatingRole}>
+                                {updatingRole ? 'Mise à jour...' : 'Enregistrer'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-            <Footer
-                footerClass="rs-footer home9-style main-home"
-                footerLogo={footerLogo}
-            />
-
+            <Newsletter sectionClass="rs-newsletter style1 orange-color mb--90 sm-mb-0 sm-pb-70" />
+            <Footer footerClass="rs-footer home9-style main-home" footerLogo={footerLogo} />
             <ScrollToTop scrollClassName="scrollup orange-color" />
             <SearchModal />
         </React.Fragment>
     );
-}
+};
 
 export default Enseignants;

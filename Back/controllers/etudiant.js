@@ -41,17 +41,45 @@ export const addEtudiant = (req, res) => {
   });
 };
 
-// ✅ Modifier un étudiant
+// ✅ CORRIGÉ: Modifier un étudiant en préservant le rôle
 export const updateEtudiant = (req, res) => {
   const etudiantId = req.params.id;
-  const { username, email, role } = req.body;
-  const query = "UPDATE Users SET username = ?, email = ?, role = ? WHERE id = ? ";
-  db.query(query, [username, email, role, etudiantId], (err) => {
+  const { username, email, age, telephone, genre } = req.body;
+  
+  // D'abord, récupérer le rôle actuel de l'étudiant
+  const getRoleQuery = "SELECT role FROM Users WHERE id = ?";
+  db.query(getRoleQuery, [etudiantId], (err, result) => {
     if (err) {
-      console.error("Erreur lors de la modification de l'étudiant :", err);
+      console.error("Erreur lors de la récupération du rôle:", err);
       return res.status(500).json({ error: "Erreur serveur." });
     }
-    return res.status(200).json({ message: "Étudiant mis à jour avec succès" });
+    
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Étudiant non trouvé" });
+    }
+    
+    const currentRole = result[0].role;
+    
+    // Mise à jour en conservant le rôle actuel et tous les champs
+    const query = `UPDATE Users SET 
+      username = ?, 
+      email = ?, 
+      age = ?, 
+      telephone = ?, 
+      genre = ?, 
+      role = ? 
+      WHERE id = ? AND role = 'etudiant'`;
+    
+    db.query(query, [username, email, age || null, telephone || null, genre || null, currentRole, etudiantId], (err, updateResult) => {
+      if (err) {
+        console.error("Erreur lors de la modification de l'étudiant :", err);
+        return res.status(500).json({ error: "Erreur serveur." });
+      }
+      if (updateResult.affectedRows === 0) {
+        return res.status(404).json({ error: "Étudiant non trouvé" });
+      }
+      return res.status(200).json({ message: "Étudiant mis à jour avec succès" });
+    });
   });
 };
 

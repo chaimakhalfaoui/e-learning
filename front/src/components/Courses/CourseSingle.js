@@ -4,29 +4,30 @@ import { Link } from 'react-router-dom';
 const CourseSingle = (props) => {
     // Formater le nombre d'étudiants
     const formatStudentCount = (count) => {
-        if (!count) return '0';
-        if (count >= 1000) {
-            return (count / 1000).toFixed(1) + 'k';
+        if (!count && count !== 0) return '0';
+        const numCount = parseInt(count) || 0;
+        if (numCount >= 1000) {
+            return (numCount / 1000).toFixed(1) + 'k';
         }
-        return count.toString();
+        return numCount.toString();
     };
 
-    // Afficher les étoiles
-    const renderStars = (rating) => {
-        const stars = [];
-        const fullStars = Math.floor(rating || 4.5);
-        const hasHalfStar = (rating % 1) >= 0.5;
-        
-        for (let i = 0; i < 5; i++) {
-            if (i < fullStars) {
-                stars.push(<i key={i} className="fa fa-star" style={{ color: '#ff5421' }}></i>);
-            } else if (i === fullStars && hasHalfStar) {
-                stars.push(<i key={i} className="fa fa-star-half-o" style={{ color: '#ff5421' }}></i>);
-            } else {
-                stars.push(<i key={i} className="fa fa-star-o" style={{ color: '#ff5421' }}></i>);
-            }
-        }
-        return stars;
+    // Formater la durée
+    const formatDuration = (duration) => {
+        if (!duration) return null;
+        if (typeof duration === 'string') return duration;
+        const hours = Math.floor(duration);
+        const minutes = Math.round((duration - hours) * 60);
+        if (hours === 0) return `${minutes}min`;
+        if (minutes === 0) return `${hours}h`;
+        return `${hours}h ${minutes}min`;
+    };
+
+    // Tronquer la description
+    const truncateDescription = (text, maxLength = 100) => {
+        if (!text) return '';
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
     };
 
     return (
@@ -42,32 +43,75 @@ const CourseSingle = (props) => {
                                 e.target.src = "https://via.placeholder.com/400x250?text=Image+non+disponible";
                             }}
                         />
+                        {props.category && (
+                            <span style={{
+                                position: 'absolute',
+                                top: '10px',
+                                left: '10px',
+                                backgroundColor: '#ff5421',
+                                color: 'white',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                                fontSize: '12px',
+                                fontWeight: 'bold'
+                            }}>
+                                {props.category}
+                            </span>
+                        )}
+                        {props.duration && formatDuration(props.duration) && (
+                            <span style={{
+                                position: 'absolute',
+                                bottom: '10px',
+                                right: '10px',
+                                backgroundColor: 'rgba(0,0,0,0.7)',
+                                color: 'white',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                                fontSize: '12px'
+                            }}>
+                                <i className="fa fa-clock-o me-1"></i>
+                                {formatDuration(props.duration)}
+                            </span>
+                        )}
                     </Link>
                 </div>
                 <div className="content-part">
-                    <div className="info-meta">
-                        <ul>
-                            <li className="ratings">
-                                {renderStars(props.rating)}
-                                <span>({props.reviewCount} notation(s))</span>
-                            </li>
-                        </ul>
-                    </div>
                     <h3 className="title">
                         <Link to={`/course/course/${props.courseLink}`}>
-                            {props.title}
+                            {props.title || 'Titre du cours'}
                         </Link>
                     </h3>
-                    <ul className="meta-part">
-                        <li className="user">
-                            <i className="fa fa-user"></i>
-                            {formatStudentCount(props.studentQuantity)} Étudiants
-                        </li>
-                        <li className="user">
-                            <i className="fa fa-file"></i>
-                            {props.lessonsQuantity} Leçons
-                        </li>
-                    </ul>
+                    
+                    {/* Description */}
+                    {props.description && (
+                        <p style={{
+                            fontSize: '13px',
+                            color: '#666',
+                            marginBottom: '12px',
+                            lineHeight: '1.5'
+                        }}>
+                            {truncateDescription(props.description)}
+                        </p>
+                    )}
+                
+                    
+                    <div style={{
+                        marginTop: '10px',
+                        paddingTop: '10px',
+                        borderTop: '1px solid #eee'
+                    }}>
+                        <Link 
+                            to={`/course/course/${props.courseLink}`}
+                            style={{
+                                color: '#ff5421',
+                                fontSize: '13px',
+                                fontWeight: 'bold',
+                                textDecoration: 'none'
+                            }}
+                        >
+                            Voir plus des cours <i className="fa fa-arrow-right ms-1"></i>
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>
@@ -76,12 +120,12 @@ const CourseSingle = (props) => {
 
 CourseSingle.defaultProps = {
     itemClass: 'courses-item',
-    studentQuantity: 0,
-    lessonsQuantity: 0,
-    rating: 4.5,
-    reviewCount: 0,
     title: 'Titre du cours',
-    courseLink: '#'
+    courseLink: '#',
+    image: null,
+    category: null,
+    duration: null,
+    description: null,
 };
 
 export default CourseSingle;

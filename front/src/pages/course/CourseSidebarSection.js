@@ -40,7 +40,7 @@ const CourseSidebar = ({ handleSearch, handleFilterDuration, handleFilterLevel, 
                         <button type="submit" value="Search"><i className=" flaticon-search"></i></button>
                     </div>
                 </div>
-                <div className="widget-archives mb-50">
+                {/*<div className="widget-archives mb-50">
                     <h3 className="widget-title">Filtrer par</h3>
                     <div className="filter-widget">
                         <div className="filter-form">
@@ -108,10 +108,6 @@ const CourseSidebar = ({ handleSearch, handleFilterDuration, handleFilterLevel, 
                                         <label htmlFor="type8">15+ heures</label>
                                     </div>
                                 </div>
-
-              
-
-                                    {/* Ajoutez d'autres boutons radio pour les autres catégories ici */}
                                 </div>
 
                                 <div className="form-group mb-0">

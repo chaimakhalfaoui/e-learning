@@ -1,6 +1,7 @@
 import React from 'react';
 
 const SectionTitle = (props) => {
+    {
     return (
         <div className={props.sectionClass}>
             <div className={props.subtitleClass}>{props.subtitle}</div>
@@ -10,6 +11,7 @@ const SectionTitle = (props) => {
             <div className={props.effectClass}></div>
         </div>
     );
+    }
 }
 
 export default SectionTitle

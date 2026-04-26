@@ -208,19 +208,7 @@ const CreateEns = () => {
             />
 
             <div className="register-section pt-100 pb-100 md-pt-80 md-pb-80">
-                <div className="container">
-                    <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-                        <button 
-                            type="button" 
-                            style={backButtonStyle}
-                            onClick={() => navigate(-1)}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = "#5a6268"}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = "#6c757d"}
-                        >
-                            <i className="fas fa-arrow-left"></i> Retour
-                        </button>
-                    </div>
-                    
+                <div className="container">                    
                     <div style={formContainerStyle}>
                         <div className="sec-title text-center mb-30">
                             <h2 className="title mb-10">

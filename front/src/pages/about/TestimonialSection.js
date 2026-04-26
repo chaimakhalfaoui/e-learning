@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import Slider from "react-slick";
-import SectionTitle from '../../components/Common/SectionTitle';
-import SingleTestimonialThree from '../../components/Testimonial/SingleTestimonialThree';
-import { useAuth } from '../../context/authContext'; 
-import axios from 'axios';
-import '../../assets/scss/style.scss';
+//import React, { useEffect, useState } from 'react';
+//import Slider from "react-slick";
+//import SectionTitle from '../../components/Common/SectionTitle';
+//import SingleTestimonialThree from '../../components/Testimonial/SingleTestimonialThree';
+//import { useAuth } from '../../context/authContext'; 
+//import axios from 'axios';
+//import '../../assets/scss/style.scss';
 
 // Testimonial Avatars
-import author1 from '../../assets/img/testimonial/style3/1.png';
-import author2 from '../../assets/img/testimonial/style3/2.png';
-import author3 from '../../assets/img/testimonial/style3/3.png';
-import author4 from '../../assets/img/testimonial/style3/4.png';
-import author5 from '../../assets/img/testimonial/style3/5.png';
+//import author1 from '../../assets/img/testimonial/style3/1.png';
+//import author2 from '../../assets/img/testimonial/style3/2.png';
+//import author3 from '../../assets/img/testimonial/style3/3.png';
+//import author4 from '../../assets/img/testimonial/style3/4.png';
+//import author5 from '../../assets/img/testimonial/style3/5.png';
 
 const Testimonial = () => {
+    {/*
     const { idUser, role, isAuthenticated } = useAuth();
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -203,7 +204,7 @@ const Testimonial = () => {
                         )}
                     </div>
                     
-                    {/* Formulaire d'ajout de commentaire */}
+                   
                     {isAuthenticated ? (
                         <div style={formContainerStyle}>
                             <h4 style={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -257,6 +258,7 @@ const Testimonial = () => {
             </div>
         </React.Fragment>
     );
+    */}
 }
 
 export default Testimonial;

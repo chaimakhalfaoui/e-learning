@@ -19,6 +19,8 @@ import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/inner7.jpg';
 
+const API_URL = 'http://localhost:8801/api';
+
 const ModifierCours = () => {
     const { id } = useParams();
     const { idUser, role } = useAuth();
@@ -38,6 +40,9 @@ const ModifierCours = () => {
     const [loading, setLoading] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
     const [err, setErr] = useState(null);
+    const [validationStatus, setValidationStatus] = useState(null);
+    const [currentStatus, setCurrentStatus] = useState('hidden');
+    const [updatingStatus, setUpdatingStatus] = useState(false);
     const navigate = useNavigate();
 
     // Vérification des droits d'accès
@@ -60,7 +65,7 @@ const ModifierCours = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:8801/api/categorie');
+                const response = await axios.get(`${API_URL}/categorie`);
                 setCategories(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des catégories:", error);
@@ -73,7 +78,7 @@ const ModifierCours = () => {
     useEffect(() => {
         const fetchLevels = async () => {
             try {
-                const response = await axios.get('http://localhost:8801/api/level');
+                const response = await axios.get(`${API_URL}/level`);
                 setLevels(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des niveaux:", error);
@@ -96,8 +101,8 @@ const ModifierCours = () => {
     const fetchCourseData = async () => {
         setLoadingData(true);
         try {
-            const response = await axios.get(`http://localhost:8801/api/cours/getCourse/${id}`);
-            const course = response.data[0];
+            const response = await axios.get(`${API_URL}/cours/getCourse/${id}`);
+            const course = response.data;
             
             if (course) {
                 setInputs(prev => ({
@@ -108,8 +113,10 @@ const ModifierCours = () => {
                     type: course.type || "",
                     level: course.level || "",
                     duration: course.duration || "",
-                    imageUrl: course.image ? `http://localhost:8801/api/image/${course.image}` : null
+                    imageUrl: course.image ? `${API_URL}/image/${course.image}` : null
                 }));
+                setValidationStatus(course.validation_status);
+                setCurrentStatus(course.status || 'hidden');
             }
         } catch (error) {
             console.error("Erreur lors de la récupération des données du cours :", error);
@@ -190,17 +197,13 @@ const ModifierCours = () => {
                 formData.append('image', inputs.image);
             }
 
-            await axios.put(`http://localhost:8801/api/cours/updateCours/${id}`, formData, {
+            await axios.put(`${API_URL}/cours/updateCours/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
             
-            toast.success('Cours modifié avec succès !', {
-                position: "top-right",
-                autoClose: 3000,
-            });
-
+            toast.success('Cours modifié avec succès !');
             setTimeout(() => {
                 navigate("/admin/mycours");
             }, 2000);
@@ -212,6 +215,26 @@ const ModifierCours = () => {
             toast.error(errorMessage);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Publier ou cacher le cours (uniquement si validé)
+    const updatePublicationStatus = async (newStatus) => {
+        if (validationStatus !== 'approved') {
+            toast.warning("Ce cours doit d'abord être validé par le coordinateur");
+            return;
+        }
+        
+        setUpdatingStatus(true);
+        try {
+            await axios.put(`${API_URL}/cours/status/${id}`, { status: newStatus });
+            setCurrentStatus(newStatus);
+            toast.success(`Cours ${newStatus === 'published' ? 'publié' : 'caché'} avec succès !`);
+        } catch (error) {
+            console.error("Erreur:", error);
+            toast.error("Erreur lors de la modification du statut");
+        } finally {
+            setUpdatingStatus(false);
         }
     };
 
@@ -273,17 +296,28 @@ const ModifierCours = () => {
         transition: "all 0.3s ease"
     };
 
-    const backButtonStyle = {
-        backgroundColor: "#6c757d",
+    const publishButtonStyle = {
+        backgroundColor: "#28a745",
         color: "white",
         border: "none",
-        padding: "8px 16px",
+        padding: "10px 20px",
         borderRadius: "5px",
+        fontSize: "14px",
         cursor: "pointer",
-        marginBottom: "20px",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px"
+        transition: "all 0.3s ease",
+        opacity: currentStatus === 'published' ? 0.6 : 1
+    };
+
+    const hideButtonStyle = {
+        backgroundColor: "#dc3545",
+        color: "white",
+        border: "none",
+        padding: "10px 20px",
+        borderRadius: "5px",
+        fontSize: "14px",
+        cursor: "pointer",
+        transition: "all 0.3s ease",
+        opacity: currentStatus === 'hidden' ? 0.6 : 1
     };
 
     if (loadingData) {
@@ -350,17 +384,6 @@ const ModifierCours = () => {
 
             <div className="register-section pt-100 pb-100 md-pt-80 md-pb-80">
                 <div className="container">
-                    <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-                        <button 
-                            type="button" 
-                            style={backButtonStyle}
-                            onClick={() => navigate(-1)}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = "#5a6268"}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = "#6c757d"}
-                        >
-                            <i className="fas fa-arrow-left"></i> Retour
-                        </button>
-                    </div>
                     
                     <div className="register-box" style={{ maxWidth: "600px", margin: "0 auto" }}>
                         <div className="sec-title text-center mb-30">
@@ -372,6 +395,67 @@ const ModifierCours = () => {
                                 Modifiez les informations du cours
                             </p>
                         </div>
+
+                        {/* Badge de validation */}
+                        {validationStatus === 'approved' && (
+                            <div className="alert alert-success text-center mb-4">
+                                <i className="fas fa-check-circle me-2"></i>
+                                Ce cours a été validé par le coordinateur
+                            </div>
+                        )}
+                        {validationStatus === 'pending' && (
+                            <div className="alert alert-warning text-center mb-4">
+                                <i className="fas fa-hourglass-half me-2"></i>
+                                Ce cours est en attente de validation
+                            </div>
+                        )}
+                        {validationStatus === 'rejected' && (
+                            <div className="alert alert-danger text-center mb-4">
+                                <i className="fas fa-exclamation-triangle me-2"></i>
+                                Ce cours a été rejeté. Veuillez le modifier et le re-soumettre.
+                            </div>
+                        )}
+
+                        {/* Boutons Publier/Cacher - Uniquement si cours validé */}
+                        {validationStatus === 'approved' && (
+                            <div className="text-center mb-4">
+                                <div className="d-flex gap-3 justify-content-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => updatePublicationStatus('published')}
+                                        style={publishButtonStyle}
+                                        disabled={currentStatus === 'published' || updatingStatus}
+                                        onMouseEnter={(e) => {
+                                            if (currentStatus !== 'published') e.target.style.backgroundColor = "#218838";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (currentStatus !== 'published') e.target.style.backgroundColor = "#28a745";
+                                        }}
+                                    >
+                                        <i className="fas fa-globe me-2"></i>
+                                        Publier
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => updatePublicationStatus('hidden')}
+                                        style={hideButtonStyle}
+                                        disabled={currentStatus === 'hidden' || updatingStatus}
+                                        onMouseEnter={(e) => {
+                                            if (currentStatus !== 'hidden') e.target.style.backgroundColor = "#c82333";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (currentStatus !== 'hidden') e.target.style.backgroundColor = "#dc3545";
+                                        }}
+                                    >
+                                        <i className="fas fa-eye-slash me-2"></i>
+                                        Cacher
+                                    </button>
+                                </div>
+                                <small className="text-muted d-block mt-2">
+                                    Statut actuel : {currentStatus === 'published' ? '✓ Publié' : '🔒 Caché'}
+                                </small>
+                            </div>
+                        )}
                         
                         <div className="styled-form">
                             <form onSubmit={handleSubmit}>
@@ -411,7 +495,7 @@ const ModifierCours = () => {
                                     <div className="form-group col-lg-12">
                                         <label style={{ fontWeight: "500", marginBottom: "5px", display: "block" }}>
                                             <i className="fas fa-align-left me-2" style={{ color: '#ff5421' }}></i>
-                                            Description
+                                            Pré-requis
                                         </label>
                                         <textarea 
                                             name="description" 
@@ -447,7 +531,7 @@ const ModifierCours = () => {
                                     <div className="form-group col-lg-12">
                                         <label style={{ fontWeight: "500", marginBottom: "5px", display: "block" }}>
                                             <i className="fas fa-graduation-cap me-2" style={{ color: '#ff5421' }}></i>
-                                            Niveau / Filière
+                                            Public Cible
                                         </label>
                                         <select 
                                             name="level" 
@@ -468,7 +552,7 @@ const ModifierCours = () => {
                                     <div className="form-group col-lg-12">
                                         <label style={{ fontWeight: "500", marginBottom: "5px", display: "block" }}>
                                             <i className="fas fa-clock me-2" style={{ color: '#ff5421' }}></i>
-                                            Durée (en heures)
+                                            Charge horaire (en heures)
                                         </label>
                                         <input 
                                             type="number" 

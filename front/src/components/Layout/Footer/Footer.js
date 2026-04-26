@@ -14,42 +14,30 @@ const Footer = (props) => {
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-3 col-md-12 col-sm-12 footer-widget md-mb-50">
-                            <div className="footer-logo mb-30">
-                                {/* 
-<Link to="/" as="/">
-    <img src={footerLogo ? footerLogo : footerLogo1} alt="Logo" />
-</Link> 
-*/}
-                            </div>
-                            <div className="textwidget pr-60 md-pr-14">
-{/* <p>Sedut perspiciatis unde omnis iste natus error sitlutem acc usantium doloremque denounce with illo inventore veritatis</p> */}                            </div>
-                            <ul className="footer_social">
+                                  <div className="col-lg-3 col-md-12 col-sm-12 footer-widget md-mb-50">
+                            <ul className="footer_social" style={{ display: 'flex', gap: '12px', padding: '0', marginTop: '20px' }}>
                                 <li>
-                                    <a href="#">
-                                        <i className="fa fa-facebook-f"></i>
+                                    <a href="#" style={{ display: 'inline-block', width: '36px', height: '36px', lineHeight: '36px', textAlign: 'center', background: '#3b5998', borderRadius: '50%', color: 'white' }}>
+                                        <i className="fab fa-facebook-f"></i>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#">
-                                        <i className="fa fa-twitter"></i>
+                                    <a href="#" style={{ display: 'inline-block', width: '36px', height: '36px', lineHeight: '36px', textAlign: 'center', background: '#1da1f2', borderRadius: '50%', color: 'white' }}>
+                                        <i className="fab fa-twitter"></i>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#">
-                                        <i className="fa fa-pinterest"></i>
+                                    <a href="#" style={{ display: 'inline-block', width: '36px', height: '36px', lineHeight: '36px', textAlign: 'center', background: '#0077b5', borderRadius: '50%', color: 'white' }}>
+                                        <i className="fab fa-linkedin-in"></i>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#">
-                                        <i className="fa fa-google-plus"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i className="fa fa-instagram"></i>
+                                    <a href="#" style={{ display: 'inline-block', width: '36px', height: '36px', lineHeight: '36px', textAlign: 'center', background: '#e4405f', borderRadius: '50%', color: 'white' }}>
+                                        <i className="fab fa-instagram"></i>
                                     </a>
                                 </li>
                             </ul>
+                        </div>
                         </div>
                         <div className="col-lg-3 col-md-12 col-sm-12 footer-widget md-mb-50">
                             <h3 className="widget-title">Address</h3>
@@ -71,17 +59,15 @@ const Footer = (props) => {
                             </ul>
                         </div>
                         <div className="col-lg-3 col-md-12 col-sm-12 pl-50 md-pl-14 footer-widget md-mb-50">
-                            <h3 className="widget-title">Courses</h3>
+                            <h3 className="widget-title">Cours</h3>
                             <ul className="site-map">
-                                <li><Link to="/course">Courses</Link></li>
-                                <li><Link to="/course-2">Course Two</Link></li>
-                                <li><Link to="/course/course-single">Single Course</Link></li>
+                                <li><Link to="/course">Cours</Link></li>
                                 <li><Link to="/shop/my-account">Profile</Link></li>
                                 <li><Link to="/login">Login</Link>/<Link to="/register">Register</Link></li>
                             </ul>
                         </div>
                         <div className="col-lg-3 col-md-12 col-sm-12 footer-widget">
-                            <h3 className="widget-title">Recent Posts</h3>
+                            <h3 className="widget-title">Articles récents</h3>
                             <div className="recent-post mb-20">
                                 <div className="post-img">
                                     <img src={postImg1} alt="blog image" />

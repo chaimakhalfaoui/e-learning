@@ -11,6 +11,7 @@ const CourseDetailsMain = () => {
         <React.Fragment>
             
             {/* CourseDetails Start */}
+
             <CourseDetailsPart />
             {/* CourseDetails End */}
 

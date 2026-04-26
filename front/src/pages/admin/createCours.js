@@ -319,17 +319,6 @@ const CreateCours = () => {
 
             <div className="register-section pt-100 pb-100 md-pt-80 md-pb-80">
                 <div className="container">
-                    <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-                        <button 
-                            type="button" 
-                            style={backButtonStyle}
-                            onClick={() => navigate(-1)}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = "#5a6268"}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = "#6c757d"}
-                        >
-                            <i className="fas fa-arrow-left"></i> Retour
-                        </button>
-                    </div>
                     
                     <div className="register-box" style={{ maxWidth: "600px", margin: "0 auto" }}>
                         <div className="sec-title text-center mb-30">
@@ -388,7 +377,7 @@ const CreateCours = () => {
                                     <div className="form-group col-lg-12">
                                         <label style={{ fontWeight: "500", marginBottom: "5px", display: "block" }}>
                                             <i className="fas fa-align-left me-2" style={{ color: '#ff5421' }}></i>
-                                            Description
+                                           Pré_requis
                                         </label>
                                         <textarea 
                                             name="description" 
@@ -426,7 +415,7 @@ const CreateCours = () => {
                                     <div className="form-group col-lg-12">
                                         <label style={{ fontWeight: "500", marginBottom: "5px", display: "block" }}>
                                             <i className="fas fa-graduation-cap me-2" style={{ color: '#ff5421' }}></i>
-                                            Niveau / Filière
+                                            Public Cible
                                         </label>
                                         <select 
                                             name="level" 
@@ -449,7 +438,7 @@ const CreateCours = () => {
                                     <div className="form-group col-lg-12">
                                         <label style={{ fontWeight: "500", marginBottom: "5px", display: "block" }}>
                                             <i className="fas fa-clock me-2" style={{ color: '#ff5421' }}></i>
-                                            Durée (en heures)
+                                            Charge horaire (en heures)
                                         </label>
                                         <input 
                                             type="number" 

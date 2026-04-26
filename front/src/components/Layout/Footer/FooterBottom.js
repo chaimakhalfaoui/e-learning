@@ -13,8 +13,7 @@ const FooterBottom = () => {
                     </div>
                     <div className="col-lg-6 text-end md-text-left">
                         <ul className="copy-right-menu">
-                            <li><Link to="/event" as="/event">Event</Link></li>
-                            <li><Link to="/blog" as="/blog">Blog</Link></li>
+                            <li><Link to=""></Link></li>
                             <li><Link to="/contact" as="/contact">Contact</Link></li>
                         </ul>
                     </div>

@@ -28,14 +28,14 @@ const CourseThree = () => {
                 headerClass="full-width-header header-style1 home8-style4"
                 TopBar='enable'
                 TopBarClass="topbar-area home8-topbar"
-                emailAddress='support@website.com'
+                emailAddress='admin@isetso.rnu.tn'
                 Location='Cité Erriadh - B.P 135 '
             />
 
             {/* breadcrumb-area-start */}
             <SiteBreadcrumb
-                pageTitle="My Course "
-                pageName="my Course"
+                pageTitle="Mes Cours "
+                pageName="Mes Cours"
                 breadcrumbsImg={bannerbg}
             />
             {/* breadcrumb-area-start */}

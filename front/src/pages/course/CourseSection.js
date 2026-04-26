@@ -1,154 +1,315 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-
-import CourseSidebar from './CourseSidebarSection';
 import CourseSingleTwo from '../../components/Courses/CourseSingleTwo';
+
+const API_URL = 'http://localhost:8801/api';
 
 const CoursePart = () => {
     const [courses, setCourses] = useState([]);
-    const [sortOption, setSortOption] = useState("Défaut");
-    const [currentPage, setCurrentPage] = useState(1);
+    const [filteredCourses, setFilteredCourses] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     
-    const [filters, setFilters] = useState({ skill: "", duration: "",category:"" });
-    const coursesPerPage = 10;
+    const coursesPerPage = 9;
 
     useEffect(() => {
         fetchCourses();
     }, []);
 
     useEffect(() => {
-        sortCourses();
-    }, [sortOption]);
+        handleSearch();
+    }, [searchQuery, courses]);
 
     const fetchCourses = async () => {
+        setLoading(true);
         try {
-            const response = await axios.get("http://localhost:8801/api/cours");
-            setCourses(response.data);
-            console.log(response.data[0])
+            const response = await axios.get(`${API_URL}/cours/by-status/published`);
+            let coursesData = [];
+            if (response.data.cours && Array.isArray(response.data.cours)) {
+                coursesData = response.data.cours;
+            } else if (Array.isArray(response.data)) {
+                coursesData = response.data;
+            }
+            setCourses(coursesData);
+            setFilteredCourses(coursesData);
         } catch (error) {
-            console.error("Erreur lors de la récupération des événements :", error);
+            console.error("Erreur:", error);
+            setError("Impossible de charger les cours.");
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleSortChange = (e) => {
-        setSortOption(e.target.value);
-    };
-
-    const handleSearchChange = (query) => {
-        setSearchQuery(query);
-    };
-
-    const handleFilterLevel = (level) => {
-        setFilters(prevFilters => ({ ...prevFilters, skill: level }));
-    };
-
-    const handleFilterDuration = (duration) => {
-        setFilters(prevFilters => ({ ...prevFilters, duration: duration }));
-    };
-    const handleCategoryChange = (category) => {
-        setFilters(prevFilters => ({ ...prevFilters, category: category }));
-    };
-
-    const sortCourses = () => {
-        let sortedCourses = [...courses];
-        if (sortOption === "Nouveautés") {
-            sortedCourses.sort((a, b) => new Date(b.dateCre) - new Date(a.dateCre));
-        } else if (sortOption === "Vieux") {
-            sortedCourses.sort((a, b) => new Date(a.dateCre) - new Date(b.dateCre));
+    const handleSearch = () => {
+        if (searchQuery.trim() === "") {
+            setFilteredCourses(courses);
+        } else {
+            const query = searchQuery.toLowerCase();
+            const filtered = courses.filter(course =>
+                course.titre?.toLowerCase().includes(query) ||
+                course.description?.toLowerCase().includes(query) ||
+                course.type?.toLowerCase().includes(query) ||
+                course.enseignant?.toLowerCase().includes(query)
+            );
+            setFilteredCourses(filtered);
         }
-        setCourses(sortedCourses);
+        setCurrentPage(1);
     };
 
-    const listClassAdd = () => {
-        document.getElementById("rs-popular-course").classList.add('list-view');
+    const handleSearchInput = (e) => {
+        setSearchQuery(e.target.value);
     };
 
-    const listClassRemove = () => {
-        document.getElementById("rs-popular-course").classList.remove('list-view');
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    const clearSearch = () => {
+        setSearchQuery("");
+        setFilteredCourses(courses);
+        setCurrentPage(1);
     };
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const filteredCourses = courses.filter(course =>
-        course.titre.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (filters.skill ? course.level === filters.skill : true) &&
-        (filters.duration ? course.duration == filters.duration : true)&&
-        (filters.category ? course.type == filters.category : true)
-    );
-
+    // Pagination
     const indexOfLastCourse = currentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
     const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
-
     const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+
+    if (loading) {
+        return (
+            <div className="rs-popular-courses style1 orange-style rs-inner-blog white-bg pt-100 pb-100">
+                <div className="container text-center">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Chargement...</span>
+                    </div>
+                    <p className="mt-3">Chargement des cours...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="rs-popular-courses style1 orange-style rs-inner-blog white-bg pt-100 pb-100">
+                <div className="container">
+                    <div className="alert alert-danger text-center">
+                        <p>{error}</p>
+                        <button className="btn btn-primary" onClick={fetchCourses}>Réessayer</button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div id="rs-popular-course" className="rs-popular-courses style1 course-view-style orange-style rs-inner-blog white-bg pt-100 pb-100 md-pt-70 md-pb-80">
             <div className="container">
-                <div className="row">
-                    <div className="col-lg-4 col-md-12 order-last">
-                        <CourseSidebar handleSearch={handleSearchChange} handleFilterLevel={handleFilterLevel} handleFilterDuration={handleFilterDuration} handleFilterCategory={handleCategoryChange} />
-                    </div>
-                    <div className="col-lg-8 pr-50 md-pr-14">
-                        <div className="course-search-part">
-                            <div className="course-view-part">
-                                <div className="view-icons">
-                                    <button onClick={listClassRemove} className="view-grid mr-10"><i className="fa fa-th-large"></i></button>
-                                    <button onClick={listClassAdd} className="view-list"><i className="fa fa-list-ul"></i></button>
-                                </div>
-                                <div className="view-text">Showing {indexOfFirstCourse + 1}-{Math.min(indexOfLastCourse, filteredCourses.length)} of {filteredCourses.length} results</div>
-                            </div>
-                            <div className="type-form">
-                                <form method="post" action="#">
-                                    <div className="form-group mb-0">
-                                        <div className="custom-select-box">
-                                            <select id="timing" onChange={handleSortChange}>
-                                                <option value="Défaut">Défaut</option>
-                                                <option value="Nouveautés">Nouveautés</option>
-                                                <option value="Vieux">Vieux</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div className="course-part clearfix">
-                            {currentCourses.map((cours) => (
-                                <CourseSingleTwo
-                                    key={cours.id}
-                                    courseClass="courses-item"
-                                    courseImg={`http://localhost:8801/api/image/${cours.image}`}
-                                    courseTitle={cours.titre}
-                                    courseCategory={cours.type}
-                                    courseid={cours.id}
+                {/* Barre de recherche avec icône */}
+                <div className="row mb-50">
+                    <div className="col-md-10 col-lg-8 mx-auto">
+                        <div className="search-widget">
+                            <h3 className="widget-title text-center mb-30" style={{ fontSize: '24px', fontWeight: '600' }}>
+                                <i className="fa fa-graduation-cap me-2" style={{ color: '#ff5421' }}></i>
+                                Trouvez le cours qui vous correspond
+                            </h3>
+                            <div className="search-wrap" style={{ 
+                                display: 'flex', 
+                                gap: '0',
+                                borderRadius: '50px',
+                                overflow: 'hidden',
+                                boxShadow: '0 5px 20px rgba(0,0,0,0.1)'
+                            }}>
+                                <input
+                                    type="search"
+                                    placeholder="Rechercher un cours (titre, description, catégorie)..."
+                                    value={searchQuery}
+                                    onChange={handleSearchInput}
+                                    onKeyPress={handleKeyPress}
+                                    className="search-input"
+                                    style={{ 
+                                        flex: 1, 
+                                        padding: '15px 20px',
+                                        border: 'none',
+                                        outline: 'none',
+                                        fontSize: '15px'
+                                    }}
                                 />
-                            ))}
-                        </div>
-                        <div className="pagination-area orange-color text-center mt-30 md-mt-0">
-                            <ul className="pagination-part">
-                                {[...Array(totalPages).keys()].map((number) => (
-                                    <li key={number + 1} className={currentPage === number + 1 ? 'active' : ''}>
-                                        <Link to="#" onClick={() => handlePageChange(number + 1)}>
-                                            {number + 1}
-                                        </Link>
-                                    </li>
-                                ))}
-                                {currentPage < totalPages && (
-                                    <li>
-                                        <Link to="#" onClick={() => handlePageChange(currentPage + 1)}>Suivant <i className="fa fa-long-arrow-right"></i></Link>
-                                    </li>
-                                )}
-                            </ul>
+                                <button 
+                                    onClick={handleSearch}
+                                    style={{ 
+                                        padding: '0 30px',
+                                        backgroundColor: '#ff5421',
+                                        border: 'none',
+                                        color: 'white',
+                                        cursor: 'pointer',
+                                        fontSize: '16px',
+                                        fontWeight: '500',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#e03a00'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = '#ff5421'}
+                                >
+                                    <i className="fa fa-search me-2"></i> Rechercher
+                                </button>
+                            </div>
+                            
+                            {/* Résultats de recherche */}
+                            {searchQuery && (
+                                <div className="search-info text-center mt-3">
+                                    <span style={{
+                                        display: 'inline-block',
+                                        padding: '8px 16px',
+                                        backgroundColor: '#f8f9fa',
+                                        borderRadius: '30px',
+                                        fontSize: '14px'
+                                    }}>
+                                        <i className="fa fa-chart-line me-1" style={{ color: '#ff5421' }}></i>
+                                        {filteredCourses.length} cours trouvé(s) pour "<strong>{searchQuery}</strong>"
+                                        <button 
+                                            onClick={clearSearch}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#ff5421',
+                                                marginLeft: '10px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            <i className="fa fa-times-circle"></i> Effacer
+                                        </button>
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
+
+                {/* Statistiques rapides */}
+                <div className="row mb-40">
+                    <div className="col-12">
+                        <div className="course-stats" style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            padding: '15px 20px',
+                            backgroundColor: '#f8f9fa',
+                            borderRadius: '10px'
+                        }}>
+                            <div>
+                                <i className="fa fa-book me-1" style={{ color: '#ff5421' }}></i>
+                                <strong>{courses.length}</strong> cours disponibles
+                            </div>
+                            <div>
+                                <i className="fa fa-users me-1" style={{ color: '#ff5421' }}></i>
+                                <strong>500+</strong> étudiants inscrits
+                            </div>
+                            <div>
+                                <i className="fa fa-clock-o me-1" style={{ color: '#ff5421' }}></i>
+                                <strong>1000+</strong> heures de formation
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Résultats des cours */}
+                {filteredCourses.length === 0 && searchQuery ? (
+                    <div className="alert alert-info text-center" style={{ borderRadius: '15px' }}>
+                        <i className="fas fa-info-circle fa-3x mb-3 d-block" style={{ color: '#17a2b8' }}></i>
+                        <h5>Aucun cours ne correspond à votre recherche</h5>
+                    </div>
+                ) : (
+                    <>
+                        <div className="row">
+                            {currentCourses.map((cours) => (
+                                <div className="col-lg-4 col-md-6 mb-30" key={cours.id}>
+                                    <CourseSingleTwo
+                                        courseClass="courses-item"
+                                        courseImg={`${API_URL}/image/${cours.image}`}
+                                        courseTitle={cours.titre}
+                                        courseDescription={cours.description}
+                                        courseCategory={cours.type}
+                                        courseDuration={cours.duration}
+                                        courseid={cours.id}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="pagination-area orange-color text-center mt-50">
+                                <ul className="pagination-part" style={{ display: 'flex', justifyContent: 'center', gap: '8px', listStyle: 'none' }}>
+                                    {currentPage > 1 && (
+                                        <li>
+                                            <Link 
+                                                to="#" 
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                style={{
+                                                    padding: '8px 15px',
+                                                    border: '1px solid #ddd',
+                                                    borderRadius: '5px',
+                                                    color: '#ff5421'
+                                                }}
+                                            >
+                                                <i className="fa fa-long-arrow-left"></i> Précédent
+                                            </Link>
+                                        </li>
+                                    )}
+                                    
+                                    {[...Array(Math.min(totalPages, 5)).keys()].map((number) => (
+                                        <li key={number + 1}>
+                                            <Link 
+                                                to="#" 
+                                                onClick={() => handlePageChange(number + 1)}
+                                                style={{
+                                                    padding: '8px 15px',
+                                                    border: '1px solid #ddd',
+                                                    borderRadius: '5px',
+                                                    backgroundColor: currentPage === number + 1 ? '#ff5421' : 'transparent',
+                                                    color: currentPage === number + 1 ? 'white' : '#333'
+                                                }}
+                                            >
+                                                {number + 1}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                    
+                                    {currentPage < totalPages && (
+                                        <li>
+                                            <Link 
+                                                to="#" 
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                style={{
+                                                    padding: '8px 15px',
+                                                    border: '1px solid #ddd',
+                                                    borderRadius: '5px',
+                                                    color: '#ff5421'
+                                                }}
+                                            >
+                                                Suivant <i className="fa fa-long-arrow-right"></i>
+                                            </Link>
+                                        </li>
+                                    )}
+                                </ul>
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
         </div>
     );
-}
+};
 
 export default CoursePart;

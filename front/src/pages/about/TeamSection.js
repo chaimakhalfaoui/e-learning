@@ -3,7 +3,7 @@ import axios from 'axios';
 import SingleTeam from '../../components/Team/SingleTeam';
 import SectionTitle from '../../components/Common/SectionTitle';
 
-// Images par défaut (si pas d'images disponibles)
+// Images par défaut
 import teamimg1 from '../../assets/img/team/1.jpg';
 import teamimg2 from '../../assets/img/team/2.jpg';
 import teamimg3 from '../../assets/img/team/3.jpg';
@@ -11,7 +11,9 @@ import teamimg4 from '../../assets/img/team/4.jpg';
 import teamimg5 from '../../assets/img/team/5.jpg';
 import teamimg6 from '../../assets/img/team/6.jpg';
 
-// Styles CSS pour uniformiser les images
+const API_URL = 'http://localhost:8801/api';
+
+// Styles CSS
 const teamContainerStyle = {
     display: 'flex',
     flexWrap: 'wrap',
@@ -25,7 +27,16 @@ const cardStyle = {
     borderRadius: '10px',
     overflow: 'hidden',
     boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-    transition: 'transform 0.3s ease'
+    transition: 'transform 0.3s ease',
+    backgroundColor: '#fff'
+};
+
+const imageStyles = {
+    width: '100%',
+    height: '300px',
+    objectFit: 'cover',
+    objectPosition: 'center',
+    display: 'block'
 };
 
 const Team = () => {
@@ -34,39 +45,34 @@ const Team = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchLatestTeachers = async () => {
+        const fetchTeachers = async () => {
             setLoading(true);
             setError(null);
             try {
-                const response = await axios.get('http://localhost:8801/api/auth/latestTeachers');
+                // Récupérer tous les enseignants depuis la table Users
+                const response = await axios.get(`${API_URL}/enseignants`);
                 console.log("Enseignants récupérés:", response.data);
-                setTeachers(response.data || []);
+                
+                // Prendre les 6 derniers enseignants
+                const latestTeachers = response.data.slice(-6).reverse();
+                setTeachers(latestTeachers);
             } catch (error) {
-                console.error("Erreur lors de la récupération des derniers enseignants :", error);
+                console.error("Erreur lors de la récupération des enseignants :", error);
                 setError("Impossible de charger les enseignants.");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchLatestTeachers();
+        fetchTeachers();
     }, []);
 
-    // Images par défaut (cycle infini)
+    // Images par défaut (cycle)
     const teamImages = [teamimg1, teamimg2, teamimg3, teamimg4, teamimg5, teamimg6];
 
-    // Fonction pour obtenir une image (avec fallback)
+    // Fonction pour obtenir une image
     const getTeamImage = (index) => {
         return teamImages[index % teamImages.length];
-    };
-
-    // Styles pour les images uniformes
-    const imageStyles = {
-        width: '100%',
-        height: '300px',
-        objectFit: 'cover',
-        objectPosition: 'center',
-        display: 'block'
     };
 
     if (loading) {
@@ -131,7 +137,10 @@ const Team = () => {
                     
                     {teachers.length === 0 ? (
                         <div className="text-center">
-                            <p>Aucun enseignant disponible pour le moment.</p>
+                            <div className="alert alert-info">
+                                <i className="fas fa-info-circle me-2"></i>
+                                Aucun enseignant disponible pour le moment.
+                            </div>
                         </div>
                     ) : (
                         <div className="row" style={teamContainerStyle}>
@@ -139,12 +148,14 @@ const Team = () => {
                                 <div key={teacher.id || index} className="col-lg-4 col-md-6 mb-30">
                                     <div style={cardStyle}>
                                         <SingleTeam
-                                            itemClass="team-item"
-                                            Image={teacher.image ? `http://localhost:8801/api/image/${teacher.image}` : getTeamImage(index)}
+                                            teamClass="team-item"
+                                            Image={teacher.image ? `${API_URL}/image/${teacher.image}` : getTeamImage(index)}
                                             Title={teacher.username || 'Enseignant'}
-                                            Designation={teacher.role === 'enseignant' ? 'Enseignant Expert' : teacher.role || 'Formateur'}
+                                            Designation={teacher.role === 'enseignant' ? 'Enseignant Expert' : 'Formateur'}
                                             email={teacher.email}
-                                            telephone={teacher.telephone}
+                                            tel={teacher.telephone}
+                                            age={teacher.age}
+                                            genre={teacher.genre}
                                             imageStyle={imageStyles}
                                         />
                                     </div>

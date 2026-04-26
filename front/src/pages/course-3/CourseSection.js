@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import CourseSingleFour from '../../components/Courses/CourseSingleFour';
 import { useAuth } from '../../context/authContext'; 
 import { Helmet } from 'react-helmet';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
+
+const API_URL = 'http://localhost:8801/api';
 
 const Courses = () => {
     const { idUser, role } = useAuth();
@@ -14,8 +15,10 @@ const Courses = () => {
     const [filteredCourses, setFilteredCourses] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [validationFilter, setValidationFilter] = useState("all");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [updating, setUpdating] = useState(null);
 
     useEffect(() => {
         const checkAccess = async () => {
@@ -25,7 +28,6 @@ const Courses = () => {
                     navigate('/404');
                 }
             } catch (error) {
-                console.error("Erreur rôle utilisateur:", error);
                 navigate('/404');
             }
         };
@@ -38,15 +40,26 @@ const Courses = () => {
 
     const fetchCourses = async () => {
         setLoading(true);
-        setError(null);
         try {
             const id_user = await idUser();
-            const response = await axios.get(`http://localhost:8801/api/cours/getAllCoursesId/${id_user}`);
+            const response = await axios.get(`${API_URL}/cours/my-courses-validation/${id_user}`);
             const coursesData = Array.isArray(response.data) ? response.data : [];
-            setCourses(coursesData);
-            setFilteredCourses(coursesData);
+            
+            const coursesWithStudentCount = await Promise.all(
+                coursesData.map(async (course) => {
+                    try {
+                        const studentCountResponse = await axios.get(`${API_URL}/lecture/getLectureCours/${course.id}`);
+                        return { ...course, studentCount: studentCountResponse.data || 0 };
+                    } catch (error) {
+                        return { ...course, studentCount: 0 };
+                    }
+                })
+            );
+            
+            setCourses(coursesWithStudentCount);
+            setFilteredCourses(coursesWithStudentCount);
         } catch (error) {
-            console.error("Erreur lors de la récupération des cours :", error);
+            console.error("Erreur:", error);
             setError("Impossible de charger la liste des cours.");
             toast.error("Erreur lors du chargement des cours");
         } finally {
@@ -54,7 +67,6 @@ const Courses = () => {
         }
     };
 
-    // Appliquer les filtres
     useEffect(() => {
         if (courses.length === 0) return;
         
@@ -71,8 +83,12 @@ const Courses = () => {
             filtered = filtered.filter(cours => cours.status === statusFilter);
         }
         
+        if (validationFilter !== "all") {
+            filtered = filtered.filter(cours => cours.validation_status === validationFilter);
+        }
+        
         setFilteredCourses(filtered);
-    }, [courses, searchTerm, statusFilter]);
+    }, [courses, searchTerm, statusFilter, validationFilter]);
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value.toLowerCase());
@@ -81,61 +97,54 @@ const Courses = () => {
     const clearSearch = () => {
         setSearchTerm("");
         setStatusFilter("all");
+        setValidationFilter("all");
     };
 
     const handleStatusFilterChange = (status) => {
         setStatusFilter(status);
     };
 
-    const handleCourseDelete = async (courseId) => {
-        if (window.confirm("Voulez-vous vraiment supprimer ce cours ?")) {
+    const handleValidationFilterChange = (status) => {
+        setValidationFilter(status);
+    };
+
+    // Soumettre à validation (enseignant)
+    const requestValidation = async (courseId) => {
+        if (window.confirm("Soumettre ce cours à la validation du coordinateur ?")) {
+            setUpdating(courseId);
             try {
-                await axios.delete(`http://localhost:8801/api/cours/deleteCourse/${courseId}`);
-                await fetchCourses();
-                toast.success("Cours supprimé avec succès !");
+                const response = await axios.put(`${API_URL}/cours/request-validation/${courseId}`, {
+                    message: "Je soumets ce cours à validation"
+                });
+                if (response.status === 200) {
+                    const updatedCourses = courses.map(course => 
+                        course.id === courseId ? { ...course, validation_status: 'pending' } : course
+                    );
+                    setCourses(updatedCourses);
+                    setFilteredCourses(updatedCourses);
+                    toast.success("✅ Demande de validation envoyée au coordinateur");
+                }
             } catch (error) {
-                console.error("Erreur lors de la suppression:", error);
-                toast.error("Erreur lors de la suppression du cours.");
+                console.error("Erreur:", error);
+                toast.error("❌ Erreur lors de la demande de validation");
+            } finally {
+                setUpdating(null);
             }
         }
     };
 
-    const getStatusBadge = (status) => {
-        if (status === 'published') {
-            return { text: 'Publié', color: '#28a745', icon: 'fa-check-circle', bgColor: '#d4edda' };
+    const handleCourseDelete = useCallback(async (courseId) => {
+        if (window.confirm("Voulez-vous vraiment supprimer ce cours ?")) {
+            try {
+                await axios.delete(`${API_URL}/cours/deleteCourse/${courseId}`);
+                setCourses(prev => prev.filter(c => c.id !== courseId));
+                setFilteredCourses(prev => prev.filter(c => c.id !== courseId));
+                toast.success("Cours supprimé avec succès !");
+            } catch (error) {
+                toast.error("Erreur lors de la suppression du cours.");
+            }
         }
-        return { text: 'Caché', color: '#dc3545', icon: 'fa-eye-slash', bgColor: '#f8d7da' };
-    };
-
-    const searchContainerStyle = {
-        marginBottom: "20px",
-        display: "flex",
-        justifyContent: "center",
-        gap: "10px",
-        flexWrap: "wrap"
-    };
-
-    const searchInputStyle = {
-        width: "100%",
-        maxWidth: "400px",
-        padding: "12px 20px",
-        fontSize: "16px",
-        border: "2px solid #ddd",
-        borderRadius: "25px",
-        outline: "none",
-        transition: "all 0.3s ease"
-    };
-
-    const clearButtonStyle = {
-        padding: "12px 20px",
-        fontSize: "16px",
-        border: "2px solid #ddd",
-        borderRadius: "25px",
-        backgroundColor: "#f8f9fa",
-        cursor: "pointer",
-        transition: "all 0.3s ease",
-        color: "#666"
-    };
+    }, []);
 
     const filterButtonStyle = (isActive) => ({
         padding: "8px 20px",
@@ -144,21 +153,12 @@ const Courses = () => {
         borderRadius: "20px",
         backgroundColor: isActive ? '#ff5421' : '#fff',
         color: isActive ? '#fff' : '#666',
-        cursor: "pointer",
-        transition: "all 0.3s ease"
+        cursor: "pointer"
     });
-
-    const resultCountStyle = {
-        textAlign: "center",
-        marginTop: "20px",
-        marginBottom: "20px",
-        color: "#666",
-        fontSize: "14px"
-    };
 
     if (loading) {
         return (
-            <div className="rs-popular-courses style3 orange-style pt-100 pb-100 md-pt-70 md-pb-80">
+            <div className="rs-popular-courses style3 orange-style pt-100 pb-100">
                 <div className="container text-center">
                     <div className="spinner-border text-primary" role="status">
                         <span className="visually-hidden">Chargement...</span>
@@ -171,14 +171,12 @@ const Courses = () => {
 
     if (error) {
         return (
-            <div className="rs-popular-courses style3 orange-style pt-100 pb-100 md-pt-70 md-pb-80">
+            <div className="rs-popular-courses style3 orange-style pt-100 pb-100">
                 <div className="container">
                     <div className="alert alert-danger text-center">
                         <i className="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>
                         <p>{error}</p>
-                        <button className="btn btn-primary mt-2" onClick={() => window.location.reload()}>
-                            Réessayer
-                        </button>
+                        <button className="btn btn-primary" onClick={fetchCourses}>Réessayer</button>
                     </div>
                 </div>
             </div>
@@ -186,113 +184,98 @@ const Courses = () => {
     }
 
     return (
-        <React.Fragment>
-            <Helmet>
-                <title>Mes Cours | ISETSO</title>
-            </Helmet>
-            
-            <div className="rs-popular-courses style3 orange-style pt-100 pb-100 md-pt-70 md-pb-80">
-                <div className="container">
-                    <div className="d-flex justify-content-between align-items-center flex-wrap mb-30">
-                        <h2 className="mb-3 mb-md-0">
-                            <i className="fas fa-book-open me-2" style={{ color: '#ff5421' }}></i>
-                            Mes Cours
-                            {filteredCourses.length > 0 && (
-                                <span className="badge bg-secondary ms-2">{filteredCourses.length}</span>
-                            )}
-                        </h2>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                        <button onClick={() => handleStatusFilterChange("all")} style={filterButtonStyle(statusFilter === "all")}>
-                            Tous
-                        </button>
-                        <button onClick={() => handleStatusFilterChange("published")} style={filterButtonStyle(statusFilter === "published")}>
-                            <i className="fas fa-check-circle me-1"></i> Publiés
-                        </button>
-                        <button onClick={() => handleStatusFilterChange("hidden")} style={filterButtonStyle(statusFilter === "hidden")}>
-                            <i className="fas fa-eye-slash me-1"></i> Cachés
-                        </button>
-                    </div>
-
-                    {courses.length > 0 && (
-                        <div style={searchContainerStyle}>
-                            <input
-                                type="text"
-                                placeholder="🔍 Rechercher un cours..."
-                                value={searchTerm}
-                                onChange={handleSearch}
-                                style={searchInputStyle}
-                                onFocus={(e) => e.target.style.borderColor = "#ff5421"}
-                                onBlur={(e) => e.target.style.borderColor = "#ddd"}
-                            />
-                            {(searchTerm || statusFilter !== "all") && (
-                                <button onClick={clearSearch} style={clearButtonStyle}>
-                                    ✖ Effacer
-                                </button>
-                            )}
-                        </div>
-                    )}
-
-                    {!loading && !error && courses.length > 0 && (
-                        <div style={resultCountStyle}>
-                            <i className="fas fa-chalkboard me-2"></i> 
-                            {filteredCourses.length} cours trouvé(s) sur {courses.length} total
-                            {searchTerm && ` pour "${searchTerm}"`}
-                            {statusFilter !== "all" && ` • ${statusFilter === "published" ? "Publiés" : "Cachés"}`}
-                        </div>
-                    )}
-
-                    {filteredCourses.length === 0 && searchTerm && (
-                        <div className="alert alert-warning text-center">
-                            <i className="fas fa-search"></i>
-                            <p className="mt-2 mb-2">
-                                Aucun cours ne correspond à votre recherche "<strong>{searchTerm}</strong>"
-                            </p>
-                        </div>
-                    )}
-
-                    {filteredCourses.length === 0 && !searchTerm && courses.length === 0 && (
-                        <div className="alert alert-info text-center">
-                            <i className="fas fa-info-circle fa-2x mb-2 d-block"></i>
-                            <p>Vous n'avez pas encore créé de cours.</p>
-                        </div>
-                    )}
-
-                    {filteredCourses.length > 0 && (
-                        <div className="row">
-                            {filteredCourses.map((cours) => (
-                                <div key={cours.id} className="col-lg-4 col-md-6 col-sm-6 mb-40">
-                                    <CourseSingleFour
-                                        btnLink={cours.id}
-                                        courseClass="courses-item"
-                                        courseImg={`http://localhost:8801/api/image/${cours.image}`}
-                                        courseCategory={cours.type}
-                                        courseTitle={cours.titre}
-                                        studentQuantity="0"
-                                        onDelete={() => handleCourseDelete(cours.id)}
-                                        status={cours.status}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {filteredCourses.length > 0 && (
-                        <div className="text-center mt-4">
-                            <small className="text-muted">
-                                <i className="fas fa-chart-line me-1"></i>
-                                Total: {filteredCourses.length} cours
-                                {searchTerm && ` (filtré sur ${courses.length} total)`}
-                                {statusFilter !== "all" && ` • ${statusFilter === "published" ? "📢 Publiés" : "🔒 Cachés"}`}
-                            </small>
-                        </div>
-                    )}
+        <div className="rs-popular-courses style3 orange-style pt-100 pb-100 md-pt-70 md-pb-80">
+            <div className="container">
+                <div className="d-flex justify-content-between align-items-center flex-wrap mb-30">
+                    <h2>
+                        <i className="fas fa-book-open me-2" style={{ color: '#ff5421' }}></i>
+                        Mes Cours
+                        {filteredCourses.length > 0 && (
+                            <span className="badge bg-secondary ms-2">{filteredCourses.length}</span>
+                        )}
+                    </h2>
                 </div>
+
+                {/* Filtres par statut de publication */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '15px', flexWrap: 'wrap' }}>
+                    <button onClick={() => handleStatusFilterChange("all")} style={filterButtonStyle(statusFilter === "all")}>Tous</button>
+                    <button onClick={() => handleStatusFilterChange("published")} style={filterButtonStyle(statusFilter === "published")}><i className="fas fa-check-circle me-1"></i> Publiés</button>
+                    <button onClick={() => handleStatusFilterChange("hidden")} style={filterButtonStyle(statusFilter === "hidden")}><i className="fas fa-eye-slash me-1"></i> Cachés</button>
+                </div>
+
+                {/* Filtres par statut de validation */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                    <button onClick={() => handleValidationFilterChange("all")} style={filterButtonStyle(validationFilter === "all")}>Tous</button>
+                    <button onClick={() => handleValidationFilterChange("approved")} style={filterButtonStyle(validationFilter === "approved")}>✅ Validés</button>
+                    <button onClick={() => handleValidationFilterChange("pending")} style={filterButtonStyle(validationFilter === "pending")}>⏳ En attente</button>
+                    <button onClick={() => handleValidationFilterChange("rejected")} style={filterButtonStyle(validationFilter === "rejected")}>❌ Rejetés</button>
+                </div>
+
+                {/* Barre de recherche */}
+                {courses.length > 0 && (
+                    <div style={{ marginBottom: "20px", display: "flex", justifyContent: "center", gap: "10px" }}>
+                        <input
+                            type="text"
+                            placeholder="🔍 Rechercher un cours..."
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            style={{
+                                width: "300px",
+                                padding: "10px 15px",
+                                border: "1px solid #ddd",
+                                borderRadius: "25px",
+                                outline: "none"
+                            }}
+                        />
+                        {(searchTerm || statusFilter !== "all" || validationFilter !== "all") && (
+                            <button onClick={clearSearch} style={{ padding: "10px 15px", border: "1px solid #ddd", borderRadius: "25px", backgroundColor: "#f8f9fa", cursor: "pointer" }}>
+                                ✖ Effacer
+                            </button>
+                        )}
+                    </div>
+                )}
+
+                {filteredCourses.length === 0 && searchTerm && (
+                    <div className="alert alert-warning text-center">
+                        <p>Aucun cours ne correspond à votre recherche "<strong>{searchTerm}</strong>"</p>
+                    </div>
+                )}
+
+                {filteredCourses.length === 0 && !searchTerm && courses.length === 0 && (
+                    <div className="alert alert-info text-center">
+                        <i className="fas fa-info-circle fa-2x mb-2 d-block"></i>
+                        <p>Vous n'avez pas encore créé de cours.</p>
+                        <Link to="/admin/createcours" className="btn btn-primary mt-2" style={{ backgroundColor: "#ff5421", border: "none" }}>
+                            Créer mon premier cours
+                        </Link>
+                    </div>
+                )}
+
+                {/* Liste des cours */}
+                {filteredCourses.length > 0 && (
+                    <div className="row">
+                        {filteredCourses.map((cours) => (
+                            <div key={cours.id} className="col-lg-4 col-md-6 col-sm-6 mb-40">
+                                <CourseSingleFour
+                                    btnLink={cours.id}
+                                    courseImg={`${API_URL}/image/${cours.image}`}
+                                    courseCategory={cours.type}
+                                    courseTitle={cours.titre}
+                                    courseDescription={cours.description}
+                                    courseDuration={cours.duration}
+                                    studentCount={cours.studentCount || 0}
+                                    onDelete={handleCourseDelete}
+                                    status={cours.status}
+                                    validationStatus={cours.validation_status}
+                                    onRequestValidation={() => requestValidation(cours.id)}
+                                    updating={updating === cours.id}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
-            
-            <ToastContainer position="top-right" />
-        </React.Fragment>
+        </div>
     );
 };
 
