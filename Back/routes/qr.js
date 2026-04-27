@@ -1,5 +1,5 @@
 import express from "express";
-import { createMessage,getMessages } from "../controllers/QR.js";
+import { createMessage, getMessages } from "../controllers/qr.js";
 
 
 const router = express.Router();

@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Service Base de données MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: e-learning-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: e_learning
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - e-learning-network
+
+  # Service Backend Node.js
+  backend:
+    build: ./Back
+    container_name: back
+    restart: always
+    environment:
+      NODE_ENV: production
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: e_learning
+      JWT_SECRET: mon_secret_jwt
+      PORT: 8801
+    ports:
+      - "8801:8801"
+    depends_on:
+      - mysql
+    networks:
+      - e-learning-network
+
+  # Service Frontend React
+  frontend:
+    build: ./front
+    container_name: front
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - e-learning-network
+
+# Volumes pour persister les données
+volumes:
+  mysql_data:
+
+# Réseau pour la communication entre conteneurs
+networks:
+  e-learning-network:
+    driver: bridge
