@@ -13,7 +13,7 @@ env:
   ECR_REPOSITORY_BACKEND: isetso-backend
   ECR_REPOSITORY_FRONTEND: isetso-frontend
   ECS_CLUSTER: isetso-cluster
-  ECS_SERVICE: isetso-backend-service
+  ECS_SERVICE: isetso-backend-task-service
 
 jobs:
 
