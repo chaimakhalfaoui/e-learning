@@ -1,23 +1,34 @@
-// routes/coordinateurs.js
 import express from "express";
 import {
-    getAllCoordinateurs,
-    getCoordinateurById,
-    addCoordinateur,
-    updateCoordinateur,
-    deleteCoordinateur
-} from "../controllers/coordinateur.js";
-import { updateUserRole } from "../controllers/users.js"; // 👈 Import de la fonction
+  getAllUsers,
+  getUserById,
+  getUsersByRole,
+  addUser,
+  updateUser,
+  updateUserSimple,
+  updateUserRole,
+  deleteUser
+} from "../controllers/users.js";
 
 const router = express.Router();
 
-router.get("/", getAllCoordinateurs);
-router.get("/:id", getCoordinateurById);
-router.post("/", addCoordinateur);
-router.put("/:id", updateCoordinateur);
-router.delete("/:id", deleteCoordinateur);
+// ✅ Routes publiques
+router.get("/", getAllUsers);
+router.get("/all", getAllUsers);
+router.get("/role/:role", getUsersByRole);
+router.get("/:id", getUserById);
 
-// 👈 Ajouter cette route pour mettre à jour le rôle d'un coordinateur
-router.put("/:id/role", updateUserRole);
+// ✅ Routes d'administration
+router.post("/add", addUser);
+router.post("/", addUser);
+
+// ✅ Routes de mise à jour
+router.put("/update/:id", updateUser);
+router.put("/update-simple/:id", updateUserSimple);
+router.put("/role/:id", updateUserRole);
+
+// ✅ Route de suppression
+router.delete("/delete/:id", deleteUser);
+router.delete("/:id", deleteUser);
 
 export default router;
