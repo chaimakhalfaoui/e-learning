@@ -131,17 +131,55 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
+      - name: Register new task definition with env vars
+        run: |
+          aws ecs register-task-definition \
+            --family isetso-backend-task \
+            --network-mode awsvpc \
+            --requires-compatibilities FARGATE \
+            --cpu 256 \
+            --memory 512 \
+            --execution-role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/LabRole \
+            --task-role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/LabRole \
+            --container-definitions '[
+              {
+                "name": "backend",
+                "image": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/isetso-backend:latest",
+                "portMappings": [{"containerPort": 8801, "protocol": "tcp"}],
+                "environment": [
+                  {"name": "NODE_ENV",    "value": "production"},
+                  {"name": "PORT",        "value": "8801"},
+                  {"name": "DB_HOST",     "value": "${{ secrets.RDS_HOST }}"},
+                  {"name": "DB_USER",     "value": "${{ secrets.RDS_USER }}"},
+                  {"name": "DB_PASSWORD", "value": "${{ secrets.RDS_PASSWORD }}"},
+                  {"name": "DB_NAME",     "value": "${{ secrets.RDS_DATABASE }}"},
+                  {"name": "JWT_SECRET",  "value": "${{ secrets.JWT_SECRET }}"},
+                  {"name": "EMAIL_USER",  "value": "${{ secrets.EMAIL_USER }}"},
+                  {"name": "EMAIL_PASS",  "value": "${{ secrets.EMAIL_PASS }}"}
+                ],
+                "logConfiguration": {
+                  "logDriver": "awslogs",
+                  "options": {
+                    "awslogs-group": "/ecs/isetso-backend",
+                    "awslogs-region": "${{ env.AWS_REGION }}",
+                    "awslogs-stream-prefix": "ecs"
+                  }
+                }
+              }
+            ]'
       - name: Update ECS service
         run: |
           aws ecs update-service \
             --cluster ${{ env.ECS_CLUSTER }} \
             --service ${{ env.ECS_SERVICE }} \
+            --task-definition isetso-backend-task \
             --force-new-deployment
       - name: Wait for deployment
         run: |
-          echo "⏳ Déploiement en cours... (2-3 minutes)"
-          sleep 120
-      - name: Get task IP
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_SERVICE }}
+      - name: Test backend health
         run: |
           TASK_ARN=$(aws ecs list-tasks --cluster ${{ env.ECS_CLUSTER }} --query 'taskArns[0]' --output text)
           if [ -n "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
@@ -149,14 +187,7 @@ jobs:
               --query 'tasks[0].attachments[0].details[?name==`privateIPv4Address`].value' \
               --output text)
             echo "✅ Backend IP: ${TASK_IP}"
-            echo "BACKEND_IP=${TASK_IP}" >> $GITHUB_ENV
+            curl -f http://${TASK_IP}:8801/health || echo "⚠️ Health check failed"
           else
             echo "⚠️ Aucune tâche trouvée"
-          fi
-      - name: Test backend health
-        run: |
-          if [ -n "${{ env.BACKEND_IP }}" ]; then
-            curl -f http://${{ env.BACKEND_IP }}:8801/health || echo "⚠️ Health check failed"
-          else
-            echo "⚠️ IP non disponible"
           fi
