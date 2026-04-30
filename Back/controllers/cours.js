@@ -544,7 +544,7 @@ export const getEtudiantsByCours = (req, res) => {
             u.age,
             COALESCE(a.avc, 0) AS progression,
             l.created_at AS date_inscription
-        FROM Users u
+        FROM users u
         INNER JOIN Lecture l ON u.id = l.id_user
         LEFT JOIN Avc a ON u.id = a.idUser AND a.idCours = ?
         WHERE l.id_cours = ? AND u.role = 'etudiant'
