@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import CourseSingleTwo from '../../components/Courses/CourseSingleTwo';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 const CoursePart = () => {
     const [courses, setCourses] = useState([]);

@@ -13,7 +13,7 @@ import Logo from "../../assets/img/logo/dark-logo.png";
 import footerLogo from "../../assets/img/logo/lite-logo.png";
 import { useAuth } from "../../context/authContext";
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 const ListeCoursParCategorie = () => {
   const { idCategorie } = useParams();

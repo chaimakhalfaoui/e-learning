@@ -19,7 +19,7 @@ import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/2.jpg';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 const MesCoursSuivis = () => {
     const { idUser, role } = useAuth();

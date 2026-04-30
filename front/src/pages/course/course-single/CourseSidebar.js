@@ -8,7 +8,7 @@ import QR from './QR';
 // Image
 import videoImg from '../../../assets/img/about/about-video-bg2.png';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 const CourseSidebar = () => {
     const { id } = useParams();

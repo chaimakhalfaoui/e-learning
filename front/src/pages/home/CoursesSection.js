@@ -3,7 +3,7 @@ import axios from 'axios';
 import SectionTitle from '../../components/Common/SectionTitle';
 import CourseSingle from '../../components/Courses/CourseSingle';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);

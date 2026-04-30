@@ -11,7 +11,7 @@ import teamimg4 from '../../assets/img/team/4.jpg';
 import teamimg5 from '../../assets/img/team/5.jpg';
 import teamimg6 from '../../assets/img/team/6.jpg';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 // Styles CSS
 const teamContainerStyle = {

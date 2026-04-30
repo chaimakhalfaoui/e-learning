@@ -6,7 +6,7 @@ import { useAuth } from '../../context/authContext';
 import { Helmet } from 'react-helmet';
 import { toast } from 'react-toastify';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Courses = () => {
     const { idUser, role } = useAuth();
