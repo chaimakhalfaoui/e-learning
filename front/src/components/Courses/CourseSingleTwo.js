@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/authContext'; 
 import axios from "axios";
 
-const API_URL = http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api;
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
 
 const CourseSingleTwo = (props) => {
     const { 

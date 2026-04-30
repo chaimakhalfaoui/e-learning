@@ -6,7 +6,7 @@ import { useAuth } from '../../context/authContext';
 import { Helmet } from 'react-helmet';
 import { toast } from 'react-toastify';
 
-const API_URL = http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api;
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
 
 const Courses = () => {
     const { idUser, role } = useAuth();

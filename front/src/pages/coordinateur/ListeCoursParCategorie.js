@@ -13,7 +13,7 @@ import Logo from "../../assets/img/logo/dark-logo.png";
 import footerLogo from "../../assets/img/logo/lite-logo.png";
 import { useAuth } from "../../context/authContext";
 
-const API_URL = http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api;
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
 
 const ListeCoursParCategorie = () => {
   const { idCategorie } = useParams();
