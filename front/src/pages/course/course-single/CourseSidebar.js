@@ -8,7 +8,7 @@ import QR from './QR';
 // Image
 import videoImg from '../../../assets/img/about/about-video-bg2.png';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api;
 
 const CourseSidebar = () => {
     const { id } = useParams();

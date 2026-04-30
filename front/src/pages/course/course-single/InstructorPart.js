@@ -16,15 +16,15 @@ const InstructorPart = () => {
         setLoading(true);
         try {
             // Récupérer le nom de l'enseignant
-            const nameResponse = await axios.get(`process.env.REACT_APP_API_URL/cours/getUserNameByCourseId/${id}`);
+            const nameResponse = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/cours/getUserNameByCourseId/${id}`);
             setName(nameResponse.data);
             
             // Récupérer l'email de l'enseignant
-            const idResponse = await axios.get(`process.env.REACT_APP_API_URL/cours/getUserIdByCourseId/${id}`);
+            const idResponse = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/cours/getUserIdByCourseId/${id}`);
             const enseignantId = idResponse.data;
             
             if (enseignantId) {
-                const userResponse = await axios.get(`process.env.REACT_APP_API_URL/users/${enseignantId}`);
+                const userResponse = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/users/${enseignantId}`);
                 setEmail(userResponse.data.email || '');
             }
         } catch (error) {

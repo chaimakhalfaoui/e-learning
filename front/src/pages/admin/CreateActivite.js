@@ -113,7 +113,7 @@ const CreateActivite = () => {
         const fetchUserData = async () => {
             try {
                 const userId = await idUser();
-                const response = await axios.get(`process.env.REACT_APP_API_URL/auth/checkUserRole/${userId}`);
+                const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/checkUserRole/${userId}`);
                 const userRole = response.data.role;
                 if (userRole !== 'enseignant') {
                     navigate('/404');
@@ -127,7 +127,7 @@ const CreateActivite = () => {
 
     const fetchActivite = async () => {
         try {
-            const response = await axios.get(`process.env.REACT_APP_API_URL/activite/getAllActiviteId/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/activite/getAllActiviteId/${id}`);
             setActivite(response.data);
         } catch (error) {
             console.error("Erreur:", error);
@@ -138,7 +138,7 @@ const CreateActivite = () => {
 
     const fetchRessources = async () => {
         try {
-            const response = await axios.get(`process.env.REACT_APP_API_URL/ressource/getAllRessourceId/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/ressource/getAllRessourceId/${id}`);
             setRessources(response.data);
         } catch (error) {
             console.error("Erreur:", error);
@@ -154,7 +154,7 @@ const CreateActivite = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post("process.env.REACT_APP_API_URL/activite/createActivite", {
+            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/activite/createActivite", {
                 titre: inputs.titre,
                 categorie: inputs.categorie,
                 contenu: inputs.contenu,
@@ -180,7 +180,7 @@ const CreateActivite = () => {
             formData.append('image', inputs.image);
             formData.append('duration', inputs.duration);
             formData.append('id_chapitre', id);
-            await axios.post("process.env.REACT_APP_API_URL/activite/createActivitei", formData);
+            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/activite/createActivitei", formData);
             toast.success('Image ajoutée avec succès');
             setInputs({ titre: "", duration: "", image: null, categorie: "" });
             fetchActivite();
@@ -200,7 +200,7 @@ const CreateActivite = () => {
             formData.append('video', inputs.video);
             formData.append('duration', inputs.duration);
             formData.append('id_chapitre', id);
-            await axios.post("process.env.REACT_APP_API_URL/activite/createActivitev", formData);
+            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/activite/createActivitev", formData);
             toast.success('Vidéo ajoutée avec succès');
             setInputs({ titre: "", duration: "", video: null, categorie: "" });
             fetchActivite();
@@ -214,7 +214,7 @@ const CreateActivite = () => {
     const handleDeleteActivite = async (idActivite) => {
         if (window.confirm("Supprimer cette activité ?")) {
             try {
-                await axios.delete(`process.env.REACT_APP_API_URL/activite/deleteActivite/${idActivite}`);
+                await axios.delete(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/activite/deleteActivite/${idActivite}`);
                 toast.success('Activité supprimée');
                 fetchActivite();
             } catch (err) {
@@ -234,7 +234,7 @@ const CreateActivite = () => {
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('id_chapitre', id);
             
-            await axios.post("process.env.REACT_APP_API_URL/ressource/createRessource", formData, {
+            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/ressource/createRessource", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             
@@ -251,7 +251,7 @@ const CreateActivite = () => {
     const handleDeleteRessource = async (idRessource) => {
         if (window.confirm("Supprimer cette ressource ?")) {
             try {
-                await axios.delete(`process.env.REACT_APP_API_URL/ressource/deleteRessource/${idRessource}`);
+                await axios.delete(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/ressource/deleteRessource/${idRessource}`);
                 toast.success('Ressource supprimée');
                 fetchRessources();
             } catch (err) {
@@ -272,7 +272,7 @@ const CreateActivite = () => {
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('id_chapitre', id);
             
-            await axios.put(`process.env.REACT_APP_API_URL/ressource/updateRessource/${inputs.id}`, formData, {
+            await axios.put(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/ressource/updateRessource/${inputs.id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             
@@ -286,7 +286,7 @@ const CreateActivite = () => {
     };
 
     const handleUpdateRessourceModal = (id, titre, description, fichier, type_fichier) => {
-        const fileUrl = `process.env.REACT_APP_API_URL/ressource/fichier/${fichier}`;
+        const fileUrl = `http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/ressource/fichier/${fichier}`;
         setInputs({
             id, titre, description: description || '',
             fichier, fichierUrl: fileUrl, fichierName: fichier, type_fichier
@@ -481,10 +481,10 @@ const CreateActivite = () => {
                                             {openIndex === index && (
                                                 <div style={styles.detailContent}>
                                                     {item.categorie === 'text' && <p>{item.contenu}</p>}
-                                                    {item.categorie === 'image' && <img src={`process.env.REACT_APP_API_URL/image/${item.contenu}`} alt="contenu" style={{ maxWidth: '100%', borderRadius: '8px' }} />}
+                                                    {item.categorie === 'image' && <img src={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/image/${item.contenu}`} alt="contenu" style={{ maxWidth: '100%', borderRadius: '8px' }} />}
                                                     {item.categorie === 'video' && (
                                                         <video controls style={{ width: '100%', borderRadius: '8px' }}>
-                                                            <source src={`process.env.REACT_APP_API_URL/video/${item.contenu}`} type="video/mp4" />
+                                                            <source src={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/video/${item.contenu}`} type="video/mp4" />
                                                         </video>
                                                     )}
                                                 </div>
@@ -532,7 +532,7 @@ const CreateActivite = () => {
                                             {openIndexRessource === index && (
                                                 <div style={styles.detailContent}>
                                                     <p><strong>Description :</strong> {item.description || 'Aucune description'}</p>
-                                                    <a href={`process.env.REACT_APP_API_URL/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
+                                                    <a href={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
                                                         <i className="fas fa-download me-2"></i>Télécharger
                                                     </a>
                                                 </div>

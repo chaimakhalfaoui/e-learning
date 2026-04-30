@@ -41,7 +41,7 @@ const ListCategorie = () => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("process.env.REACT_APP_API_URL/categorie");
+        const response = await axios.get("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/categorie");
         setCategories(response.data);
         setFilteredCategories(response.data);
         setError(null);
@@ -79,7 +79,7 @@ const ListCategorie = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Voulez-vous vraiment supprimer cette catégorie ?")) {
       try {
-        await axios.delete(`process.env.REACT_APP_API_URL/categorie/${id}`);
+        await axios.delete(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/categorie/${id}`);
         const updatedCategories = categories.filter(cat => cat.id !== id);
         setCategories(updatedCategories);
         setFilteredCategories(updatedCategories);

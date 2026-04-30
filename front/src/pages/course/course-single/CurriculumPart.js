@@ -41,7 +41,7 @@ const CurriculumPart = () => {
 
     const fetchCourse = async () => {
         try {
-            const response = await axios.get(`process.env.REACT_APP_API_URL/cours/getCourse/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/cours/getCourse/${id}`);
             setCourse(response.data[0]);
         } catch (error) {
             console.error("Erreur lors de la récupération des événements :", error);
@@ -50,13 +50,13 @@ const CurriculumPart = () => {
 
     const getChapitreAndActivite = async () => {
         try {
-            const response = await axios.get(`process.env.REACT_APP_API_URL/chapitre/getChapitreAndActivite/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/chapitre/getChapitreAndActivite/${id}`);
             
             // Récupérer les ressources pour chaque chapitre
             const chapitresAvecRessources = await Promise.all(
                 response.data.map(async (chap) => {
                     try {
-                        const resResponse = await axios.get(`process.env.REACT_APP_API_URL/ressource/getAllRessourceId/${chap.id_chapitre}`);
+                        const resResponse = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
                         return { ...chap, ressources: resResponse.data };
                     } catch (error) {
                         return { ...chap, ressources: [] };
@@ -71,7 +71,7 @@ const CurriculumPart = () => {
 
     const fetchQuiz = async () => {
         try {
-            const response = await axios.get(`process.env.REACT_APP_API_URL/quiz/getQuiz/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/quiz/getQuiz/${id}`);
             setQuiz(response.data);
         } catch (error) {
             console.error("Erreur lors de la récupération des quiz :", error);
@@ -89,7 +89,7 @@ const CurriculumPart = () => {
             nch = nChapN.toString();
         }
         try {
-            await axios.post("process.env.REACT_APP_API_URL/avc/createOrUpdateAvc", {
+            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/avc/createOrUpdateAvc", {
                 idCours: id,
                 iduser: userid,
                 chapN: nch
@@ -313,7 +313,7 @@ const CurriculumPart = () => {
                                                         <div style={styles.ressourceTitle}>{ressource.titre}</div>
                                                     </div>
                                                     <a 
-                                                        href={`process.env.REACT_APP_API_URL/ressource/fichier/${ressource.fichier}`}
+                                                        href={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/ressource/fichier/${ressource.fichier}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         style={styles.downloadBtn}
@@ -376,7 +376,7 @@ const CurriculumPart = () => {
                                                                     <img width="24" height="24" src="https://img.icons8.com/quill/100/ff5421/x.png" alt="x"/>
                                                                 </button>
                                                                 <div className='img-modal-ext'>
-                                                                    <img src={`process.env.REACT_APP_API_URL/image/${activite.contenu}`} alt="image" style={styles.modalImage} />
+                                                                    <img src={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/image/${activite.contenu}`} alt="image" style={styles.modalImage} />
                                                                 </div>
                                                             </div>
                                                         )}
@@ -387,7 +387,7 @@ const CurriculumPart = () => {
                                                                 </button>
                                                                 <div className='img-modal-ext'>
                                                                     <video controls style={styles.modalVideo}>
-                                                                        <source src={`process.env.REACT_APP_API_URL/video/${activite.contenu}`} type="video/mp4" />
+                                                                        <source src={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/video/${activite.contenu}`} type="video/mp4" />
                                                                     </video>
                                                                 </div>
                                                             </div>

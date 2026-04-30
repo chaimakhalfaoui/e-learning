@@ -76,10 +76,10 @@ const StatistiquesSimple = () => {
             setLoading(true);
             try {
                 const [statsRes, monthlyRes, categoriesRes, eventsRes] = await Promise.all([
-                    axios.get("process.env.REACT_APP_API_URL/auth/getStatistics").catch(() => ({ data: null })),
-                    axios.get("process.env.REACT_APP_API_URL/auth/monthlyInscriptions").catch(() => ({ data: [] })),
-                    axios.get("process.env.REACT_APP_API_URL/auth/coursParCategorie").catch(() => ({ data: [] })),
-                    axios.get("process.env.REACT_APP_API_URL/event/getAllEvents").catch(() => ({ data: [] }))
+                    axios.get("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/getStatistics").catch(() => ({ data: null })),
+                    axios.get("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/monthlyInscriptions").catch(() => ({ data: [] })),
+                    axios.get("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/coursParCategorie").catch(() => ({ data: [] })),
+                    axios.get("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/event/getAllEvents").catch(() => ({ data: [] }))
                 ]);
                 
                 const usersData = statsRes.data?.users || { 

@@ -19,7 +19,7 @@ import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/2.jpg';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api;
 
 const Coordinateurs = () => {
     const { role } = useAuth();

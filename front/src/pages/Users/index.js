@@ -54,7 +54,7 @@ const Users = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get("process.env.REACT_APP_API_URL/users");
+            const response = await axios.get("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/users");
             setUsers(response.data);
             setFilteredUsers(response.data);
         } catch (error) {
@@ -95,7 +95,7 @@ const Users = () => {
     const handleDelete = async (id, username) => {
         if (window.confirm(`Voulez-vous vraiment supprimer l'utilisateur "${username}" ?`)) {
             try {
-                await axios.delete(`process.env.REACT_APP_API_URL/users/${id}`);
+                await axios.delete(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/users/${id}`);
                 const updatedUsers = users.filter(user => user.id !== id);
                 setUsers(updatedUsers);
                 setFilteredUsers(updatedUsers);
