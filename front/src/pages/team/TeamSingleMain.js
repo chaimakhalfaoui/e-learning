@@ -31,7 +31,7 @@ const TeamSingleMain = () => {
         try {
             const userId = await idUser();
             if (!userId) return;
-            const response = await axios.get(`http://localhost:8801/api/auth/getUserById/${userId}`);
+            const response = await axios.get(`process.env.REACT_APP_API_URL/auth/getUserById/${userId}`);
             if (mountedRef.current) {
                 setUserData(response.data);
                 setError(null);
@@ -49,7 +49,7 @@ const TeamSingleMain = () => {
         try {
             const userId = await idUser();
             if (!userId) return;
-            const response = await axios.get(`http://localhost:8801/api/auth/getAdminById/${userId}`);
+            const response = await axios.get(`process.env.REACT_APP_API_URL/auth/getAdminById/${userId}`);
             if (mountedRef.current) {
                 setAdminData(response.data);
                 setError(null);
@@ -123,7 +123,7 @@ const TeamSingleMain = () => {
         }
         
         try {
-            await axios.put(`http://localhost:8801/api/auth/updateprofil/${userData.id}`, formData, {
+            await axios.put(`process.env.REACT_APP_API_URL/auth/updateprofil/${userData.id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -146,7 +146,7 @@ const TeamSingleMain = () => {
         };
     
         try {
-            await axios.put(`http://localhost:8801/api/auth/updateAdminById/${adminData.id}`, updatedData);
+            await axios.put(`process.env.REACT_APP_API_URL/auth/updateAdminById/${adminData.id}`, updatedData);
             setIsEditing(false);
             await getDataAdmin();
         } catch (error) {
@@ -409,7 +409,7 @@ const handleImageChange = (e) => {
                                                     ...imageStyle,
                                                     opacity: isEditing ? "0.7" : "1"
                                                 }}
-                                                src={previewImage || `http://localhost:8801/api/image/${userData.image}`} 
+                                                src={previewImage || `process.env.REACT_APP_API_URL/image/${userData.image}`} 
                                                 alt="profile" 
                                             />
                                         ) : (

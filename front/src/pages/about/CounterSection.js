@@ -17,7 +17,7 @@ const AboutCounter = () => {
     useEffect(() => {
         const fetchStatistics = async () => {
             try {
-                const response = await axios.get('http://localhost:8801/api/auth/getStatistics');
+                const response = await axios.get('process.env.REACT_APP_API_URL/auth/getStatistics');
                 setStats({
                     userCount: response.data.userCount || 0,
                     teacherCount: response.data.teacherCount || 0,

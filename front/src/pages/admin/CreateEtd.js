@@ -89,7 +89,7 @@ const CreateEtd = () => {
             const { confirmPassword, ...registerData } = inputs;
             registerData.role = 'etudiant';
             
-            await axios.post("http://localhost:8801/api/auth/register", registerData);
+            await axios.post("process.env.REACT_APP_API_URL/auth/register", registerData);
             
             toast.success('Étudiant créé avec succès !', {
                 position: "top-right",

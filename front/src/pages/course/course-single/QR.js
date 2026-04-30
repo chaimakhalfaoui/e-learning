@@ -16,7 +16,7 @@ const Q = () => {
     useEffect(() => {
         const fetchEnseignantId = async () => {
             try {
-                const response = await axios.get(`http://localhost:8801/api/cours/getUserIdByCourseId/${id}`);
+                const response = await axios.get(`process.env.REACT_APP_API_URL/cours/getUserIdByCourseId/${id}`);
                 setEnseignantId(response.data);
             } catch (error) {
                 console.error("Erreur:", error);
@@ -37,7 +37,7 @@ const Q = () => {
         setLoading(true);
         try {
             const userid = await idUser();
-            await axios.post('http://localhost:8801/api/qr/createMessage', {
+            await axios.post('process.env.REACT_APP_API_URL/qr/createMessage', {
                 idCours: id,
                 idUser: userid,
                 idEns: enseignantId,

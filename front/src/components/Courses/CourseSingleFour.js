@@ -28,7 +28,7 @@ const CourseSingleFour = ({
         
         setIsDeleting(true);
         try {
-            await axios.delete(`http://localhost:8801/api/cours/deleteCourse/${btnLink}`);
+            await axios.delete(`process.env.REACT_APP_API_URL/cours/deleteCourse/${btnLink}`);
             toast.success('Cours supprimé !');
             if (onDelete) onDelete(btnLink);
         } catch (error) {

@@ -89,7 +89,7 @@ const CreateEns = () => {
             const { confirmPassword, ...registerData } = inputs;
             registerData.role = 'enseignant';
             
-            await axios.post("http://localhost:8801/api/auth/register", registerData);
+            await axios.post("process.env.REACT_APP_API_URL/auth/register", registerData);
             
             toast.success('Enseignant créé avec succès !', {
                 position: "top-right",

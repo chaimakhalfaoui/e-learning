@@ -41,7 +41,7 @@ const CurriculumPart = () => {
 
     const fetchCourse = async () => {
         try {
-            const response = await axios.get(`http://localhost:8801/api/cours/getCourse/${id}`);
+            const response = await axios.get(`process.env.REACT_APP_API_URL/cours/getCourse/${id}`);
             setCourse(response.data[0]);
         } catch (error) {
             console.error("Erreur lors de la récupération des événements :", error);
@@ -50,13 +50,13 @@ const CurriculumPart = () => {
 
     const getChapitreAndActivite = async () => {
         try {
-            const response = await axios.get(`http://localhost:8801/api/chapitre/getChapitreAndActivite/${id}`);
+            const response = await axios.get(`process.env.REACT_APP_API_URL/chapitre/getChapitreAndActivite/${id}`);
             
             // Récupérer les ressources pour chaque chapitre
             const chapitresAvecRessources = await Promise.all(
                 response.data.map(async (chap) => {
                     try {
-                        const resResponse = await axios.get(`http://localhost:8801/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
+                        const resResponse = await axios.get(`process.env.REACT_APP_API_URL/ressource/getAllRessourceId/${chap.id_chapitre}`);
                         return { ...chap, ressources: resResponse.data };
                     } catch (error) {
                         return { ...chap, ressources: [] };
@@ -71,7 +71,7 @@ const CurriculumPart = () => {
 
     const fetchQuiz = async () => {
         try {
-            const response = await axios.get(`http://localhost:8801/api/quiz/getQuiz/${id}`);
+            const response = await axios.get(`process.env.REACT_APP_API_URL/quiz/getQuiz/${id}`);
             setQuiz(response.data);
         } catch (error) {
             console.error("Erreur lors de la récupération des quiz :", error);
@@ -89,7 +89,7 @@ const CurriculumPart = () => {
             nch = nChapN.toString();
         }
         try {
-            await axios.post("http://localhost:8801/api/avc/createOrUpdateAvc", {
+            await axios.post("process.env.REACT_APP_API_URL/avc/createOrUpdateAvc", {
                 idCours: id,
                 iduser: userid,
                 chapN: nch
@@ -313,7 +313,7 @@ const CurriculumPart = () => {
                                                         <div style={styles.ressourceTitle}>{ressource.titre}</div>
                                                     </div>
                                                     <a 
-                                                        href={`http://localhost:8801/api/ressource/fichier/${ressource.fichier}`}
+                                                        href={`process.env.REACT_APP_API_URL/ressource/fichier/${ressource.fichier}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         style={styles.downloadBtn}
@@ -376,7 +376,7 @@ const CurriculumPart = () => {
                                                                     <img width="24" height="24" src="https://img.icons8.com/quill/100/ff5421/x.png" alt="x"/>
                                                                 </button>
                                                                 <div className='img-modal-ext'>
-                                                                    <img src={`http://localhost:8801/api/image/${activite.contenu}`} alt="image" style={styles.modalImage} />
+                                                                    <img src={`process.env.REACT_APP_API_URL/image/${activite.contenu}`} alt="image" style={styles.modalImage} />
                                                                 </div>
                                                             </div>
                                                         )}
@@ -387,7 +387,7 @@ const CurriculumPart = () => {
                                                                 </button>
                                                                 <div className='img-modal-ext'>
                                                                     <video controls style={styles.modalVideo}>
-                                                                        <source src={`http://localhost:8801/api/video/${activite.contenu}`} type="video/mp4" />
+                                                                        <source src={`process.env.REACT_APP_API_URL/video/${activite.contenu}`} type="video/mp4" />
                                                                     </video>
                                                                 </div>
                                                             </div>

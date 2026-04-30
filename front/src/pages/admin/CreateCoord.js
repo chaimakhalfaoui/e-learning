@@ -97,7 +97,7 @@ const CreateCoord = () => {
             const { confirmPassword, ...registerData } = inputs;
             registerData.role = 'coordinateur';
             
-            await axios.post("http://localhost:8801/api/auth/register", registerData);
+            await axios.post("process.env.REACT_APP_API_URL/auth/register", registerData);
             
             toast.success('Coordinateur créé avec succès !', {
                 position: "top-right",

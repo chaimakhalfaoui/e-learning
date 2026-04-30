@@ -55,7 +55,7 @@ const EditUser = () => {
         const fetchUser = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:8801/api/users/${id}`);
+                const response = await axios.get(`process.env.REACT_APP_API_URL/users/${id}`);
                 setInputs(response.data);
                 setErr(null);
             } catch (error) {
@@ -83,7 +83,7 @@ const EditUser = () => {
         setErr(null);
         
         try {
-            await axios.put(`http://localhost:8801/api/users/${id}`, inputs);
+            await axios.put(`process.env.REACT_APP_API_URL/users/${id}`, inputs);
             toast.success('Utilisateur modifié avec succès !', { 
                 autoClose: 3000,
                 position: "top-right"

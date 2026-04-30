@@ -60,7 +60,7 @@ const ModifierEvent = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get("http://localhost:8801/api/categorie");
+                const response = await axios.get("process.env.REACT_APP_API_URL/categorie");
                 setCategories(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des catégories:", error);
@@ -74,7 +74,7 @@ const ModifierEvent = () => {
         const fetchEventData = async () => {
             setLoadingData(true);
             try {
-                const response = await axios.get(`http://localhost:8801/api/event/getEventById/${id}`);
+                const response = await axios.get(`process.env.REACT_APP_API_URL/event/getEventById/${id}`);
                 const eventData = response.data;
 
                 setInputs({
@@ -87,7 +87,7 @@ const ModifierEvent = () => {
                     datefin: eventData.datefin ? eventData.datefin.split('T')[0] : "",
                     heurefin: eventData.heurefin || "",
                     image: null,
-                    imageUrl: `http://localhost:8801/api/image/${eventData.image}`
+                    imageUrl: `process.env.REACT_APP_API_URL/image/${eventData.image}`
                 });
             } catch (error) {
                 console.error("Erreur lors de la récupération des données:", error);
@@ -174,7 +174,7 @@ const ModifierEvent = () => {
                 formData.append('image', inputs.image);
             }
 
-            await axios.put(`http://localhost:8801/api/event/updateEvent/${id}`, formData, {
+            await axios.put(`process.env.REACT_APP_API_URL/event/updateEvent/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

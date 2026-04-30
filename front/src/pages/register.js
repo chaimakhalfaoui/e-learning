@@ -70,7 +70,7 @@ const Register = () => {
             const { confirmPassword, ...registerData } = inputs;
             registerData.role = 'etudiant'; // Rôle par défaut
             
-            const response = await axios.post("http://localhost:8801/api/auth/register", registerData);
+            const response = await axios.post("process.env.REACT_APP_API_URL/auth/register", registerData);
             
             if (response.status === 200 || response.status === 201) {
                 setUserEmail(inputs.email);

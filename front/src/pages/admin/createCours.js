@@ -65,7 +65,7 @@ const CreateCours = () => {
         const fetchCategories = async () => {
             setLoadingCategories(true);
             try {
-                const response = await axios.get('http://localhost:8801/api/categorie');
+                const response = await axios.get('process.env.REACT_APP_API_URL/categorie');
                 setCategories(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des catégories:", error);
@@ -82,7 +82,7 @@ const CreateCours = () => {
         const fetchLevel = async () => {
             setLoadingLevels(true);
             try {
-                const response = await axios.get('http://localhost:8801/api/level');
+                const response = await axios.get('process.env.REACT_APP_API_URL/level');
                 setLevel(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des niveaux:", error);
@@ -178,7 +178,7 @@ const CreateCours = () => {
             formData.append('duration', inputs.duration);
             formData.append('status', inputs.status); // ✅ Ajout du statut
             
-            const response = await axios.post("http://localhost:8801/api/cours/createCours", formData, {
+            const response = await axios.post("process.env.REACT_APP_API_URL/cours/createCours", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

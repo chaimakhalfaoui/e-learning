@@ -23,7 +23,7 @@ const CourseSingle = () => {
         const fetchUserData = async () => {
             try {
                 const userId = await idUser(); // Récupérer l'ID de l'utilisateur à partir du contexte d'authentification
-                const response = await axios.get(`http://localhost:8801/api/auth/checkUserRole/${userId}`);
+                const response = await axios.get(`process.env.REACT_APP_API_URL/auth/checkUserRole/${userId}`);
                 const userRole = response.data.role;
 
                 // Vérifier le rôle de l'utilisateur et agir en conséquence

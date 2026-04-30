@@ -63,7 +63,7 @@ const Header = (props) => {
         e.preventDefault();
         try {
           // Appel de l'API pour se déconnecter
-          const response = await axios.post('http://localhost:8801/api/auth/logout');
+          const response = await axios.post('process.env.REACT_APP_API_URL/auth/logout');
           if (response.status === 200) {
             localStorage.removeItem('access_token');
             navigate("/");

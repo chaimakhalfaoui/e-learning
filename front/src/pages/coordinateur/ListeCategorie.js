@@ -41,7 +41,7 @@ const ListCategorie = () => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:8801/api/categorie");
+        const response = await axios.get("process.env.REACT_APP_API_URL/categorie");
         setCategories(response.data);
         setFilteredCategories(response.data);
         setError(null);
@@ -79,7 +79,7 @@ const ListCategorie = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Voulez-vous vraiment supprimer cette catégorie ?")) {
       try {
-        await axios.delete(`http://localhost:8801/api/categorie/${id}`);
+        await axios.delete(`process.env.REACT_APP_API_URL/categorie/${id}`);
         const updatedCategories = categories.filter(cat => cat.id !== id);
         setCategories(updatedCategories);
         setFilteredCategories(updatedCategories);
@@ -289,7 +289,7 @@ const ListCategorie = () => {
                 <div key={cat.id} className="col-lg-4 col-md-6 mb-30">
                   <div className="card" style={cardStyle}>
                     <img
-                      src={cat.image ? `http://localhost:8801/uploads/${cat.image}` : "https://via.placeholder.com/300x200?text=No+Image"}
+                      src={cat.image ? `http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/uploads/${cat.image}` : "https://via.placeholder.com/300x200?text=No+Image"}
                       alt={cat.title}
                       style={imageStyle}
                       onError={(e) => {

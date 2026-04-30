@@ -54,7 +54,7 @@ const Users = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get("http://localhost:8801/api/users");
+            const response = await axios.get("process.env.REACT_APP_API_URL/users");
             setUsers(response.data);
             setFilteredUsers(response.data);
         } catch (error) {
@@ -95,7 +95,7 @@ const Users = () => {
     const handleDelete = async (id, username) => {
         if (window.confirm(`Voulez-vous vraiment supprimer l'utilisateur "${username}" ?`)) {
             try {
-                await axios.delete(`http://localhost:8801/api/users/${id}`);
+                await axios.delete(`process.env.REACT_APP_API_URL/users/${id}`);
                 const updatedUsers = users.filter(user => user.id !== id);
                 setUsers(updatedUsers);
                 setFilteredUsers(updatedUsers);
