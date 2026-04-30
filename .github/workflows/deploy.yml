@@ -69,6 +69,7 @@ jobs:
         working-directory: ./front
         env:
           CI: false
+          REACT_APP_API_URL: http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v2
         with:
