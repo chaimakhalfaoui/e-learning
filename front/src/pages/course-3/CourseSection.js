@@ -203,13 +203,7 @@ const Courses = () => {
                     <button onClick={() => handleStatusFilterChange("hidden")} style={filterButtonStyle(statusFilter === "hidden")}><i className="fas fa-eye-slash me-1"></i> Cachés</button>
                 </div>
 
-                {/* Filtres par statut de validation */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    <button onClick={() => handleValidationFilterChange("all")} style={filterButtonStyle(validationFilter === "all")}>Tous</button>
-                    <button onClick={() => handleValidationFilterChange("approved")} style={filterButtonStyle(validationFilter === "approved")}>✅ Validés</button>
-                    <button onClick={() => handleValidationFilterChange("pending")} style={filterButtonStyle(validationFilter === "pending")}>⏳ En attente</button>
-                    <button onClick={() => handleValidationFilterChange("rejected")} style={filterButtonStyle(validationFilter === "rejected")}>❌ Rejetés</button>
-                </div>
+            
 
                 {/* Barre de recherche */}
                 {courses.length > 0 && (
