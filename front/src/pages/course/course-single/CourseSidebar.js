@@ -143,7 +143,7 @@ const CourseSidebar = () => {
                 {course.image ? (
                     <img 
                         className="video-img" 
-                        src={`${API_URL}/image/${course.image}`} 
+                        src={course.image && course.image.startsWith("http") ? course.image : `${API_URL}/image/${course.image}`} 
                         alt="Video Image" 
                         style={{ width: '100%', borderRadius: '10px' }}
                         onError={(e) => {

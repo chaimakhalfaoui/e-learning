@@ -252,7 +252,7 @@ const Courses = () => {
                             <div key={cours.id} className="col-lg-4 col-md-6 col-sm-6 mb-40">
                                 <CourseSingleFour
                                     btnLink={cours.id}
-                                    courseImg={`${API_URL}/image/${cours.image}`}
+                                    courseImg={cours.image && cours.image.startsWith("http") ? cours.image : `${API_URL}/image/${cours.image}`}
                                     courseCategory={cours.type}
                                     courseTitle={cours.titre}
                                     courseDescription={cours.description}

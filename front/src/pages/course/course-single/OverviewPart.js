@@ -98,7 +98,7 @@ const OverviewPart = () => {
                     {course.image && (
                         <div className="course-image" style={{ marginBottom: '20px' }}>
                             <img 
-                                src={`${API_URL}/image/${course.image}`}
+                                src={course.image && course.image.startsWith("http") ? course.image : `${API_URL}/image/${course.image}`}
                                 alt={course.titre}
                                 style={{
                                     width: '100%',

@@ -113,7 +113,7 @@ const ModifierCours = () => {
                     type: course.type || "",
                     level: course.level || "",
                     duration: course.duration || "",
-                    imageUrl: course.image ? `${API_URL}/image/${course.image}` : null
+                    imageUrl: course.image ? course.image && course.image.startsWith("http") ? course.image : `${API_URL}/image/${course.image}` : null
                 }));
                 setValidationStatus(course.validation_status);
                 setCurrentStatus(course.status || 'hidden');

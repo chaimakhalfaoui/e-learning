@@ -149,7 +149,7 @@ const Team = () => {
                                     <div style={cardStyle}>
                                         <SingleTeam
                                             teamClass="team-item"
-                                            Image={teacher.image ? `${API_URL}/image/${teacher.image}` : getTeamImage(index)}
+                                            Image={teacher.image ? teacher.image && teacher.image.startsWith("http") ? teacher.image : `${API_URL}/image/${teacher.image}` : getTeamImage(index)}
                                             Title={teacher.username || 'Enseignant'}
                                             Designation={teacher.role === 'enseignant' ? 'Enseignant Expert' : 'Formateur'}
                                             email={teacher.email}
