@@ -5,7 +5,7 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 
 const s3 = new S3Client({ region: "us-east-1" });
-const BUCKET = "isetso-frontend-378174569462";
+const BUCKET = "isetso-uploads-378174569462";
 
 const storage = multerS3({
   s3,
