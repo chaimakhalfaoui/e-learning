@@ -289,7 +289,7 @@ const ListCategorie = () => {
                 <div key={cat.id} className="col-lg-4 col-md-6 mb-30">
                   <div className="card" style={cardStyle}>
                     <img
-                      src={cat.image ? `http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/uploads/${cat.image}` : "https://via.placeholder.com/300x200?text=No+Image"}
+                      src={cat.image ? (cat.image.startsWith("http") ? cat.image : `http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/uploads/${cat.image}`) : "https://via.placeholder.com/300x200?text=No+Image"}
                       alt={cat.title}
                       style={imageStyle}
                       onError={(e) => {
