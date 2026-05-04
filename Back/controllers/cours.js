@@ -7,12 +7,6 @@ import { createS3Upload, getFileUrl } from "../middleware/s3upload.js";
 const upload = createS3Upload("uploads");
 
 // Vérifier le type de fichier pour l'image
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
 
 // Configurer multer avec le stockage et le filtre
 

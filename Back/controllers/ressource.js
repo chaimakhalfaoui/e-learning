@@ -26,8 +26,6 @@ const upload = createS3Upload("uploads");
     ];
     
     if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
         cb(new Error("Format de fichier non supporté. Utilisez PDF, Word, PowerPoint ou Excel."), false);
     }
 };
@@ -202,7 +200,6 @@ export const downloadFichier = (req, res) => {
     
     if (fs.existsSync(filePath)) {
         return res.download(filePath);
-    } else {
         return res.status(404).json({ error: "Fichier non trouvé." });
     }
 };
@@ -214,7 +211,6 @@ export const getFichierUrl = (req, res) => {
     
     if (fs.existsSync(filePath)) {
         return res.sendFile(path.resolve(filePath));
-    } else {
         return res.status(404).json({ error: "Fichier non trouvé." });
     }
 };

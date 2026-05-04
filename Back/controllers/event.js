@@ -7,12 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 const upload = createS3Upload("uploads");
 
 // Vérifier le type de fichier pour l'image
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
 
 // Configurer multer avec le stockage et le filtre
 
@@ -217,7 +211,6 @@ export const updateEvent = (req, res) => {
       const imageName = req.file.location;
       updateEventQuery = "UPDATE evenement SET titre = ?, description = ?, datedebut = ?, heuredebut = ?, datefin = ?, heurefin = ?, image = ?, ville = ?, categorie = ? WHERE id = ?";
       values = [titre, description, formattedDateDebut, heuredebut, formattedDateFin, heurefin, imageName, ville, categorie, eventId];
-    } else {
       updateEventQuery = "UPDATE evenement SET titre = ?, description = ?, datedebut = ?, heuredebut = ?, datefin = ?, heurefin = ?, ville = ?, categorie = ? WHERE id = ?";
       values = [titre, description, formattedDateDebut, heuredebut, formattedDateFin, heurefin, ville, categorie, eventId];
     }

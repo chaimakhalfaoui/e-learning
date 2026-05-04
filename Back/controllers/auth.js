@@ -334,12 +334,6 @@ export const updateAdminById = (req, res) => {
 // Définir le stockage pour multer
 const upload = createS3Upload("uploads");
 
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-        cb(null, true);
-    } else {
-        cb(null, false);
-    }
-};
 
 
 export const updateprofil = (req, res) => {

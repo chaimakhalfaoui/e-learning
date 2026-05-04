@@ -7,12 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 const upload = createS3Upload("uploads");
 
 // Vérifier le type de fichier pour l'image
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
 
 // Configurer multer avec le stockage et le filtre
 
@@ -82,12 +76,6 @@ export const createActivite = (req, res) => {
 
   
   // Vérifier le type de fichier pour la vidéo
-    if (file.mimetype === 'video/mp4' || file.mimetype === 'video/mpeg' || file.mimetype === 'video/quicktime') {
-      cb(null, true);
-    } else {
-      cb(null, false);
-    }
-  };
   
   // Configurer multer avec le stockage et le filtre pour les vidéos
   
@@ -221,7 +209,6 @@ export const updateActiviteVideo = (req, res) => {
       const videoName = req.file.location;
       updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, contenu = ?, duration = ?, id_chapitre = ? WHERE id = ?";
       values = [titre, categorie, videoName, duration, id_chapitre, id_activite];
-    } else {
       updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, duration = ?, id_chapitre = ? WHERE id = ?";
       values = [titre, categorie, duration, id_chapitre, id_activite];
     }
@@ -268,7 +255,6 @@ export const updateActiviteI = (req, res) => {
       const imageName = req.file.location;
       updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, contenu = ?, duration = ?, id_chapitre = ? WHERE id = ?";
       values = [titre, categorie, imageName, duration, id_chapitre, id];
-    } else {
       updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, duration = ?, id_chapitre = ? WHERE id = ?";
       values = [titre, categorie, duration, id_chapitre, id];
     }
