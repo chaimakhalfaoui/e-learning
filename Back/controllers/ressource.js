@@ -18,6 +18,7 @@ export const getRessourcesByChapitre = (req, res) => {
         if (err) {
             console.error("Erreur lors de la récupération des ressources:", err);
             return res.status(500).json({ error: "Erreur serveur." });
+        }
         return res.status(200).json(data);
     });
 };
@@ -186,6 +187,7 @@ export const getRessourcesStats = (req, res) => {
         if (err) {
             console.error("Erreur statistiques:", err);
             return res.status(500).json({ error: "Erreur serveur." });
+        }
         return res.status(200).json(data);
     });
 };
