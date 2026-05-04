@@ -1,7 +1,7 @@
+import { createS3Upload } from "../middleware/s3upload.js";
 import { db } from "../db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import multer from "multer";
 import { v4 as uuidv4 } from 'uuid';
 import nodemailer from "nodemailer";
 import dotenv from 'dotenv';
@@ -332,17 +332,8 @@ export const updateAdminById = (req, res) => {
 };
 
 // Définir le stockage pour multer
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + uuidv4();
-        cb(null, uniqueSuffix + '-' + file.originalname);
-    }
-});
+const upload = createS3Upload("uploads");
 
-const fileFilter = (req, file, cb) => {
     if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
         cb(null, true);
     } else {
@@ -350,7 +341,6 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 export const updateprofil = (req, res) => {
     upload.single('image')(req, res, function (err) {
@@ -373,7 +363,7 @@ export const updateprofil = (req, res) => {
         let values;
 
         if (req.file) {
-            const imageName = req.file.filename;
+            const imageName = req.file.location;
             updateUserQuery = "UPDATE users SET username = ?, age = ?, genre = ?, email = ?, telephone = ?, image = ? WHERE id = ?";
             values = [username, age || null, genre || null, email, telephone || null, imageName, id];
         } else {

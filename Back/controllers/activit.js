@@ -1,21 +1,12 @@
+import { createS3Upload } from "../middleware/s3upload.js";
 import { db } from "../db.js";
-import multer from "multer";
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
 
 // Définir le stockage pour multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Répertoire où enregistrer les fichiers
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + uuidv4(); // Générer un UUID unique
-    cb(null, uniqueSuffix + '-' + file.originalname); // Nom du fichier unique
-  }
-});
+const upload = createS3Upload("uploads");
 
 // Vérifier le type de fichier pour l'image
-const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
     cb(null, true);
   } else {
@@ -24,7 +15,6 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Configurer multer avec le stockage et le filtre
-const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 export const createActivitei = (req, res) => {
     upload.single('image')(req, res, function (err) {
@@ -37,7 +27,7 @@ export const createActivitei = (req, res) => {
         }
 
         const { titre, categorie,id_chapitre,duration  } = req.body;
-        const imageName = req.file.filename; // Nom de l'image téléchargée
+        const imageName = req.file.location; // Nom de l'image téléchargée
 
         if (  !titre || !categorie  || !id_chapitre || !imageName||!duration) {
             return res.status(400).json("Tous les champs sont requis.");
@@ -90,18 +80,8 @@ export const createActivite = (req, res) => {
 
 
 
-const storagev = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'uploads/videos/'); // Répertoire où enregistrer les vidéos
-    },
-    filename: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + '-' + uuidv4(); // Générer un UUID unique
-      cb(null, uniqueSuffix + '-' + file.originalname); // Nom de fichier vidéo unique
-    }
-  });
   
   // Vérifier le type de fichier pour la vidéo
-  const fileFilterv = (req, file, cb) => {
     if (file.mimetype === 'video/mp4' || file.mimetype === 'video/mpeg' || file.mimetype === 'video/quicktime') {
       cb(null, true);
     } else {
@@ -110,7 +90,6 @@ const storagev = multer.diskStorage({
   };
   
   // Configurer multer avec le stockage et le filtre pour les vidéos
-  const uploadv = multer({ storage: storagev, fileFilter: fileFilterv });
   
   export const createActivitev = (req, res) => {
       uploadv.single('video')(req, res, function (err) {
@@ -123,7 +102,7 @@ const storagev = multer.diskStorage({
           }
   
           const { titre, categorie, id_chapitre, duration } = req.body;
-          const videoName = req.file.filename; // Nom de la vidéo téléchargée
+          const videoName = req.file.location; // Nom de la vidéo téléchargée
   
           if (!titre || !categorie || !id_chapitre || !videoName || !duration) {
               return res.status(400).json("Tous les champs sont requis.");
@@ -239,7 +218,7 @@ export const updateActiviteVideo = (req, res) => {
     let values;
 
     if (req.file) {
-      const videoName = req.file.filename;
+      const videoName = req.file.location;
       updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, contenu = ?, duration = ?, id_chapitre = ? WHERE id = ?";
       values = [titre, categorie, videoName, duration, id_chapitre, id_activite];
     } else {
@@ -286,7 +265,7 @@ export const updateActiviteI = (req, res) => {
     let values;
 
     if (req.file) {
-      const imageName = req.file.filename;
+      const imageName = req.file.location;
       updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, contenu = ?, duration = ?, id_chapitre = ? WHERE id = ?";
       values = [titre, categorie, imageName, duration, id_chapitre, id];
     } else {

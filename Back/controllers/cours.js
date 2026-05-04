@@ -1,21 +1,12 @@
 import { db } from "../db.js";
-import multer from "multer";
-import path from "path";
-import { v4 as uuidv4 } from 'uuid';
+import { createS3Upload, getFileUrl } from "../middleware/s3upload.js";
+
+
 
 // Définir le stockage pour multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + uuidv4();
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
-});
+const upload = createS3Upload("uploads");
 
 // Vérifier le type de fichier pour l'image
-const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
     cb(null, true);
   } else {
@@ -24,7 +15,6 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Configurer multer avec le stockage et le filtre
-const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 // ==================== CRÉATION D'UN COURS ====================
 export const createCours = (req, res) => {
@@ -38,7 +28,7 @@ export const createCours = (req, res) => {
         }
 
         const { titre, description, dateCre, type, level, id_user, duration } = req.body;
-        const imageName = req.file ? req.file.filename : null;
+        const imageName = req.file ? req.file.location : null;
 
         if (!titre || !description || !dateCre || !type || !level || !id_user || !imageName || !duration) {
             return res.status(400).json({ error: "Tous les champs sont requis." });
@@ -269,7 +259,7 @@ export const updateCours = (req, res) => {
 
         const { id } = req.params;
         const { titre, description, dateCre, type, level, id_user, duration, status } = req.body;
-        const imageName = req.file ? req.file.filename : null;
+        const imageName = req.file ? req.file.location : null;
 
         if (!titre || !description || !dateCre || !type || !level || !id_user || !duration) {
             return res.status(400).json({ error: "Tous les champs sont requis." });

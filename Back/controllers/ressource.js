@@ -1,6 +1,6 @@
+import { createS3Upload } from "../middleware/s3upload.js";
 // controllers/ressource.js
 import { db } from "../db.js";
-import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { v4 as uuidv4 } from 'uuid';
@@ -12,19 +12,9 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // Configuration multer pour les fichiers
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + uuidv4();
-        const ext = path.extname(file.originalname);
-        cb(null, uniqueSuffix + ext);
-    }
-});
+const upload = createS3Upload("uploads");
 
 // Vérification du type de fichier
-const fileFilter = (req, file, cb) => {
     const allowedTypes = [
         'application/pdf',
         'application/msword',
@@ -42,7 +32,6 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-export const upload = multer({ storage, fileFilter });
 
 // Récupérer toutes les ressources d'un chapitre
 export const getRessourcesByChapitre = (req, res) => {
@@ -87,7 +76,7 @@ export const createRessource = (req, res) => {
         }
 
         const { titre, description, type_fichier, id_chapitre } = req.body;
-        const fichier = req.file ? req.file.filename : null;
+        const fichier = req.file ? req.file.location : null;
 
         if (!titre || !fichier || !id_chapitre) {
             return res.status(400).json({ error: "Titre, fichier et chapitre sont requis." });
@@ -123,7 +112,7 @@ export const updateRessource = (req, res) => {
 
         const { id } = req.params;
         const { titre, description, type_fichier, id_chapitre } = req.body;
-        const nouveauFichier = req.file ? req.file.filename : null;
+        const nouveauFichier = req.file ? req.file.location : null;
 
         // Récupérer l'ancien fichier
         const getOldFileQuery = "SELECT fichier FROM ressources WHERE id = ?";
