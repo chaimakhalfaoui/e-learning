@@ -160,3 +160,10 @@ export const getRessourcesStats = (req, res) => {
         return res.status(200).json(data);
     });
 };
+
+// Télécharger un fichier
+export const downloadFichier = (req, res) => {
+    const { filename } = req.params;
+    const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/${filename}`;
+    return res.redirect(fileUrl);
+};
