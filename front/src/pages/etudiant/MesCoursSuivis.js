@@ -438,7 +438,7 @@ const MesCoursSuivis = () => {
                                 <div className="col-lg-4 col-md-6 mb-30" key={cours.id}>
                                     <CourseSingleTwo
                                         courseClass="courses-item"
-                                        courseImg={`${API_URL}/image/${cours.image}`}
+                                        courseImg={cours.image && cours.image.startsWith("http") ? cours.image : `${API_URL}/image/${cours.image}`}
                                         courseTitle={cours.titre}
                                         courseDescription={cours.description}
                                         courseCategory={cours.categorie}
