@@ -24,7 +24,7 @@ const CourseDetailsTab = () => {
         const fetchDataC = async () => {
             const userid = await idUser();
             try {
-                const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/avc/avc/${id}/${userid}`);
+                const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/avc/avc/${id}/${userid}`);
                 setComplete(response.data.avc);
 
             } catch (error) {

@@ -8,7 +8,7 @@ import QR from './QR';
 // Image
 import videoImg from '../../../assets/img/about/about-video-bg2.png';
 
-const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const CourseSidebar = () => {
     const { id } = useParams();
@@ -53,7 +53,7 @@ const CourseSidebar = () => {
 
     const fetchEdu = async () => {
         try {
-            const response = await axios.get(`${API_URL}/lecture/getLectureCours/${id}`);
+            const response = await axios.get(`${API_URL}/lecture/count/${id}`);
             console.log("Nombre d'étudiants:", response.data);
             setEdu(response.data || 0);
         } catch (error) {

@@ -70,7 +70,7 @@ const Register = () => {
             const { confirmPassword, ...registerData } = inputs;
             registerData.role = 'etudiant'; // Rôle par défaut
             
-            const response = await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/register", registerData);
+            const response = await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/register", registerData);
             
             if (response.status === 200 || response.status === 201) {
                 setUserEmail(inputs.email);

@@ -19,7 +19,7 @@ import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/2.jpg';
 
-const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const MesCoursSuivis = () => {
     const { idUser, role } = useAuth();
@@ -38,19 +38,19 @@ const MesCoursSuivis = () => {
 
     // Couleurs calmes pour le thème
     const colors = {
-        primary: '#4A90A4',      // Bleu calme
-        primaryLight: '#6BA5B8',  // Bleu clair
-        primaryDark: '#3A7383',   // Bleu foncé
-        success: '#5A9E6E',       // Vert doux
-        successLight: '#7BB58C',  // Vert clair
-        warning: '#D4A05A',       // Jaune orangé doux
-        warningLight: '#E0B87A',  // Jaune clair
-        info: '#6B8CAE',          // Bleu grisé
-        infoLight: '#8BA8C4',     // Bleu grisé clair
-        grayBg: '#F5F7FA',        // Fond gris clair
-        border: '#E1E8EE',        // Bordure douce
-        textDark: '#4A5568',      // Texte foncé
-        textLight: '#718096'      // Texte clair
+        primary: '#4A90A4',
+        primaryLight: '#6BA5B8',
+        primaryDark: '#3A7383',
+        success: '#5A9E6E',
+        successLight: '#7BB58C',
+        warning: '#D4A05A',
+        warningLight: '#E0B87A',
+        info: '#6B8CAE',
+        infoLight: '#8BA8C4',
+        grayBg: '#F5F7FA',
+        border: '#E1E8EE',
+        textDark: '#4A5568',
+        textLight: '#718096'
     };
 
     useEffect(() => {
@@ -67,81 +67,79 @@ const MesCoursSuivis = () => {
         try {
             const userId = await idUser();
             
-            if (!userId) {
-                setError("Utilisateur non identifié.");
+            if (!userId || userId === 0) {
+                setError("Utilisateur non identifié. Veuillez vous connecter.");
                 setLoading(false);
                 return;
             }
             
+            // Utiliser l'API lecture/user/:id_user pour récupérer les cours inscrits
+            const response = await axios.get(`${API_URL}/lecture/user/${userId}`);
+            
             let coursesData = [];
-            let success = false;
             let totalH = 0;
             let completed = 0;
             let inProgress = 0;
+            const progressData = {};
             
-            // Essai 1: student-courses
-            try {
-                const response = await axios.get(`${API_URL}/cours/student-courses/${userId}`);
-                if (response.data && response.data.success && Array.isArray(response.data.cours)) {
-                    coursesData = response.data.cours;
-                    success = true;
-                }
-            } catch (e) {
-                console.log("Endpoint student-courses non disponible:", e.message);
-            }
-            
-            // Essai 2: fallback
-            if (!success) {
-                const allCoursesResponse = await axios.get(`${API_URL}/cours/by-status/published`);
-                let allCourses = [];
+            if (response.data && Array.isArray(response.data)) {
+                coursesData = response.data;
                 
-                if (allCoursesResponse.data && allCoursesResponse.data.cours && Array.isArray(allCoursesResponse.data.cours)) {
-                    allCourses = allCoursesResponse.data.cours;
-                } else if (Array.isArray(allCoursesResponse.data)) {
-                    allCourses = allCoursesResponse.data;
+                // Parcourir les cours pour calculer les statistiques
+                for (const course of coursesData) {
+                    const prog = course.progression || 0;
+                    progressData[course.id] = prog;
+                    
+                    if (prog === 100) completed++;
+                    if (prog > 0 && prog < 100) inProgress++;
+                    
+                    // Ajouter la durée (convertir en heures si nécessaire)
+                    if (course.duration) {
+                        let duration = parseFloat(course.duration);
+                        if (isNaN(duration)) duration = 0;
+                        totalH += duration;
+                    }
                 }
-                
-                const filtered = [];
-                for (const course of allCourses) {
-                    try {
-                        const progRes = await axios.get(`${API_URL}/avc/avc/${course.id}/${userId}`);
-                        if (progRes.data && progRes.data.avc !== undefined) {
-                            filtered.push(course);
-                            const prog = progRes.data.avc || 0;
+            } else {
+                // Fallback : essayer de récupérer via l'ancienne méthode
+                console.log("Tentative de récupération alternative...");
+                const fallbackResponse = await axios.get(`${API_URL}/cours/student-courses/${userId}`);
+                if (fallbackResponse.data && fallbackResponse.data.success && Array.isArray(fallbackResponse.data.cours)) {
+                    coursesData = fallbackResponse.data.cours;
+                    
+                    for (const course of coursesData) {
+                        try {
+                            const progRes = await axios.get(`${API_URL}/avc/avc/${course.id}/${userId}`);
+                            const prog = progRes.data?.avc || 0;
+                            progressData[course.id] = prog;
                             if (prog === 100) completed++;
                             if (prog > 0 && prog < 100) inProgress++;
-                            if (course.duration) totalH += parseInt(course.duration) || 0;
+                            if (course.duration) totalH += parseFloat(course.duration) || 0;
+                        } catch (e) {
+                            progressData[course.id] = 0;
                         }
-                    } catch (e) {}
+                    }
                 }
-                coursesData = filtered;
-                success = true;
             }
             
             setCourses(coursesData);
             setFilteredCourses(coursesData);
-            
-            const progressData = {};
-            for (const course of coursesData) {
-                try {
-                    const progRes = await axios.get(`${API_URL}/avc/avc/${course.id}/${userId}`);
-                    const prog = progRes.data?.avc || 0;
-                    progressData[course.id] = prog;
-                    if (prog === 100) completed++;
-                    if (prog > 0 && prog < 100) inProgress++;
-                    if (course.duration) totalH += parseInt(course.duration) || 0;
-                } catch (e) {
-                    progressData[course.id] = 0;
-                }
-            }
             setProgress(progressData);
             setCompletedCourses(completed);
             setInProgressCount(inProgress);
-            setTotalHours(totalH);
+            setTotalHours(Math.round(totalH));
             
         } catch (error) {
-            console.error("Erreur:", error);
-            setError("Impossible de charger vos cours.");
+            console.error("Erreur lors du chargement des cours:", error);
+            
+            // Afficher un message d'erreur plus précis
+            if (error.response?.status === 404) {
+                setError("Service non disponible. Veuillez réessayer plus tard.");
+            } else if (error.response?.status === 500) {
+                setError("Erreur serveur. Contactez l'administrateur.");
+            } else {
+                setError("Impossible de charger vos cours. Vérifiez votre connexion.");
+            }
         } finally {
             setLoading(false);
         }
@@ -156,8 +154,7 @@ const MesCoursSuivis = () => {
                 (course.titre?.toLowerCase().includes(query)) ||
                 (course.description?.toLowerCase().includes(query)) ||
                 (course.categorie?.toLowerCase().includes(query)) ||
-                (course.type?.toLowerCase().includes(query)) ||
-                (course.enseignant?.toLowerCase().includes(query))
+                (course.type?.toLowerCase().includes(query))
             );
             setFilteredCourses(filtered);
         }
@@ -285,7 +282,7 @@ const MesCoursSuivis = () => {
             <br />
 
             <div className="container mt-5">
-                {/* En-tête avec statistiques - Couleurs calmes */}
+                {/* En-tête avec statistiques */}
                 <div className="row mb-4">
                     <div className="col-12">
                         <div className="dashboard-stats" style={{
@@ -424,9 +421,6 @@ const MesCoursSuivis = () => {
                     <div className="alert alert-info text-center" style={{ backgroundColor: colors.grayBg, borderColor: colors.border, color: colors.textLight }}>
                         <i className="fas fa-info-circle fa-2x mb-2 d-block" style={{ color: colors.primary }}></i>
                         <h5>Aucun cours ne correspond à votre recherche</h5>
-                        <button className="btn btn-link" onClick={clearSearch} style={{ color: colors.primary }}>
-                            Afficher tous mes cours
-                        </button>
                     </div>
                 )}
                 
@@ -434,10 +428,6 @@ const MesCoursSuivis = () => {
                     <div className="alert alert-info text-center" style={{ backgroundColor: colors.grayBg, borderColor: colors.border, color: colors.textLight }}>
                         <i className="fas fa-book-open fa-3x mb-3 d-block" style={{ color: colors.primary }}></i>
                         <h5>Vous n'avez pas encore de cours suivis</h5>
-                        <p>Commencez votre apprentissage en vous inscrivant à un cours.</p>
-                        <Link to="/course" className="btn btn-primary mt-3" style={{ backgroundColor: colors.primary, border: 'none' }}>
-                            <i className="fa fa-search me-2"></i> Découvrir des cours
-                        </Link>
                     </div>
                 )}
 
@@ -448,12 +438,13 @@ const MesCoursSuivis = () => {
                                 <div className="col-lg-4 col-md-6 mb-30" key={cours.id}>
                                     <CourseSingleTwo
                                         courseClass="courses-item"
-                                        courseImg={cours.image && cours.image.startsWith("http") ? cours.image : `${API_URL}/image/${cours.image}`}
+                                        courseImg={`${API_URL}/image/${cours.image}`}
                                         courseTitle={cours.titre}
                                         courseDescription={cours.description}
-                                        courseCategory={cours.categorie || cours.type}
+                                        courseCategory={cours.categorie}
+                                        courseDuration={cours.duration}
                                         courseid={cours.id}
-                                        progression={progress[cours.id] || 0}
+                                        progression={progress[cours.id] || cours.progression || 0}
                                         showProgress={true}
                                     />
                                 </div>

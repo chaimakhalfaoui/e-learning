@@ -65,7 +65,7 @@ const CreateCours = () => {
         const fetchCategories = async () => {
             setLoadingCategories(true);
             try {
-                const response = await axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/categorie');
+                const response = await axios.get('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/categorie');
                 setCategories(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des catégories:", error);
@@ -82,7 +82,7 @@ const CreateCours = () => {
         const fetchLevel = async () => {
             setLoadingLevels(true);
             try {
-                const response = await axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/level');
+                const response = await axios.get('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/level');
                 setLevel(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des niveaux:", error);
@@ -178,7 +178,7 @@ const CreateCours = () => {
             formData.append('duration', inputs.duration);
             formData.append('status', inputs.status); // ✅ Ajout du statut
             
-            const response = await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/cours/createCours", formData, {
+            const response = await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/cours/createCours", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

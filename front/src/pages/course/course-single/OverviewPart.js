@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
 
-const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const OverviewPart = () => {
     const { id } = useParams();
@@ -34,7 +34,7 @@ const OverviewPart = () => {
             setChapitre(chapitreResponse.data || []);
             
             // Récupérer le nombre d'étudiants
-            const eduResponse = await axios.get(`${API_URL}/lecture/getLectureCours/${id}`);
+            const eduResponse = await axios.get(`${API_URL}/lecture/count/${id}`);
             setEdu(eduResponse.data || 0);
             
             // Récupérer les informations de l'enseignant

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import CourseSingleTwo from '../../components/Courses/CourseSingleTwo';
 
-const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const CoursePart = () => {
     const [courses, setCourses] = useState([]);
@@ -12,6 +12,7 @@ const CoursePart = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [studentsCount, setStudentsCount] = useState({});
     
     const coursesPerPage = 9;
 
@@ -23,6 +24,7 @@ const CoursePart = () => {
         handleSearch();
     }, [searchQuery, courses]);
 
+    // Récupérer tous les cours
     const fetchCourses = async () => {
         setLoading(true);
         try {
@@ -35,11 +37,65 @@ const CoursePart = () => {
             }
             setCourses(coursesData);
             setFilteredCourses(coursesData);
+            
+            // Récupérer le nombre d'étudiants pour chaque cours
+            await fetchAllStudentsCount(coursesData);
+            
         } catch (error) {
             console.error("Erreur:", error);
             setError("Impossible de charger les cours.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Récupérer le nombre d'étudiants pour tous les cours
+    const fetchAllStudentsCount = async (coursesData) => {
+        const counts = {};
+        
+        await Promise.all(
+            coursesData.map(async (course) => {
+                try {
+                    // Utiliser la bonne API : /api/lecture/count/:id_cours
+                    const response = await axios.get(`${API_URL}/lecture/count/${course.id}`);
+                    
+                    // La réponse est directement le nombre
+                    let count = 0;
+                    if (typeof response.data === 'number') {
+                        count = response.data;
+                    } else if (response.data && typeof response.data === 'object') {
+                        count = response.data.lectureCount || response.data.count || 0;
+                    }
+                    
+                    counts[course.id] = count;
+                } catch (error) {
+                    console.error(`Erreur pour le cours ${course.id}:`, error);
+                    counts[course.id] = 0;
+                }
+            })
+        );
+        
+        setStudentsCount(counts);
+    };
+
+    // NOUVEAU : Mettre à jour le nombre d'étudiants pour un cours spécifique
+    const updateStudentCount = async (courseId, newCount) => {
+        // Mettre à jour le state local
+        setStudentsCount(prev => ({
+            ...prev,
+            [courseId]: newCount
+        }));
+        
+        // Optionnel : Rafraîchir depuis l'API pour être sûr
+        try {
+            const response = await axios.get(`${API_URL}/lecture/count/${courseId}`);
+            let count = typeof response.data === 'number' ? response.data : 0;
+            setStudentsCount(prev => ({
+                ...prev,
+                [courseId]: count
+            }));
+        } catch (error) {
+            console.error("Erreur lors du rafraîchissement:", error);
         }
     };
 
@@ -115,7 +171,7 @@ const CoursePart = () => {
     return (
         <div id="rs-popular-course" className="rs-popular-courses style1 course-view-style orange-style rs-inner-blog white-bg pt-100 pb-100 md-pt-70 md-pb-80">
             <div className="container">
-                {/* Barre de recherche avec icône */}
+                {/* Barre de recherche */}
                 <div className="row mb-50">
                     <div className="col-md-10 col-lg-8 mx-auto">
                         <div className="search-widget">
@@ -164,7 +220,6 @@ const CoursePart = () => {
                                 </button>
                             </div>
                             
-                            {/* Résultats de recherche */}
                             {searchQuery && (
                                 <div className="search-info text-center mt-3">
                                     <span style={{
@@ -236,12 +291,14 @@ const CoursePart = () => {
                                 <div className="col-lg-4 col-md-6 mb-30" key={cours.id}>
                                     <CourseSingleTwo
                                         courseClass="courses-item"
-                                        courseImg={cours.image && cours.image.startsWith("http") ? cours.image : `${API_URL}/image/${cours.image}`}
+                                        courseImg={`${API_URL}/image/${cours.image}`}
                                         courseTitle={cours.titre}
                                         courseDescription={cours.description}
                                         courseCategory={cours.type}
                                         courseDuration={cours.duration}
                                         courseid={cours.id}
+                                        studentCount={studentsCount[cours.id] || 0}
+                                        onStudentCountChange={updateStudentCount}
                                     />
                                 </div>
                             ))}
