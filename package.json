@@ -25,6 +25,7 @@
     "react": "^18.3.1",
     "react-accessible-accordion": "^5.0.0",
     "react-burger-menu": "^3.0.9",
+    "react-calendar": "^6.0.1",
     "react-countup": "^6.5.3",
     "react-customizable-progressbar": "^1.2.0",
     "react-dom": "^18.3.1",
@@ -39,6 +40,7 @@
     "react-toastify": "^10.0.5",
     "react-visibility-sensor": "^5.1.1",
     "sass": "^1.77.0",
+    "slick-carousel": "^1.8.1",
     "universal-cookie": "^7.1.4",
     "web-vitals": "^2.1.4"
   },

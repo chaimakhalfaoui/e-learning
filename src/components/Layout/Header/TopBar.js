@@ -67,10 +67,10 @@ const TopHeader = (props) => {
                     <div className="col-md-5 text-end">
                         <ul className="topbar-right">
                             <li className="login-register">
-                                {nam ?<><button style={{border:"none" , background:"transparent"}} onClick={handleLogout}><i className="fa fa-sign-in" ></i></button>{nam}</>  : <><Link to="/login">Login</Link>/<Link to="/register">Register</Link></>}
+{nam ? (<><button style={{border:"none" , background:"transparent"}} onClick={handleLogout}><i className="fa fa-sign-in" ></i></button>{String(nam)}</>)  : (<><Link to="/login">Login</Link> / <Link to="/register">Register</Link></>)}
                             </li>
                             <li className="btn-part">
-                                <Link to="/contact" className="apply-btn">Apply Now</Link>
+                                <Link to="/contact" className="apply-btn">Contacter-Nous</Link>
                             </li>
                         </ul>
                     </div>

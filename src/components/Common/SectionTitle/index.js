@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import AOS from 'aos';
 const SectionTitle = (props) => {
+    {
     const { titleClass, subtitleClass, bottomSubTitleClass, descClass, secondDescClass, effectClass, animateName, animateDelay, animateDuration } = props;
 
     useEffect(() => {
@@ -17,6 +18,7 @@ const SectionTitle = (props) => {
             {effectClass ? <div className={props.effectClass}></div> : ''}
         </div>
     );
+    }
 }
 
 export default SectionTitle

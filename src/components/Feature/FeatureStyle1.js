@@ -23,16 +23,16 @@ const FeatureStyle1 = (props) => {
                         <FeatureSingle
                             itemClass="features-wrap"
                             itemImg={image2}
-                            itemTitle="Instruction d’expert."
-                            itemDesc="Trouvez le bon formateur."
+                            itemTitle="Instruction d’expert"
+                            itemDesc="Trouvez le bon enseignant"
                         />
                     </div>
                     <div className="col-lg-4 col-md-12">
                         <FeatureSingle
                             itemClass="features-wrap"
                             itemImg={image3}
-                            itemTitle="Création "
-                            itemDesc="septembre 1995"
+                            itemTitle="Création"
+                            itemDesc="Février 2026"
                         />
                     </div>
                 </div>

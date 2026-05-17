@@ -26,24 +26,24 @@ const Service = () => {
                         <SingleService
                             itemClass="services-item"
                             serviceImage={serviceIcon1}
-                            Title="Software Development"
-                            Text="At vero eos et accusamus etiusto odio praesentium accusamus etiusto odio data center for managing database."
+                            Title="Développement de logiciels"
+                            Text="Mais nous les accusons, avec une haine légitime, du centre de données actuel qui gère la base de données."
                         />
                     </div>
                     <div className="col-lg-4 col-md-6 mb-30">
                         <SingleService
                             itemClass="services-item"
                             serviceImage={serviceIcon2}
-                            Title="Wev Development"
-                            Text="At vero eos et accusamus etiusto odio praesentium accusamus etiusto odio data center for managing database."
+                            Title="Développement Web"
+                            Text="Mais nous les accusons, avec une haine légitime, du centre de données actuel qui gère la base de données."
                         />
                     </div>
                     <div className="col-lg-4 col-md-6 mb-30">
                         <SingleService
                             itemClass="services-item"
                             serviceImage={serviceIcon3}
-                            Title="Analytic Solutions"
-                            Text="At vero eos et accusamus etiusto odio praesentium accusamus etiusto odio data center for managing database."
+                            Title="Solutions analytiques"
+                            Text="Mais nous les accusons, avec une haine légitime, du centre de données actuel qui gère la base de données."
                         />
                     </div>
                     <div className="col-lg-4 col-md-6 md-mb-30">

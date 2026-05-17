@@ -3,6 +3,7 @@ import React from 'react';
 import heartIcon from '../../../assets/img/icon/heart.png';
 
 const SectionTitle = (props) => {
+    {
     const { sectionClass, titleClass, subTitleClass, descClass, title, subtitle, description, logoClass, titleIcon } = props;
 
     return (
@@ -15,6 +16,7 @@ const SectionTitle = (props) => {
             <p className={ descClass ? descClass : 'desc'}>{ description ? description : ''}</p>
         </div>
     );
+    }
 }
 
 export default SectionTitle

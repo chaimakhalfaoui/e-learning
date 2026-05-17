@@ -15,7 +15,7 @@ const FaqSection = () => {
 
     return (
         <div className="rs-faq-part style1 orange-style pt-100 pb-100 md-pt-70 md-pb-70">
-            <ModalVideo channel='youtube' isOpen={isOpen} videoId='YLN1Argi7ik' onClose={() => { openModal(); }} />
+            <ModalVideo channel='youtube' isOpen={isOpen} videoId='x85Dw2Nowlo' onClose={() => { openModal(); }} />
             <div className="container">
                 <div className="row">
                     <div className="col-lg-6 padding-0">

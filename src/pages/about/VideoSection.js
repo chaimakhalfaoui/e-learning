@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import ModalVideo from 'react-modal-video';
+//import React, { useState } from 'react';
+//import ModalVideo from 'react-modal-video';
 
-import videoImg from '../../assets/img/about/about-video-bg-orange.png';
+//import videoImg from '../../assets/img/about/about-video-bg-orange.png';
 
 const AboutVideo = () => {
+    {/*
 
     const [isOpen, setIsOpen] = useState(false);
     const openModal = () => setIsOpen(!isOpen);
@@ -24,6 +25,7 @@ const AboutVideo = () => {
             </div>
         </div>
     );
+    */}
 }
 
 export default AboutVideo;

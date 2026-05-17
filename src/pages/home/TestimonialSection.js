@@ -47,7 +47,7 @@ const Testimonial = () => {
                             quoteImage={quote}
                             authorImage={author1}
                             Title="Amin W."
-                            Designation="Web Developer"
+                            Designation="Développeur Web"
                             Description="Cette plateforme a complètement transformé ma façon d'apprendre. Les cours sont clairs, bien structurés et accessibles à tout moment. Je recommande vivement à tous ceux qui souhaitent évoluer professionnellement."
                         />
                         <SingleTestimonial
@@ -55,7 +55,7 @@ const Testimonial = () => {
                             quoteImage={quote}
                             authorImage={author2}
                             Title="Mohamed S. "
-                            Designation="App Developer"
+                            Designation="Développeur d'applications"
                             Description="J'ai suivi plusieurs formations en ligne, mais celle-ci se démarque vraiment. Les instructeurs sont compétents et toujours disponibles pour répondre aux questions. Une expérience d'apprentissage exceptionnelle !"
                         />
                         <SingleTestimonial
@@ -63,7 +63,7 @@ const Testimonial = () => {
                             quoteImage={quote}
                             authorImage={author3}
                             Title="Karim T."
-                            Designation="Web Designer"
+                            Designation="Concepteur Web"
                             Description="Grâce à cette plateforme, j'ai pu acquérir de nouvelles compétences tout en travaillant à plein temps. Les cours sont flexibles et parfaitement adaptés à mon emploi du temps chargé."
                         />
                     </Slider>

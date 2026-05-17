@@ -38,7 +38,7 @@ const Team = () => {
                 headerClass="full-width-header header-style1 home8-style4"
                 TopBar='enable'
                 TopBarClass="topbar-area home8-topbar"
-                emailAddress='support@website.com'
+                emailAddress='admin@isetso.rnu.tn'
                 Location='Cité Erriadh - B.P 135 '
             />
 

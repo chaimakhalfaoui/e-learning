@@ -13,7 +13,7 @@ const Cta = () => {
                             <SectionTitle
                                 sectionClass="sec-title3 mb-40"
                                 titleClass="title white-color mb-16"
-                                title="Offre de 20 % en cours – Inscrivez-vous dès aujourd’hui."
+                                title="Plateforme entièrement ouverte – Inscrivez-vous dès aujourd’hui."
                                 descClass="desc white-color pr-100 md-pr-0"
                                 description=""
                             />
