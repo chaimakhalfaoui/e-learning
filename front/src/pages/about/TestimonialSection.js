@@ -62,7 +62,7 @@ const Testimonial = () => {
 
     const fetchComments = async () => {
         try {
-            const response = await axios.get('http://localhost:8801/api/commentaire/getComments');
+            const response = await axios.get('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/commentaire/getComments');
             setComments(response.data);
         } catch (error) {
             console.error('Erreur lors de la récupération des commentaires :', error);
@@ -87,7 +87,7 @@ const Testimonial = () => {
         setSuccess('');
 
         try {
-            const response = await axios.post('http://localhost:8801/api/commentaire/createComment', {
+            const response = await axios.post('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/commentaire/createComment', {
                 iduser: userId,
                 commentaire: newComment,
                 role: userRole || 'etudiant'

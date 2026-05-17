@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from "axios";
@@ -11,17 +11,45 @@ import ScrollToTop from '../../components/Common/ScrollTop';
 import OffWrap from '../../components/Layout/Header/OffWrap';
 import SiteBreadcrumb from '../../components/Common/Breadcumb';
 import SearchModal from '../../components/Layout/Header/SearchModal';
-import { useAuth } from '../../context/authContext'; 
+import { useAuth } from '../../context/authContext';
 import '../../assets/scss/modal.scss';
-// Image
+
+// Images
 import favIcon from '../../assets/img/fav-orange.png';
 import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/inner7.jpg';
 
+// FIX: URL de base centralisée pour éviter les incohérences localhost vs AWS
+const BASE_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com';
+
+const INITIAL_INPUTS = {
+    id: "",
+    titre: "",
+    categorie: "",
+    contenu: "",
+    duration: "",
+    image: null,
+    imageUrl: null,
+    video: null,
+    videoUrl: null,
+    fichier: null,
+    fichierUrl: null,
+    fichierName: "",
+    type_fichier: "",
+    description: "",
+    ressourceVideo: null,
+    ressourceVideoUrl: null
+};
+
 const CreateActivite = () => {
     const [openModal, setOpenModal] = useState(false);
     const [openModalRessource, setOpenModalRessource] = useState(false);
+<<<<<<< HEAD
+=======
+    // FIX: renommé isAddingActiv → isAddingActive pour cohérence
+    const [isAddingActive, setIsAddingActive] = useState(true);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     const [isAddingRessource, setIsAddingRessource] = useState(true);
     
     // Modales pour les activités
@@ -32,7 +60,10 @@ const CreateActivite = () => {
     // Modales pour les ressources
     const [openModalRessourceFile, setOpenModalRessourceFile] = useState(false);
     const [openModalRessourceVideo, setOpenModalRessourceVideo] = useState(false);
+<<<<<<< HEAD
     
+=======
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     const [activite, setActivite] = useState([]);
     const [ressources, setRessources] = useState([]);
     const [activeTab, setActiveTab] = useState('ressources');
@@ -40,6 +71,7 @@ const CreateActivite = () => {
     const [travauxCount, setTravauxCount] = useState({});
     const { id } = useParams();
     const { idUser } = useAuth();
+<<<<<<< HEAD
     
     // État pour les questions du questionnaire (texte simple sans options)
     const [questions, setQuestions] = useState([
@@ -70,29 +102,43 @@ const CreateActivite = () => {
         ressourceVideo: null,
         ressourceVideoUrl: null
     });
+=======
+    const [inputs, setInputs] = useState(INITIAL_INPUTS);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     const navigate = useNavigate();
 
     const [openIndex, setOpenIndex] = useState(null);
     const [openIndexRessource, setOpenIndexRessource] = useState(null);
 
-    const toggleActivite = (index) => {
-        setOpenIndex(openIndex === index ? null : index);
-    };
-
-    const toggleRessource = (index) => {
-        setOpenIndexRessource(openIndexRessource === index ? null : index);
-    };
+    const toggleActivite = (index) => setOpenIndex(openIndex === index ? null : index);
+    const toggleRessource = (index) => setOpenIndexRessource(openIndexRessource === index ? null : index);
 
     const handleInputChange = (e) => {
         setInputs(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
+<<<<<<< HEAD
+=======
+    const handleImageChange = (e) => {
+        const selectedImage = e.target.files[0];
+        if (!selectedImage) return;
+        const imageUrl = URL.createObjectURL(selectedImage);
+        setInputs(prev => ({ ...prev, image: selectedImage, imageUrl }));
+    };
+
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     const handleVideoChange = (e) => {
         const selectedVideo = e.target.files[0];
+        if (!selectedVideo) return;
         const videoUrl = URL.createObjectURL(selectedVideo);
-        if (selectedVideo) {
-            setInputs(prev => ({ ...prev, video: selectedVideo, videoUrl: videoUrl }));
-        }
+        setInputs(prev => ({ ...prev, video: selectedVideo, videoUrl }));
+    };
+
+    const handleRessourceVideoChange = (e) => {
+        const selectedVideo = e.target.files[0];
+        if (!selectedVideo) return;
+        const videoUrl = URL.createObjectURL(selectedVideo);
+        setInputs(prev => ({ ...prev, ressourceVideo: selectedVideo, ressourceVideoUrl: videoUrl }));
     };
 
     const handleRessourceVideoChange = (e) => {
@@ -105,32 +151,31 @@ const CreateActivite = () => {
 
     const handleFichierChange = (e) => {
         const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
         const fileUrl = URL.createObjectURL(selectedFile);
         const fileType = selectedFile.type;
         let type_fichier = 'other';
-        
+
         if (fileType === 'application/pdf') {
             type_fichier = 'pdf';
-        } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
-                   fileType === 'application/msword') {
+        } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+            fileType === 'application/msword') {
             type_fichier = 'word';
         } else if (fileType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ||
-                   fileType === 'application/vnd.ms-powerpoint') {
+            fileType === 'application/vnd.ms-powerpoint') {
             type_fichier = 'powerpoint';
         } else if (fileType === 'application/vnd.ms-excel' ||
-                   fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+            fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
             type_fichier = 'excel';
         }
-        
-        if (selectedFile) {
-            setInputs(prev => ({ 
-                ...prev, 
-                fichier: selectedFile, 
-                fichierUrl: fileUrl, 
-                fichierName: selectedFile.name,
-                type_fichier: type_fichier
-            }));
-        }
+
+        setInputs(prev => ({
+            ...prev,
+            fichier: selectedFile,
+            fichierUrl: fileUrl,
+            fichierName: selectedFile.name,
+            type_fichier
+        }));
     };
 
     // Gestion du fichier pour le devoir
@@ -209,50 +254,55 @@ const CreateActivite = () => {
         const fetchUserData = async () => {
             try {
                 const userId = await idUser();
-                const response = await axios.get(`http://localhost:8801/api/auth/checkUserRole/${userId}`);
-                const userRole = response.data.role;
-                if (userRole !== 'enseignant') {
+                const response = await axios.get(`${BASE_URL}/api/auth/checkUserRole/${userId}`);
+                if (response.data.role !== 'enseignant') {
                     navigate('/404');
                 }
             } catch (error) {
-                console.error("Erreur:", error);
+                console.error("Erreur vérification rôle:", error);
             }
         };
         fetchUserData();
     }, [idUser, navigate]);
 
-    const fetchActivite = async () => {
+    // FIX: useCallback pour stabiliser les références et corriger les dépendances useEffect
+    const fetchActivite = useCallback(async () => {
         try {
-            const response = await axios.get(`http://localhost:8801/api/activite/getAllActiviteId/${id}`);
+            const response = await axios.get(`${BASE_URL}/api/activite/getAllActiviteId/${id}`);
             setActivite(response.data);
             response.data.forEach(act => {
                 fetchTravauxCount(act.id);
             });
         } catch (error) {
-            console.error("Erreur:", error);
+            console.error("Erreur fetchActivite:", error);
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
 
-    const fetchRessources = async () => {
+    const fetchRessources = useCallback(async () => {
         try {
-            const response = await axios.get(`http://localhost:8801/api/ressource/getAllRessourceId/${id}`);
+            const response = await axios.get(`${BASE_URL}/api/ressource/getAllRessourceId/${id}`);
             setRessources(response.data);
         } catch (error) {
-            console.error("Erreur:", error);
+            console.error("Erreur fetchRessources:", error);
         }
-    };
+    }, [id]);
 
+    // FIX: dépendances correctes grâce à useCallback
     useEffect(() => {
         fetchActivite();
         fetchRessources();
-    }, [id]);
+    }, [fetchActivite, fetchRessources]);
 
     // ==================== ACTIVITÉS ====================
+<<<<<<< HEAD
     
     // Questionnaire (questions texte simple)
     const handleSubmitQuestionnaire = async (e) => {
+=======
+    const handleSubmit = async (e) => {
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
         e.preventDefault();
         
         if (!inputs.titre) {
@@ -268,14 +318,24 @@ const CreateActivite = () => {
         }
         
         try {
+<<<<<<< HEAD
             await axios.post("http://localhost:8801/api/activite/createQuestionnaire", {
+=======
+            await axios.post(`${BASE_URL}/api/activite/createActivite`, {
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                 titre: inputs.titre,
                 questions: questions,
                 id_chapitre: id
             });
+<<<<<<< HEAD
             toast.success('Questionnaire créé avec succès');
             setQuestions([{ texte: "" }]);
             setInputs(prev => ({ ...prev, titre: "" }));
+=======
+            toast.success('Activité créée avec succès');
+            // FIX: reset complet via INITIAL_INPUTS
+            setInputs(INITIAL_INPUTS);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             fetchActivite();
             setOpenModalQuestionnaire(false);
             setOpenModal(true);
@@ -300,6 +360,7 @@ const CreateActivite = () => {
             formData.append('fichier', inputs.fichierDevoir);
             formData.append('type_fichier', inputs.type_fichier_devoir);
             formData.append('id_chapitre', id);
+<<<<<<< HEAD
             
             await axios.post("http://localhost:8801/api/activite/createDevoir", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -314,6 +375,11 @@ const CreateActivite = () => {
                 fichierDevoirName: "",
                 type_fichier_devoir: ""
             }));
+=======
+            await axios.post(`${BASE_URL}/api/activite/createActivitei`, formData);
+            toast.success('Image ajoutée avec succès');
+            setInputs(INITIAL_INPUTS);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             fetchActivite();
             setOpenModalDevoir(false);
             setOpenModal(true);
@@ -337,6 +403,7 @@ const CreateActivite = () => {
             formData.append('video', inputs.video);
             formData.append('questions_interactives', JSON.stringify(videoQuestions));
             formData.append('id_chapitre', id);
+<<<<<<< HEAD
             
             await axios.post("http://localhost:8801/api/activite/createVideoInteractive", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -344,6 +411,11 @@ const CreateActivite = () => {
             toast.success('Vidéo interactive créée avec succès');
             setInputs(prev => ({ ...prev, titre: "", video: null, videoUrl: null }));
             setVideoQuestions([{ texte: "", timestamp: 0 }]);
+=======
+            await axios.post(`${BASE_URL}/api/activite/createActivitev`, formData);
+            toast.success('Vidéo ajoutée avec succès');
+            setInputs(INITIAL_INPUTS);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             fetchActivite();
             setOpenModalVideoInteractive(false);
             setOpenModal(true);
@@ -355,7 +427,7 @@ const CreateActivite = () => {
     const handleDeleteActivite = async (idActivite) => {
         if (window.confirm("Supprimer cette activité ?")) {
             try {
-                await axios.delete(`http://localhost:8801/api/activite/deleteActivite/${idActivite}`);
+                await axios.delete(`${BASE_URL}/api/activite/deleteActivite/${idActivite}`);
                 toast.success('Activité supprimée');
                 fetchActivite();
             } catch (err) {
@@ -375,13 +447,17 @@ const CreateActivite = () => {
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('type_ressource', 'fichier');
             formData.append('id_chapitre', id);
-            
-            await axios.post("http://localhost:8801/api/ressource/createRessource", formData, {
+            await axios.post(`${BASE_URL}/api/ressource/createRessource`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
+<<<<<<< HEAD
             
             toast.success('Fichier ajouté');
             setInputs({ titre: "", description: "", fichier: null, fichierUrl: null, fichierName: "", type_fichier: "" });
+=======
+            toast.success('Fichier ajouté');
+            setInputs(INITIAL_INPUTS);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             fetchRessources();
             setOpenModalRessourceFile(false);
             setOpenModalRessource(true);
@@ -399,6 +475,7 @@ const CreateActivite = () => {
             formData.append('video', inputs.ressourceVideo);
             formData.append('type_ressource', 'video');
             formData.append('id_chapitre', id);
+<<<<<<< HEAD
             
             await axios.post("http://localhost:8801/api/ressource/createRessourceVideo", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -406,6 +483,13 @@ const CreateActivite = () => {
             
             toast.success('Vidéo ajoutée');
             setInputs({ titre: "", description: "", ressourceVideo: null, ressourceVideoUrl: null });
+=======
+            await axios.post(`${BASE_URL}/api/ressource/createRessourceVideo`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            toast.success('Vidéo ajoutée');
+            setInputs(INITIAL_INPUTS);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             fetchRessources();
             setOpenModalRessourceVideo(false);
             setOpenModalRessource(true);
@@ -417,7 +501,7 @@ const CreateActivite = () => {
     const handleDeleteRessource = async (idRessource) => {
         if (window.confirm("Supprimer cette ressource ?")) {
             try {
-                await axios.delete(`http://localhost:8801/api/ressource/deleteRessource/${idRessource}`);
+                await axios.delete(`${BASE_URL}/api/ressource/deleteRessource/${idRessource}`);
                 toast.success('Ressource supprimée');
                 fetchRessources();
             } catch (err) {
@@ -437,11 +521,9 @@ const CreateActivite = () => {
             }
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('id_chapitre', id);
-            
-            await axios.put(`http://localhost:8801/api/ressource/updateRessource/${inputs.id}`, formData, {
+            await axios.put(`${BASE_URL}/api/ressource/updateRessource/${inputs.id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            
             toast.success('Ressource mise à jour');
             fetchRessources();
             closModalRessourceFile();
@@ -451,20 +533,33 @@ const CreateActivite = () => {
         }
     };
 
-    const handleUpdateRessourceModal = (id, titre, description, fichier, type_fichier) => {
-        const fileUrl = `http://localhost:8801/api/ressource/fichier/${fichier}`;
+    // FIX: cette fonction est maintenant utilisée via le bouton Modifier dans la liste
+    const handleUpdateRessourceModal = (ressourceId, titre, description, fichier, type_fichier) => {
+        const fileUrl = `${BASE_URL}/api/ressource/fichier/${fichier}`;
         setInputs({
-            id, titre, description: description || '',
-            fichier, fichierUrl: fileUrl, fichierName: fichier, type_fichier
+            ...INITIAL_INPUTS,
+            id: ressourceId,
+            titre,
+            description: description || '',
+            fichier,
+            fichierUrl: fileUrl,
+            fichierName: fichier,
+            type_fichier
         });
-        setOpenModalRessourceFile(true);
         setIsAddingRessource(false);
+        setOpenModalRessourceFile(true);
     };
 
     // ==================== MODALES ====================
+<<<<<<< HEAD
     const modalQuestionnaire = () => {
         setInputs(prev => ({ ...prev, categorie: "questionnaire" }));
         setOpenModalQuestionnaire(true);
+=======
+    const modalText = () => {
+        setInputs(prev => ({ ...prev, categorie: "text" }));
+        setOpenModalText(true);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
         setOpenModal(false);
     };
 
@@ -480,8 +575,16 @@ const CreateActivite = () => {
         setOpenModal(false);
     };
 
+<<<<<<< HEAD
     const openRessourceModal = () => setOpenModalRessource(true);
     
+=======
+    const openRessourceModal = () => {
+        setIsAddingRessource(true);
+        setOpenModalRessource(true);
+    };
+
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     const modalFichier = () => {
         setOpenModalRessourceFile(true);
         setOpenModalRessource(false);
@@ -492,6 +595,7 @@ const CreateActivite = () => {
         setOpenModalRessource(false);
     };
 
+<<<<<<< HEAD
     const closModalQuestionnaire = () => {
         setQuestions([{ texte: "" }]);
         setInputs(prev => ({ ...prev, titre: "" }));
@@ -515,15 +619,38 @@ const CreateActivite = () => {
         setVideoQuestions([{ texte: "", timestamp: 0 }]);
         setInputs(prev => ({ ...prev, titre: "", video: null, videoUrl: null }));
         setOpenModalVideoInteractive(false);
+=======
+    const closModalT = () => {
+        setIsAddingActive(true);
+        setInputs(INITIAL_INPUTS);
+        setOpenModalText(false);
+    };
+
+    const closModalI = () => {
+        setIsAddingActive(true);
+        setInputs(INITIAL_INPUTS);
+        setOpenModalImage(false);
+    };
+
+    const closModalV = () => {
+        setIsAddingActive(true);
+        setInputs(INITIAL_INPUTS);
+        setOpenModalVideo(false);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     };
 
     const closModalRessourceFile = () => {
         setIsAddingRessource(true);
+<<<<<<< HEAD
         setInputs(prev => ({ ...prev, id: "", titre: "", description: "", fichier: null, fichierUrl: null, fichierName: "", type_fichier: "" }));
+=======
+        setInputs(INITIAL_INPUTS);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
         setOpenModalRessourceFile(false);
     };
 
     const closModalRessourceVideo = () => {
+<<<<<<< HEAD
         setInputs(prev => ({ ...prev, id: "", titre: "", description: "", ressourceVideo: null, ressourceVideoUrl: null }));
         setOpenModalRessourceVideo(false);
     };
@@ -573,6 +700,16 @@ const CreateActivite = () => {
             video_interactive: 'Vidéo interactive'
         };
         return names[categorie] || 'Activité';
+=======
+        setInputs(INITIAL_INPUTS);
+        setOpenModalRessourceVideo(false);
+    };
+
+    const getFileIcon = (type_fichier) => {
+        const icons = { pdf: '📄', word: '📝', powerpoint: '📊', excel: '📈', other: '📁' };
+        const names = { pdf: 'PDF', word: 'Word', powerpoint: 'PowerPoint', excel: 'Excel', other: 'Fichier' };
+        return `${icons[type_fichier] || '📁'} ${names[type_fichier] || 'Fichier'}`;
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     };
 
     // ==================== STYLES ====================
@@ -580,25 +717,25 @@ const CreateActivite = () => {
         container: { padding: '30px 0' },
         tabsHeader: { display: 'flex', gap: '10px', marginBottom: '30px', borderBottom: '2px solid #eee', flexWrap: 'wrap' },
         tabButton: (isActive) => ({
-            padding: '12px 30px',
-            fontSize: '16px',
-            fontWeight: 600,
-            border: 'none',
-            background: 'none',
-            cursor: 'pointer',
-            color: isActive ? '#ff5421' : '#666',
-            borderBottom: isActive ? '3px solid #ff5421' : 'none',
-            transition: 'all 0.3s ease'
+            padding: '12px 30px', fontSize: '16px', fontWeight: 600, border: 'none',
+            background: 'none', cursor: 'pointer', color: isActive ? '#ff5421' : '#666',
+            borderBottom: isActive ? '3px solid #ff5421' : 'none', transition: 'all 0.3s ease'
         }),
         card: { background: '#fff', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', overflow: 'hidden' },
         cardHeader: { padding: '20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' },
         cardTitle: { margin: 0, fontSize: '18px', fontWeight: 600, color: '#333' },
         addButton: { background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' },
         listItem: { padding: '15px 20px', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', transition: 'background 0.2s' },
+<<<<<<< HEAD
         listItemHover: { background: '#fafafa' },
         itemTitle: { fontWeight: 500, color: '#333', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' },
         itemMeta: { fontSize: '12px', color: '#999', display: 'flex', gap: '15px', flexWrap: 'wrap' },
         actionButtons: { display: 'flex', gap: '10px', alignItems: 'center' },
+=======
+        itemTitle: { fontWeight: 500, color: '#333', marginBottom: '5px' },
+        itemMeta: { fontSize: '12px', color: '#999', display: 'flex', gap: '15px' },
+        actionButtons: { display: 'flex', gap: '10px' },
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
         iconButton: { background: 'none', border: 'none', cursor: 'pointer', padding: '5px', borderRadius: '4px', transition: 'all 0.2s' },
         detailContent: { padding: '20px', background: '#f9f9f9', margin: '10px 20px 20px 20px', borderRadius: '8px' },
         modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
@@ -611,6 +748,7 @@ const CreateActivite = () => {
         input: { width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', marginBottom: '15px' },
         textarea: { width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', minHeight: '100px', marginBottom: '15px' },
         uploadArea: { border: '2px dashed #ddd', borderRadius: '12px', padding: '30px', textAlign: 'center', cursor: 'pointer', marginBottom: '15px', transition: 'all 0.2s' },
+<<<<<<< HEAD
         submitButton: { background: '#ff5421', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: 500, width: '100%' },
         videoPreview: { maxWidth: '100%', maxHeight: '150px', borderRadius: '8px' },
         questionCard: { background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '15px' },
@@ -642,12 +780,20 @@ const CreateActivite = () => {
         },
         addButtonSecondary: { background: '#28a745', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', marginTop: '10px' },
         removeButton: { background: '#dc3545', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }
+=======
+        videoPreview: { maxWidth: '100%', maxHeight: '150px', borderRadius: '8px' },
+        cancelBtn: { padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' },
+        submitBtn: { background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' },
+        closeBtn: { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     };
 
     if (loading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <div className="spinner-border text-primary" role="status"><span className="visually-hidden">Chargement...</span></div>
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Chargement...</span>
+                </div>
             </div>
         );
     }
@@ -656,13 +802,26 @@ const CreateActivite = () => {
         <React.Fragment>
             <Helmet><link rel="icon" href={favIcon} /></Helmet>
             <OffWrap />
-            <Header parentMenu='cours' secondParentMenu='others' headerNormalLogo={Logo}
-                headerStickyLogo={Logo} CanvasLogo={Logo} mobileNormalLogo={Logo}
-                CanvasClass="right_menu_togle hidden-md" headerClass="full-width-header header-style1 home8-style4"
+            <Header
+                parentMenu='cours' secondParentMenu='others'
+                headerNormalLogo={Logo} headerStickyLogo={Logo}
+                CanvasLogo={Logo} mobileNormalLogo={Logo}
+                CanvasClass="right_menu_togle hidden-md"
+                headerClass="full-width-header header-style1 home8-style4"
                 TopBar='enable' TopBarClass="topbar-area home8-topbar"
+<<<<<<< HEAD
                 emailAddress='admin@isetso.rnu.tn' Location='Cité Erriadh - B.P 135' />
 
             <SiteBreadcrumb pageTitle="Ressources & Activités" pageName="Gestion des contenus" breadcrumbsImg={bannerbg} />
+=======
+                emailAddress='admin@isetso.rnu.tn' Location='Cité Erriadh - B.P 135'
+            />
+            <SiteBreadcrumb
+                pageTitle="Ressources & Activités"
+                pageName="Gestion des contenus"
+                breadcrumbsImg={bannerbg}
+            />
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 
             <div style={styles.container} className="register-section pt-100 pb-100">
                 <div className="container">
@@ -680,7 +839,14 @@ const CreateActivite = () => {
                     {activeTab === 'ressources' && (
                         <div style={styles.card}>
                             <div style={styles.cardHeader}>
+<<<<<<< HEAD
                                 <h4 style={styles.cardTitle}><i className="fas fa-folder-open me-2" style={{ color: '#ff5421' }}></i>Documents et ressources</h4>
+=======
+                                <h4 style={styles.cardTitle}>
+                                    <i className="fas fa-folder-open me-2" style={{ color: '#ff5421' }}></i>
+                                    Documents et ressources
+                                </h4>
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                 <button style={styles.addButton} onClick={openRessourceModal}>
                                     <i className="fas fa-plus"></i> Ajouter une ressource
                                 </button>
@@ -693,11 +859,16 @@ const CreateActivite = () => {
                                     </div>
                                 ) : (
                                     ressources.map((item, index) => (
+<<<<<<< HEAD
                                         <div key={index}>
+=======
+                                        <div key={item.id || index}>
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                             <div style={styles.listItem}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <div style={{ flex: 1 }} onClick={() => toggleRessource(index)}>
                                                         <div style={styles.itemTitle}>
+<<<<<<< HEAD
                                                             {item.type_ressource === 'video' ? (
                                                                 <i className="fas fa-video me-2" style={{ color: '#ff5421' }}></i>
                                                             ) : (
@@ -718,6 +889,38 @@ const CreateActivite = () => {
                                                             <i className="fas fa-chevron-down" style={{ color: '#999' }}></i>
                                                         </button>
                                                         <button style={styles.iconButton} onClick={() => handleDeleteRessource(item.id)}>
+=======
+                                                            {item.type_ressource === 'video'
+                                                                ? <i className="fas fa-video me-2" style={{ color: '#ff5421' }}></i>
+                                                                : <i className="fas fa-file-alt me-2" style={{ color: '#ff5421' }}></i>
+                                                            }
+                                                            {item.titre}
+                                                        </div>
+                                                        <div style={styles.itemMeta}>
+                                                            {item.type_ressource === 'video'
+                                                                ? <span>🎬 Vidéo</span>
+                                                                : <span>{getFileIcon(item.type_fichier)}</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <div style={styles.actionButtons}>
+                                                        <button style={styles.iconButton} onClick={() => toggleRessource(index)} title="Voir détails">
+                                                            <i className="fas fa-chevron-down" style={{ color: '#999' }}></i>
+                                                        </button>
+                                                        {/* FIX: bouton Modifier maintenant fonctionnel (fichiers uniquement) */}
+                                                        {item.type_ressource !== 'video' && (
+                                                            <button
+                                                                style={styles.iconButton}
+                                                                title="Modifier"
+                                                                onClick={() => handleUpdateRessourceModal(
+                                                                    item.id, item.titre, item.description, item.fichier, item.type_fichier
+                                                                )}
+                                                            >
+                                                                <i className="fas fa-edit" style={{ color: '#28a745' }}></i>
+                                                            </button>
+                                                        )}
+                                                        <button style={styles.iconButton} onClick={() => handleDeleteRessource(item.id)} title="Supprimer">
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                                             <i className="fas fa-trash-alt" style={{ color: '#dc3545' }}></i>
                                                         </button>
                                                     </div>
@@ -728,10 +931,23 @@ const CreateActivite = () => {
                                                     <p><strong>Description :</strong> {item.description || 'Aucune description'}</p>
                                                     {item.type_ressource === 'video' ? (
                                                         <video controls style={{ width: '100%', borderRadius: '8px' }}>
+<<<<<<< HEAD
                                                             <source src={`http://localhost:8801/api/ressource/video/${item.fichier}`} type="video/mp4" />
                                                         </video>
                                                     ) : (
                                                         <a href={`http://localhost:8801/api/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
+=======
+                                                            {/* FIX: URL corrigée avec BASE_URL */}
+                                                            <source src={`${BASE_URL}/api/ressource/video/${item.fichier}`} type="video/mp4" />
+                                                        </video>
+                                                    ) : (
+                                                        <a
+                                                            href={`${BASE_URL}/api/ressource/fichier/${item.fichier}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}
+                                                        >
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                                             <i className="fas fa-download me-2"></i>Télécharger
                                                         </a>
                                                     )}
@@ -748,7 +964,14 @@ const CreateActivite = () => {
                     {activeTab === 'activites' && (
                         <div style={styles.card}>
                             <div style={styles.cardHeader}>
+<<<<<<< HEAD
                                 <h4 style={styles.cardTitle}><i className="fas fa-tasks me-2" style={{ color: '#ff5421' }}></i>Liste des activités</h4>
+=======
+                                <h4 style={styles.cardTitle}>
+                                    <i className="fas fa-tasks me-2" style={{ color: '#ff5421' }}></i>
+                                    Liste des activités
+                                </h4>
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                 <button style={styles.addButton} onClick={() => setOpenModal(true)}>
                                     <i className="fas fa-plus"></i> Ajouter une activité
                                 </button>
@@ -761,6 +984,7 @@ const CreateActivite = () => {
                                     </div>
                                 ) : (
                                     activite.map((item, index) => (
+<<<<<<< HEAD
                                         <div key={item.id}>
                                             <div style={styles.listItem}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '10px' }}>
@@ -787,6 +1011,19 @@ const CreateActivite = () => {
                                                             <i className="fas fa-users"></i>
                                                             Travaux ({travauxCount[item.id] || 0})
                                                         </Link>
+=======
+                                        <div key={item.id || index}>
+                                            <div style={styles.listItem}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div style={{ flex: 1 }} onClick={() => toggleActivite(index)}>
+                                                        <div style={styles.itemTitle}>{item.titre}</div>
+                                                        <div style={styles.itemMeta}>
+                                                            <span><i className="far fa-clock me-1"></i>{item.duration || 'N/A'} min</span>
+                                                            <span><i className="fas fa-tag me-1"></i>{item.categorie}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div style={styles.actionButtons}>
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                                         <button style={styles.iconButton} onClick={() => toggleActivite(index)} title="Voir détails">
                                                             <i className="fas fa-chevron-down" style={{ color: '#999' }}></i>
                                                         </button>
@@ -798,6 +1035,7 @@ const CreateActivite = () => {
                                             </div>
                                             {openIndex === index && (
                                                 <div style={styles.detailContent}>
+<<<<<<< HEAD
                                                     {item.categorie === 'questionnaire' && (
                                                         <div>
                                                             <h5>📋 Questionnaire</h5>
@@ -873,6 +1111,18 @@ const CreateActivite = () => {
                                                                 }
                                                             })()}
                                                         </div>
+=======
+                                                    {item.categorie === 'text' && <p>{item.contenu}</p>}
+                                                    {item.categorie === 'image' && (
+                                                        // FIX: URL corrigée avec BASE_URL
+                                                        <img src={`${BASE_URL}/api/image/${item.contenu}`} alt="contenu" style={{ maxWidth: '100%', borderRadius: '8px' }} />
+                                                    )}
+                                                    {item.categorie === 'video' && (
+                                                        <video controls style={{ width: '100%', borderRadius: '8px' }}>
+                                                            {/* FIX: URL corrigée avec BASE_URL */}
+                                                            <source src={`${BASE_URL}/api/video/${item.contenu}`} type="video/mp4" />
+                                                        </video>
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                                     )}
                                                 </div>
                                             )}
@@ -885,15 +1135,20 @@ const CreateActivite = () => {
                 </div>
             </div>
 
+<<<<<<< HEAD
             {/* ==================== MODALES RESSOURCES ==================== */}
             
             {/* MODALE CHOIX RESSOURCE */}
             {openModalRessource && (
                 <div style={styles.modalOverlay} onClick={() => setOpenModalRessource(false)}>
+=======
+            {/* ==================== MODALE CHOIX RESSOURCE ==================== */}
+            {openModalRessource && (
+                <div style={styles.modalOverlay} onClick={() => setOpenModalRessource(false)}>
                     <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <div style={styles.modalHeader}>
                             <h3>Type de ressource</h3>
-                            <button onClick={() => setOpenModalRessource(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                            <button onClick={() => setOpenModalRessource(false)} style={styles.closeBtn}>×</button>
                         </div>
                         <div style={styles.modalBody}>
                             <div style={styles.categoryGrid}>
@@ -908,6 +1163,202 @@ const CreateActivite = () => {
                                     <small style={{ fontSize: '10px', color: '#999' }}>MP4, AVI, MOV</small>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODALE FICHIER RESSOURCE */}
+            {openModalRessourceFile && (
+                <div style={styles.modalOverlay} onClick={closModalRessourceFile}>
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>{isAddingRessource ? 'Ajouter un fichier' : 'Modifier le fichier'}</h3>
+                            <button onClick={closModalRessourceFile} style={styles.closeBtn}>×</button>
+                        </div>
+                        <form onSubmit={isAddingRessource ? handleSubmitFichier : handleUpdateRessource}>
+                            <div style={styles.modalBody}>
+                                <input type="text" name="titre" placeholder="Titre" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
+                                <textarea name="description" placeholder="Description (optionnelle)" value={inputs.description} onChange={handleInputChange} style={styles.textarea} />
+                                <div style={styles.uploadArea} onClick={() => document.getElementById('fichierInput').click()}>
+                                    {inputs.fichierUrl ? (
+                                        <>
+                                            <i className="fas fa-file fa-3x" style={{ color: '#ff5421' }}></i>
+                                            <p>{inputs.fichierName}</p>
+                                            <small>Cliquez pour changer</small>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fas fa-cloud-upload-alt fa-3x" style={{ color: '#ff5421' }}></i>
+                                            <p>Cliquez pour sélectionner un fichier</p>
+                                            <small>PDF, Word, PowerPoint, Excel</small>
+                                        </>
+                                    )}
+                                    {/* FIX: fichier requis seulement lors de l'ajout */}
+                                    <input type="file" id="fichierInput" onChange={handleFichierChange} hidden required={isAddingRessource} />
+                                </div>
+                            </div>
+                            <div style={styles.modalFooter}>
+                                <button type="button" onClick={closModalRessourceFile} style={styles.cancelBtn}>Annuler</button>
+                                <button type="submit" style={styles.submitBtn}>{isAddingRessource ? 'Ajouter' : 'Modifier'}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* MODALE VIDÉO RESSOURCE */}
+            {openModalRessourceVideo && (
+                <div style={styles.modalOverlay} onClick={closModalRessourceVideo}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Ajouter une vidéo</h3>
+                            <button onClick={closModalRessourceVideo} style={styles.closeBtn}>×</button>
+                        </div>
+                        <form onSubmit={handleSubmitRessourceVideo}>
+                            <div style={styles.modalBody}>
+                                <input type="text" name="titre" placeholder="Titre" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
+                                <textarea name="description" placeholder="Description (optionnelle)" value={inputs.description} onChange={handleInputChange} style={styles.textarea} />
+                                <div style={styles.uploadArea} onClick={() => document.getElementById('ressourceVideoInput').click()}>
+                                    {inputs.ressourceVideoUrl ? (
+                                        <>
+                                            <video src={inputs.ressourceVideoUrl} style={styles.videoPreview} controls />
+                                            {/* FIX: accès sécurisé avec ?. pour éviter crash si null */}
+                                            <p style={{ marginTop: '10px' }}>{inputs.ressourceVideo?.name}</p>
+                                            <small>Cliquez pour changer</small>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fas fa-cloud-upload-alt fa-3x" style={{ color: '#ff5421' }}></i>
+                                            <p>Cliquez pour sélectionner une vidéo</p>
+                                            <small>MP4, AVI, MOV (max 500MB)</small>
+                                        </>
+                                    )}
+                                    <input type="file" id="ressourceVideoInput" accept="video/*" onChange={handleRessourceVideoChange} hidden required />
+                                </div>
+                            </div>
+                            <div style={styles.modalFooter}>
+                                <button type="button" onClick={closModalRessourceVideo} style={styles.cancelBtn}>Annuler</button>
+                                <button type="submit" style={styles.submitBtn}>Ajouter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* ==================== MODALES ACTIVITÉS ==================== */}
+            {openModal && (
+                <div style={styles.modalOverlay} onClick={() => setOpenModal(false)}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Type d'activité</h3>
+                            <button onClick={() => setOpenModal(false)} style={styles.closeBtn}>×</button>
+                        </div>
+                        <div style={styles.modalBody}>
+                            <div style={styles.categoryGrid}>
+<<<<<<< HEAD
+                                <div style={styles.categoryItem} onClick={modalFichier}>
+                                    <i className="fas fa-file-pdf fa-3x mb-2" style={{ color: '#ff5421' }}></i>
+                                    <div>Fichier</div>
+                                    <small style={{ fontSize: '10px', color: '#999' }}>PDF, Word, Excel, PPT</small>
+                                </div>
+                                <div style={styles.categoryItem} onClick={modalRessourceVideo}>
+                                    <i className="fas fa-video fa-3x mb-2" style={{ color: '#ff5421' }}></i>
+                                    <div>Vidéo</div>
+                                    <small style={{ fontSize: '10px', color: '#999' }}>MP4, AVI, MOV</small>
+=======
+                                <div style={styles.categoryItem} onClick={modalText}>
+                                    <i className="fas fa-paragraph fa-3x mb-2" style={{ color: '#ff5421' }}></i>
+                                    <div>Texte</div>
+                                </div>
+                                <div style={styles.categoryItem} onClick={modalImage}>
+                                    <i className="fas fa-image fa-3x mb-2" style={{ color: '#ff5421' }}></i>
+                                    <div>Image</div>
+                                </div>
+                                <div style={styles.categoryItem} onClick={modalvideo}>
+                                    <i className="fas fa-video fa-3x mb-2" style={{ color: '#ff5421' }}></i>
+                                    <div>Vidéo</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal texte */}
+            {openModalText && (
+                <div style={styles.modalOverlay} onClick={closModalT}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Ajouter un texte</h3>
+                            <button onClick={closModalT} style={styles.closeBtn}>×</button>
+                        </div>
+                        <form onSubmit={handleSubmit}>
+                            <div style={styles.modalBody}>
+                                <input type="text" name="titre" placeholder="Titre" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
+                                <textarea name="contenu" placeholder="Contenu" value={inputs.contenu} onChange={handleInputChange} style={styles.textarea} required />
+                                <input type="number" name="duration" placeholder="Durée (minutes)" value={inputs.duration} onChange={handleInputChange} style={styles.input} />
+                            </div>
+                            <div style={styles.modalFooter}>
+                                <button type="button" onClick={closModalT} style={styles.cancelBtn}>Annuler</button>
+                                <button type="submit" style={styles.submitBtn}>Ajouter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal image */}
+            {openModalImage && (
+                <div style={styles.modalOverlay} onClick={closModalI}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Ajouter une image</h3>
+                            <button onClick={closModalI} style={styles.closeBtn}>×</button>
+                        </div>
+                        <form onSubmit={handleSubmitim}>
+                            <div style={styles.modalBody}>
+                                <input type="text" name="titre" placeholder="Titre" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
+                                <div style={styles.uploadArea} onClick={() => document.getElementById('imageInput').click()}>
+                                    {inputs.imageUrl
+                                        ? <img src={inputs.imageUrl} style={{ maxWidth: '100%', maxHeight: '150px' }} alt="preview" />
+                                        : <><i className="fas fa-cloud-upload-alt fa-3x" style={{ color: '#ff5421' }}></i><p>Cliquez pour sélectionner une image</p></>
+                                    }
+                                    <input type="file" id="imageInput" accept="image/*" onChange={handleImageChange} hidden required />
+                                </div>
+                                <input type="number" name="duration" placeholder="Durée (minutes)" value={inputs.duration} onChange={handleInputChange} style={styles.input} />
+                            </div>
+                            <div style={styles.modalFooter}>
+                                <button type="button" onClick={closModalI} style={styles.cancelBtn}>Annuler</button>
+                                <button type="submit" style={styles.submitBtn}>Ajouter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal vidéo activité */}
+            {openModalVideo && (
+                <div style={styles.modalOverlay} onClick={closModalV}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div style={styles.modalHeader}>
+                            <h3>Ajouter une vidéo</h3>
+                            <button onClick={closModalV} style={styles.closeBtn}>×</button>
+                        </div>
+                        <form onSubmit={handleSubmitvi}>
+                            <div style={styles.modalBody}>
+                                <input type="text" name="titre" placeholder="Titre" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
+                                <div style={styles.uploadArea} onClick={() => document.getElementById('videoInput').click()}>
+                                    {inputs.videoUrl
+                                        ? <video src={inputs.videoUrl} style={{ maxWidth: '100%', maxHeight: '150px' }} controls />
+                                        : <><i className="fas fa-cloud-upload-alt fa-3x" style={{ color: '#ff5421' }}></i><p>Cliquez pour sélectionner une vidéo</p></>
+                                    }
+                                    <input type="file" id="videoInput" accept="video/*" onChange={handleVideoChange} hidden required />
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
+                                </div>
+                            </div>
+<<<<<<< HEAD
                         </div>
                     </div>
                 </div>
@@ -945,6 +1396,11 @@ const CreateActivite = () => {
                             <div style={styles.modalFooter}>
                                 <button type="button" onClick={closModalRessourceFile} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
                                 <button type="submit" style={{ background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>{isAddingRessource ? 'Ajouter' : 'Modifier'}</button>
+=======
+                            <div style={styles.modalFooter}>
+                                <button type="button" onClick={closModalV} style={styles.cancelBtn}>Annuler</button>
+                                <button type="submit" style={styles.submitBtn}>Ajouter</button>
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                             </div>
                         </form>
                     </div>

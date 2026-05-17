@@ -3,7 +3,7 @@ import { db } from "../db.js";
 // ✅ Récupérer tous les enseignants
 export const getAllEnseignants = (req, res) => {
   // AJOUT: inclure role dans la sélection
-  const query = "SELECT id, username, email, age, telephone, genre, role, created_at FROM Users WHERE role = 'enseignant' ORDER BY created_at DESC";
+  const query = "SELECT id, username, email, age, telephone, genre, role, created_at FROM users WHERE role = 'enseignant' ORDER BY created_at DESC";
   db.query(query, (err, data) => {
     if (err) {
       console.error("Erreur lors de la récupération des enseignants :", err);
@@ -17,7 +17,7 @@ export const getAllEnseignants = (req, res) => {
 export const getEnseignantById = (req, res) => {
   const enseignantId = req.params.id;
   // AJOUT: inclure age, telephone, genre
-  const query = "SELECT id, username, email, role, age, telephone, genre FROM Users WHERE id = ? AND role = 'enseignant'";
+  const query = "SELECT id, username, email, role, age, telephone, genre FROM users WHERE id = ? AND role = 'enseignant'";
   db.query(query, [enseignantId], (err, data) => {
     if (err) {
       console.error("Erreur lors de la récupération de l'enseignant :", err);
@@ -38,7 +38,7 @@ export const addEnseignant = (req, res) => {
     return res.status(400).json({ error: "Nom, email et mot de passe requis" });
   }
   
-  const query = "INSERT INTO Users (username, email, password, role, age, telephone, genre) VALUES (?, ?, ?, 'enseignant', ?, ?, ?)";
+  const query = "INSERT INTO users (username, email, password, role, age, telephone, genre) VALUES (?, ?, ?, 'enseignant', ?, ?, ?)";
   db.query(query, [username, email, password, age || null, telephone || null, genre || null], (err, result) => {
     if (err) {
       console.error("Erreur lors de l'ajout de l'enseignant :", err);
@@ -54,7 +54,7 @@ export const updateEnseignant = (req, res) => {
   const { username, email, age, telephone, genre } = req.body;
   
   // D'abord, récupérer le rôle actuel de l'enseignant
-  const getRoleQuery = "SELECT role FROM Users WHERE id = ?";
+  const getRoleQuery = "SELECT role FROM users WHERE id = ?";
   db.query(getRoleQuery, [enseignantId], (err, result) => {
     if (err) {
       console.error("Erreur lors de la récupération du rôle:", err);
@@ -68,7 +68,7 @@ export const updateEnseignant = (req, res) => {
     const currentRole = result[0].role;
     
     // Mise à jour en conservant le rôle actuel et tous les champs
-    const query = `UPDATE Users SET 
+    const query = `UPDATE users SET 
       username = ?, 
       email = ?, 
       age = ?, 
@@ -93,7 +93,7 @@ export const updateEnseignant = (req, res) => {
 // ✅ Supprimer un enseignant
 export const deleteEnseignant = (req, res) => {
   const enseignantId = req.params.id;
-  const query = "DELETE FROM Users WHERE id = ? AND role = 'enseignant'";
+  const query = "DELETE FROM users WHERE id = ? AND role = 'enseignant'";
   db.query(query, [enseignantId], (err, result) => {
     if (err) {
       console.error("Erreur lors de la suppression de l'enseignant :", err);

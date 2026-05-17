@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const CourseSingleTwo = (props) => {
     const { 
@@ -296,9 +296,66 @@ const CourseSingleTwo = (props) => {
     };
 
     return (
+<<<<<<< HEAD
         <>
             <div className={courseClass ? courseClass : 'courses-item'}>
                 <div className="img-part" style={{ position: 'relative' }}>
+=======
+        <div className={courseClass ? courseClass : 'courses-item'}>
+            <div className="img-part" style={{ position: 'relative' }}>
+                <Link to={`/course/course/${courseid}`}>
+                    <img
+                        src={courseImg || "/placeholder.svg"}
+                        alt={courseTitle || "Cours"}
+                        style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                        onError={(e) => {
+                            e.target.src = "/placeholder.svg";
+                        }}
+                    />
+                    {courseCategory && (
+                        <span className="course-category" style={{
+                            position: 'absolute',
+                            top: '10px',
+                            left: '10px',
+                            backgroundColor: '#ff5421',
+                            color: 'white',
+                            padding: '4px 10px',
+                            borderRadius: '20px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            zIndex: 1
+                        }}>
+                            {courseCategory}
+                        </span>
+                    )}
+                    {formattedDuration && (
+                        <span style={{
+                            position: 'absolute',
+                            bottom: '10px',
+                            right: '10px',
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                            color: 'white',
+                            padding: '4px 10px',
+                            borderRadius: '20px',
+                            fontSize: '11px',
+                            zIndex: 1
+                        }}>
+                            <i className="fa fa-clock-o me-1"></i> {formattedDuration}
+                        </span>
+                    )}
+                </Link>
+            </div>
+            <div className="content-part">
+                <ul className="meta-part">
+                    <li>
+                        <Link className="categorie" to={catLink ? catLink : `/courses/category/${courseid}`}>
+                            {courseCategory ? courseCategory : 'Catégorie'}
+                        </Link>
+                    </li>
+                </ul>
+                
+                <h3 className="title">
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                     <Link to={`/course/course/${courseid}`}>
                         <img
                             src={courseImg || "https://via.placeholder.com/400x250?text=Image+non+disponible"}

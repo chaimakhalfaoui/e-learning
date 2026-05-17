@@ -1,30 +1,14 @@
+import { createS3Upload } from "../middleware/s3upload.js";
 import { db } from "../db.js";
-import multer from "multer";
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
 
 // Définir le stockage pour multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Répertoire où enregistrer les fichiers
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + uuidv4(); // Générer un UUID unique
-    cb(null, uniqueSuffix + '-' + file.originalname); // Nom du fichier unique
-  }
-});
+const upload = createS3Upload("uploads");
 
 // Vérifier le type de fichier pour l'image
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
 
 // Configurer multer avec le stockage et le filtre
-const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 // Utiliser multer pour télécharger l'image
 // Utiliser multer pour télécharger l'image
@@ -43,7 +27,7 @@ export const createEvent = (req, res) => {
   
       // L'image a été téléchargée avec succès, maintenant enregistrez son nom dans la base de données
       const { titre, description, datedebut, heuredebut, datefin, heurefin,iduser,ville,categorie } = req.body;
-      const imageName = req.file.filename; // Nom de l'image téléchargée
+      const imageName = req.file.location; // Nom de l'image téléchargée
   
       // Formater les dates au format "aaaa/mm/dd"
       const formattedDateDebut = formatDate(datedebut);
@@ -224,10 +208,9 @@ export const updateEvent = (req, res) => {
     let values;
 
     if (req.file) {
-      const imageName = req.file.filename;
+      const imageName = req.file.location;
       updateEventQuery = "UPDATE evenement SET titre = ?, description = ?, datedebut = ?, heuredebut = ?, datefin = ?, heurefin = ?, image = ?, ville = ?, categorie = ? WHERE id = ?";
       values = [titre, description, formattedDateDebut, heuredebut, formattedDateFin, heurefin, imageName, ville, categorie, eventId];
-    } else {
       updateEventQuery = "UPDATE evenement SET titre = ?, description = ?, datedebut = ?, heuredebut = ?, datefin = ?, heurefin = ?, ville = ?, categorie = ? WHERE id = ?";
       values = [titre, description, formattedDateDebut, heuredebut, formattedDateFin, heurefin, ville, categorie, eventId];
     }

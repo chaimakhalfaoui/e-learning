@@ -61,9 +61,10 @@ app.use("/api/ressource", ressourceRoutes);
 app.use("/api/coordinateurs",coordinateursRoutes);
 app.use('/api/travaux', travauxRoutes);
 app.use("/uploads", express.static("uploads"));
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', message: 'Backend ISETSO E-learning is running' });
+});
 
-
-
-app.listen(8801, () => {
+app.listen(8801, '0.0.0.0', () => {
   console.log("Connected!");
 });

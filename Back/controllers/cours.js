@@ -1,31 +1,20 @@
 // controllers/cours.js - Version corrigée
 
 import { db } from "../db.js";
-import multer from "multer";
-import path from "path";
-import { v4 as uuidv4 } from 'uuid';
+import { createS3Upload, getFileUrl } from "../middleware/s3upload.js";
+
+
 
 // Définir le stockage pour multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + uuidv4();
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
-});
+const upload = createS3Upload("uploads");
 
 // Vérifier le type de fichier pour l'image
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
 
+<<<<<<< HEAD
 const upload = multer({ storage: storage, fileFilter: fileFilter });
+=======
+// Configurer multer avec le stockage et le filtre
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 
 // ==================== CRÉATION D'UN COURS (Enseignant) ====================
 export const createCours = (req, res) => {
@@ -39,7 +28,7 @@ export const createCours = (req, res) => {
         }
 
         const { titre, description, dateCre, type, level, id_user, duration } = req.body;
-        const imageName = req.file ? req.file.filename : null;
+        const imageName = req.file ? req.file.location : null;
 
         if (!titre || !description || !dateCre || !type || !level || !id_user || !imageName || !duration) {
             return res.status(400).json({ error: "Tous les champs sont requis." });
@@ -206,7 +195,7 @@ export const updateCours = (req, res) => {
 
         const { id } = req.params;
         const { titre, description, dateCre, type, level, id_user, duration, status } = req.body;
-        const imageName = req.file ? req.file.filename : null;
+        const imageName = req.file ? req.file.location : null;
 
         if (!titre || !description || !dateCre || !type || !level || !id_user || !duration) {
             return res.status(400).json({ error: "Tous les champs sont requis." });
@@ -426,9 +415,28 @@ export const getStudentEnrolledCourses = (req, res) => {
 export const getEtudiantsByCours = (req, res) => {
     const { coursId } = req.params;
     
+<<<<<<< HEAD
     if (!coursId) {
         return res.status(400).json({ error: "L'ID du cours est requis." });
     }
+=======
+    const query = `
+        SELECT DISTINCT 
+            u.id,
+            u.username,
+            u.email,
+            u.telephone,
+            u.genre,
+            u.age,
+            COALESCE(a.avc, 0) AS progression,
+            l.created_at AS date_inscription
+        FROM users u
+        INNER JOIN Lecture l ON u.id = l.id_user
+        LEFT JOIN Avc a ON u.id = a.idUser AND a.idCours = ?
+        WHERE l.id_cours = ? AND u.role = 'etudiant'
+        ORDER BY l.id DESC
+    `;
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     
     // Vérifier d'abord si la table inscription existe
     const checkTableQuery = "SHOW TABLES LIKE 'inscription'";

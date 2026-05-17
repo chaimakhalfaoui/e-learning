@@ -55,7 +55,7 @@ const EditEns = () => {
         const fetchEnseignant = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:8801/api/enseignants/${id}`);
+                const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/enseignants/${id}`);
                 setInputs(response.data);
                 setErr(null);
             } catch (error) {
@@ -83,7 +83,7 @@ const EditEns = () => {
         setErr(null);
         
         try {
-            await axios.put(`http://localhost:8801/api/enseignants/${id}`, inputs);
+            await axios.put(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/enseignants/${id}`, inputs);
             toast.success('Enseignant modifié avec succès !', { 
                 autoClose: 3000,
                 position: "top-right"

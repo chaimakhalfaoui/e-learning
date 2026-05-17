@@ -25,10 +25,19 @@ const CourseDetailsTab = () => {
         setLoading(true);
         try {
             const userid = await idUser();
+<<<<<<< HEAD
             if (!userid || userid === 0) {
                 setComplete(0);
                 setLoading(false);
                 return;
+=======
+            try {
+                const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/avc/avc/${id}/${userid}`);
+                setComplete(response.data.avc);
+
+            } catch (error) {
+                console.error('Error fetching AVC data:', error);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             }
             
             const response = await axios.get(`http://localhost:8801/api/avc/avc/${id}/${userid}`);

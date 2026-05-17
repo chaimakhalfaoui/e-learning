@@ -44,6 +44,7 @@ const StatistiquesSimple = () => {
     useEffect(() => {
         (async () => {
             try {
+<<<<<<< HEAD
                 const [sRes, mRes, cRes] = await Promise.all([
                     axios.get('http://localhost:8801/api/auth/getStatistics')
                         .catch(() => ({ data: null })),
@@ -51,6 +52,13 @@ const StatistiquesSimple = () => {
                         .catch(() => ({ data: [] })),
                     axios.get('http://localhost:8801/api/auth/coursParCategorie')
                         .catch(() => ({ data: [] }))
+=======
+                const [statsRes, monthlyRes, categoriesRes, eventsRes] = await Promise.all([
+                    axios.get("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/getStatistics").catch(() => ({ data: null })),
+                    axios.get("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/monthlyInscriptions").catch(() => ({ data: [] })),
+                    axios.get("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/coursParCategorie").catch(() => ({ data: [] })),
+                    axios.get("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/event/getAllEvents").catch(() => ({ data: [] }))
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                 ]);
 
                 setStats({

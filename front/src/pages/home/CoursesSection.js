@@ -3,7 +3,7 @@ import axios from 'axios';
 import SectionTitle from '../../components/Common/SectionTitle';
 import CourseSingle from '../../components/Courses/CourseSingle';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);
@@ -155,7 +155,7 @@ const Courses = () => {
                             <div className="col-lg-4 col-md-6 mb-30" key={course.id}>
                                 <CourseSingle
                                     itemClass="courses-item"
-                                    image={`${API_URL}/image/${course.image}`}
+                                    image={course.image && course.image.startsWith("http") ? course.image : course.image && course.image.startsWith("http") ? course.image : `${API_URL}/image/${course.image}`}
                                     title={course.titre}
                                     description={course.description}
                                     category={course.type}

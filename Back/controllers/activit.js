@@ -1,10 +1,14 @@
+<<<<<<< HEAD
 // controllers/activit.js
+=======
+import { createS3Upload } from "../middleware/s3upload.js";
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 import { db } from "../db.js";
-import multer from "multer";
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 
+<<<<<<< HEAD
 // Créer les dossiers s'ils n'existent pas
 const uploadDir = 'uploads/';
 const uploadVideoDir = 'uploads/videos/';
@@ -25,17 +29,18 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + '-' + file.originalname);
   }
 });
+=======
+// Définir le stockage pour multer
+const upload = createS3Upload("uploads");
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 
 // Vérifier le type de fichier pour l'image
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
 
+<<<<<<< HEAD
 const upload = multer({ storage: storage, fileFilter: fileFilter });
+=======
+// Configurer multer avec le stockage et le filtre
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 
 // Stockage pour les fichiers de devoir (PDF, Word, PowerPoint)
 const devoirStorage = multer.diskStorage({
@@ -48,6 +53,7 @@ const devoirStorage = multer.diskStorage({
   }
 });
 
+<<<<<<< HEAD
 const devoirFileFilter = (req, file, cb) => {
   const allowedTypes = [
     'application/pdf',
@@ -62,6 +68,26 @@ const devoirFileFilter = (req, file, cb) => {
   } else {
     cb(new Error("Format de fichier non supporté. Utilisez PDF, Word ou PowerPoint."), false);
   }
+=======
+        const { titre, categorie,id_chapitre,duration  } = req.body;
+        const imageName = req.file.location; // Nom de l'image téléchargée
+
+        if (  !titre || !categorie  || !id_chapitre || !imageName||!duration) {
+            return res.status(400).json("Tous les champs sont requis.");
+        }
+
+        const insertCoursQuery = "INSERT INTO activite (titre, categorie, contenu,duration, id_chapitre) VALUES (?,?, ?, ?, ?)";
+        const values = [titre, categorie, imageName,duration, id_chapitre ];
+
+        db.query(insertCoursQuery, values, (err, data) => {
+            if (err) {
+                console.error("Erreur lors de la création du Activité :", err);
+                return res.status(500).json("Une erreur s'est produite lors de la création du Activité.");
+            }
+            return res.status(200).json("L'Activité a été créé avec succès.");
+        });
+    });
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 };
 
 const uploadDevoir = multer({ 
@@ -70,6 +96,7 @@ const uploadDevoir = multer({
   limits: { fileSize: 50 * 1024 * 1024 } // 50MB max
 });
 
+<<<<<<< HEAD
 // Stockage pour vidéos
 const storagev = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -80,6 +107,75 @@ const storagev = multer.diskStorage({
     cb(null, uniqueSuffix + '-' + file.originalname);
   }
 });
+=======
+
+
+
+
+
+
+
+
+export const createActivite = (req, res) => {
+    const { titre, categorie,contenu,duration,id_chapitre } = req.body;
+
+    // Vérifier si tous les champs sont fournis
+    if (!titre || !categorie || !contenu ||!duration|| !id_chapitre) {
+        return res.status(400).json("Tous les champs sont requis.");
+    }
+
+    // Insérer le chapitre dans la base de données
+    const insertActiviteQuery = "INSERT INTO activite (titre, categorie, contenu, duration,id_chapitre) VALUES (?, ?, ?, ?,?)";
+    const values = [titre, categorie, contenu,duration, id_chapitre];
+
+    db.query(insertActiviteQuery, values, (err, data) => {
+        if (err) {
+            console.error("Erreur lors de la création du activite :", err);
+            return res.status(500).json("Une erreur s'est produite lors de la création du chapitre.");
+        }
+        return res.status(200).json("Le activite a été créé avec succès.");
+    });
+};
+
+
+
+
+
+  
+  // Vérifier le type de fichier pour la vidéo
+  
+  // Configurer multer avec le stockage et le filtre pour les vidéos
+  
+  export const createActivitev = (req, res) => {
+      uploadv.single('video')(req, res, function (err) {
+          if (err instanceof multer.MulterError) {
+              console.error("Erreur Multer :", err);
+              return res.status(500).json("Une erreur s'est produite lors du téléchargement de la vidéo.");
+          } else if (err) {
+              console.error("Erreur inattendue lors du téléchargement de la vidéo :", err);
+              return res.status(500).json("Une erreur inattendue s'est produite lors du téléchargement de la vidéo.");
+          }
+  
+          const { titre, categorie, id_chapitre, duration } = req.body;
+          const videoName = req.file.location; // Nom de la vidéo téléchargée
+  
+          if (!titre || !categorie || !id_chapitre || !videoName || !duration) {
+              return res.status(400).json("Tous les champs sont requis.");
+          }
+  
+          const insertCoursQuery = "INSERT INTO activite (titre, categorie, contenu, duration, id_chapitre) VALUES (?, ?, ?,? , ?)";
+          const values = [titre, categorie, videoName,duration, id_chapitre];
+  
+          db.query(insertCoursQuery, values, (err, data) => {
+              if (err) {
+                  console.error("Erreur lors de la création de l'activité :", err);
+                  return res.status(500).json("Une erreur s'est produite lors de la création de l'activité.");
+              }
+              return res.status(200).json("L'activité a été créée avec succès.");
+          });
+      });
+  };
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 
 const fileFilterv = (req, file, cb) => {
   if (file.mimetype === 'video/mp4' || file.mimetype === 'video/mpeg' || file.mimetype === 'video/quicktime') {
@@ -426,6 +522,64 @@ export const updateActiviteText = (req, res) => {
   });
 };
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+
+
+
+export const updateActiviteVideo = (req, res) => {
+  // Vérifier si une nouvelle vidéo a été téléchargée
+  uploadv.single('video')(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      console.error("Erreur Multer :", err);
+      return res.status(500).json("Une erreur s'est produite lors du téléchargement de la vidéo.");
+    } else if (err) {
+      console.error("Erreur inattendue lors du téléchargement de la vidéo :", err);
+      return res.status(500).json("Une erreur inattendue s'est produite lors du téléchargement de la vidéo.");
+    }
+
+    const id_activite = req.params.id;
+    const { titre, categorie, id_chapitre, duration } = req.body;
+
+    if (!id_activite || !titre || !categorie || !id_chapitre || !duration) {
+      return res.status(400).json("Tous les champs sont requis.");
+    }
+
+    let updateActiviteQuery;
+    let values;
+
+    if (req.file) {
+      const videoName = req.file.location;
+      updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, contenu = ?, duration = ?, id_chapitre = ? WHERE id = ?";
+      values = [titre, categorie, videoName, duration, id_chapitre, id_activite];
+      updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, duration = ?, id_chapitre = ? WHERE id = ?";
+      values = [titre, categorie, duration, id_chapitre, id_activite];
+    }
+
+    db.query(updateActiviteQuery, values, (err, data) => {
+      if (err) {
+        console.error("Erreur lors de la mise à jour de l'activité vidéo :", err);
+        return res.status(500).json("Une erreur s'est produite lors de la mise à jour de l'activité vidéo.");
+      }
+
+      if (data.affectedRows === 0) {
+        return res.status(404).json("L'activité n'existe pas.");
+      }
+
+      return res.status(200).json("L'activité vidéo a été mise à jour avec succès.");
+    });
+  });
+};
+
+
+
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 export const updateActiviteI = (req, res) => {
   upload.single('image')(req, res, function (err) {
     if (err) {
@@ -444,11 +598,18 @@ export const updateActiviteI = (req, res) => {
     let values;
 
     if (req.file) {
+<<<<<<< HEAD
       const imageName = req.file.filename;
       updateQuery = "UPDATE activite SET titre = ?, categorie = ?, contenu = ?, duration = ?, id_chapitre = ? WHERE id = ?";
       values = [titre, categorie, imageName, duration, id_chapitre, id];
     } else {
       updateQuery = "UPDATE activite SET titre = ?, categorie = ?, duration = ?, id_chapitre = ? WHERE id = ?";
+=======
+      const imageName = req.file.location;
+      updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, contenu = ?, duration = ?, id_chapitre = ? WHERE id = ?";
+      values = [titre, categorie, imageName, duration, id_chapitre, id];
+      updateActiviteQuery = "UPDATE activite SET titre = ?, categorie = ?, duration = ?, id_chapitre = ? WHERE id = ?";
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
       values = [titre, categorie, duration, id_chapitre, id];
     }
 

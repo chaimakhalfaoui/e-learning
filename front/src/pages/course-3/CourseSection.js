@@ -6,7 +6,7 @@ import { useAuth } from '../../context/authContext';
 import { Helmet } from 'react-helmet';
 import { toast } from 'react-toastify';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const Courses = () => {
     const { idUser, role } = useAuth();
@@ -260,7 +260,7 @@ const Courses = () => {
                             <div key={cours.id} className="col-lg-4 col-md-6 col-sm-6 mb-40">
                                 <CourseSingleFour
                                     btnLink={cours.id}
-                                    courseImg={`${API_URL}/image/${cours.image}`}
+                                    courseImg={cours.image && cours.image.startsWith("http") ? cours.image : `${API_URL}/image/${cours.image}`}
                                     courseCategory={cours.type}
                                     courseTitle={cours.titre}
                                     courseDescription={cours.description}

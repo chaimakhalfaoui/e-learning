@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const OverviewPart = () => {
     const { id } = useParams();
@@ -83,6 +83,7 @@ const OverviewPart = () => {
             }
             
             // Récupérer le nombre d'étudiants
+<<<<<<< HEAD
             try {
                 const eduResponse = await axios.get(`${API_URL}/lecture/count/${id}`);
                 setEdu(eduResponse.data || 0);
@@ -90,6 +91,10 @@ const OverviewPart = () => {
                 console.error("Erreur récupération nombre étudiants:", error);
                 setEdu(0);
             }
+=======
+            const eduResponse = await axios.get(`${API_URL}/lecture/count/${id}`);
+            setEdu(eduResponse.data || 0);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             
             // Récupérer les informations de l'enseignant
             if (courseData?.id_user) {
@@ -156,7 +161,7 @@ const OverviewPart = () => {
                     {course.image && (
                         <div className="course-image" style={{ marginBottom: '20px' }}>
                             <img 
-                                src={`${API_URL}/image/${course.image}`}
+                                src={course.image && course.image.startsWith("http") ? course.image : `${API_URL}/image/${course.image}`}
                                 alt={course.titre}
                                 style={{
                                     width: '100%',

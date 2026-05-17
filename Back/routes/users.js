@@ -1,5 +1,6 @@
 import express from "express";
 import {
+<<<<<<< HEAD
     getAllUsers,
     getUserById,
     getUsersByRole,
@@ -8,10 +9,21 @@ import {
     updateUserSimple,
     updateUserRole,
     deleteUser
+=======
+  getAllUsers,
+  getUserById,
+  getUsersByRole,
+  addUser,
+  updateUser,
+  updateUserSimple,
+  updateUserRole,
+  deleteUser
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 } from "../controllers/users.js";
 
 const router = express.Router();
 
+<<<<<<< HEAD
 // ==================== ROUTES PUBLIQUES ====================
 // GET /api/users - Récupérer tous les utilisateurs
 router.get("/", getAllUsers);
@@ -47,6 +59,26 @@ router.put("/role/:id", updateUserRole);
 router.delete("/delete/:id", deleteUser);
 
 // DELETE /api/users/:id - Supprimer un utilisateur (alias)
+router.delete("/:id", deleteUser);
+=======
+// ✅ Routes publiques
+router.get("/", getAllUsers);
+router.get("/all", getAllUsers);
+router.get("/role/:role", getUsersByRole);
+router.get("/:id", getUserById);
+
+// ✅ Routes d'administration
+router.post("/add", addUser);
+router.post("/", addUser);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
+
+// ✅ Routes de mise à jour
+router.put("/update/:id", updateUser);
+router.put("/update-simple/:id", updateUserSimple);
+router.put("/role/:id", updateUserRole);
+
+// ✅ Route de suppression
+router.delete("/delete/:id", deleteUser);
 router.delete("/:id", deleteUser);
 
 export default router;

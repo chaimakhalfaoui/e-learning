@@ -11,7 +11,7 @@ import teamimg4 from '../../assets/img/team/4.jpg';
 import teamimg5 from '../../assets/img/team/5.jpg';
 import teamimg6 from '../../assets/img/team/6.jpg';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 // Styles CSS
 const teamContainerStyle = {
@@ -149,7 +149,7 @@ const Team = () => {
                                     <div style={cardStyle}>
                                         <SingleTeam
                                             teamClass="team-item"
-                                            Image={teacher.image ? `${API_URL}/image/${teacher.image}` : getTeamImage(index)}
+                                            Image={teacher.image ? teacher.image && teacher.image.startsWith("http") ? teacher.image : `${API_URL}/image/${teacher.image}` : getTeamImage(index)}
                                             Title={teacher.username || 'Enseignant'}
                                             Designation={teacher.role === 'enseignant' ? 'Enseignant Expert' : 'Formateur'}
                                             email={teacher.email}

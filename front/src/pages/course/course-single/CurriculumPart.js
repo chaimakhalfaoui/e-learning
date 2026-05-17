@@ -85,7 +85,7 @@ const CurriculumPart = () => {
 
     const fetchCourse = async () => {
         try {
-            const response = await axios.get(`http://localhost:8801/api/cours/getCourse/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/cours/getCourse/${id}`);
             setCourse(response.data[0]);
         } catch (error) {
             console.error("Erreur lors de la récupération des événements :", error);
@@ -105,11 +105,12 @@ const CurriculumPart = () => {
 
     const getChapitreAndActivite = async () => {
         try {
-            const response = await axios.get(`http://localhost:8801/api/chapitre/getChapitreAndActivite/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/chapitre/getChapitreAndActivite/${id}`);
             
             const chapitresAvecRessources = await Promise.all(
                 response.data.map(async (chap, chapIndex) => {
                     try {
+<<<<<<< HEAD
                         const resResponse = await axios.get(`http://localhost:8801/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
                         
                         // Charger les travaux pour chaque activité
@@ -137,6 +138,9 @@ const CurriculumPart = () => {
                             }
                         }
                         
+=======
+                        const resResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                         return { ...chap, ressources: resResponse.data };
                     } catch (error) {
                         return { ...chap, ressources: [] };
@@ -151,7 +155,7 @@ const CurriculumPart = () => {
 
     const fetchQuiz = async () => {
         try {
-            const response = await axios.get(`http://localhost:8801/api/quiz/getQuiz/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/quiz/getQuiz/${id}`);
             setQuiz(response.data);
         } catch (error) {
             console.error("Erreur lors de la récupération des quiz :", error);
@@ -171,7 +175,7 @@ const CurriculumPart = () => {
             nch = nChapN.toString();
         }
         try {
-            await axios.post("http://localhost:8801/api/avc/createOrUpdateAvc", {
+            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/avc/createOrUpdateAvc", {
                 idCours: id,
                 iduser: userid,
                 chapN: nch
@@ -744,6 +748,7 @@ const CurriculumPart = () => {
                             </div>
                         </div>
 
+<<<<<<< HEAD
                         {/* Contenu du chapitre */}
                         {openIndexc === idx && (
                             <div style={{ paddingLeft: '20px', marginTop: '10px' }}>
@@ -763,6 +768,38 @@ const CurriculumPart = () => {
                                                     <div 
                                                         style={styles.ressourceItem}
                                                         onClick={() => toggleRessource(ressource.id)}
+=======
+                    {/* Contenu du chapitre (affiché si ouvert) */}
+                    {openIndexc === idx && (
+                        <div style={{ paddingLeft: '20px', marginTop: '10px' }}>
+                            {/* Section Ressources - MIS EN PREMIER */}
+                            {chapitre.ressources && chapitre.ressources.length > 0 && (
+                                <div style={styles.section}>
+                                    <div style={styles.sectionTitle}>
+                                        <i className="fa fa-download" style={{ marginRight: '8px' }}></i>
+                                        Ressources à télécharger
+                                    </div>
+                                    {chapitre.ressources.map((ressource, resIdx) => {
+                                        const iconInfo = getRessourceIcon(ressource.type_fichier);
+                                        return (
+                                            <div key={resIdx}>
+                                                <div 
+                                                    style={styles.ressourceItem}
+                                                    onClick={() => toggleRessource(resIdx)}
+                                                >
+                                                    <div style={styles.activityLeft}>
+                                                        <div style={{...styles.activityIcon, background: iconInfo.bg, color: iconInfo.color, width: '28px', height: '28px'}}>
+                                                            {iconInfo.icon}
+                                                        </div>
+                                                        <div style={styles.ressourceTitle}>{ressource.titre}</div>
+                                                    </div>
+                                                    <a 
+                                                        href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/fichier/${ressource.fichier}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={styles.downloadBtn}
+                                                        onClick={(e) => e.stopPropagation()}
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                                     >
                                                         <div style={styles.activityLeft}>
                                                             <div style={{...styles.activityIcon, background: iconInfo.bg, color: iconInfo.color, width: '28px', height: '28px'}}>
@@ -785,6 +822,7 @@ const CurriculumPart = () => {
                                                                 <i className="fa fa-download"></i> Télécharger
                                                             </a>
                                                         )}
+<<<<<<< HEAD
                                                     </div>
 
                                                     {/* Affichage du contenu de la ressource (description et vidéo) */}
@@ -805,6 +843,26 @@ const CurriculumPart = () => {
                                                                     >
                                                                         <source src={`http://localhost:8801/api/ressource/video/${ressource.fichier}`} type="video/mp4" />
                                                                         Votre navigateur ne supporte pas la lecture de vidéos.
+=======
+                                                        {activite.categorie === "image" && (
+                                                            <div className='ext-modal'>
+                                                                <button className='btn-fermer-modal' onClick={() => toggleActivite(null)}>
+                                                                    <img width="24" height="24" src="https://img.icons8.com/quill/100/ff5421/x.png" alt="x"/>
+                                                                </button>
+                                                                <div className='img-modal-ext'>
+                                                                    <img src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/image/${activite.contenu}`} alt="image" style={styles.modalImage} />
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {activite.categorie === "video" && (
+                                                            <div className='ext-modal'>
+                                                                <button className='btn-fermer-modal' onClick={() => toggleActivite(null)}>
+                                                                    <img width="24" height="24" src="https://img.icons8.com/quill/100/ff5421/x.png" alt="x"/>
+                                                                </button>
+                                                                <div className='img-modal-ext'>
+                                                                    <video controls style={styles.modalVideo}>
+                                                                        <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/video/${activite.contenu}`} type="video/mp4" />
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                                                     </video>
                                                                 </div>
                                                             )}

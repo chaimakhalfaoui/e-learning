@@ -228,6 +228,17 @@ const Q = () => {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
+<<<<<<< HEAD
+=======
+        const fetchEnseignantId = async () => {
+            try {
+                const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/cours/getUserIdByCourseId/${id}`);
+                setEnseignantId(response.data);
+            } catch (error) {
+                console.error("Erreur:", error);
+            }
+        };
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
         fetchEnseignantId();
         fetchCurrentUser();
         fetchMessages();
@@ -275,9 +286,18 @@ const Q = () => {
         setLoading(true);
         try {
             const userid = await idUser();
+<<<<<<< HEAD
             await axios.post(`${API_URL}/qr/createMessage`, {
                 idCours: id, idUser: userid, idEns: enseignantId,
                 message: newMessage, sentBy: 'etudiant', parentId: null
+=======
+            await axios.post('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/qr/createMessage', {
+                idCours: id,
+                idUser: userid,
+                idEns: enseignantId,
+                message: message,
+                sentBy: 'user'
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             });
             toast.success("Message envoyé avec succès !");
             setNewMessage('');

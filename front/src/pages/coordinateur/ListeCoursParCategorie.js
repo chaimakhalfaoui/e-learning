@@ -15,7 +15,7 @@ import { useAuth } from "../../context/authContext";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const ListeCoursParCategorie = () => {
   const { idCategorie } = useParams();
@@ -156,7 +156,11 @@ const ListeCoursParCategorie = () => {
             <div key={course.id} className="col-lg-4 col-md-6 mb-30">
               <div className="card h-100 shadow-sm" style={{ borderRadius: "10px", overflow: "hidden" }}>
                 <img 
+<<<<<<< HEAD
                   src={course.image ? `${API_URL}/image/${course.image}` : "https://via.placeholder.com/400x250"}
+=======
+                  src={course.image ? course.image && course.image.startsWith("http") ? course.image : `${API_URL}/image/${course.image}` : "https://via.placeholder.com/400x250"}
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                   className="card-img-top"
                   alt={course.titre}
                   style={{ height: "180px", objectFit: "cover" }}

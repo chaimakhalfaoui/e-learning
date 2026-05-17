@@ -60,7 +60,7 @@ const CreateEvt = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get("http://localhost:8801/api/categorie");
+                const response = await axios.get("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/categorie");
                 setCategories(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des catégories:", error);
@@ -164,7 +164,7 @@ const CreateEvt = () => {
             formData.append('ville', inputs.ville);
             formData.append('categorie', inputs.categorie);
             
-            await axios.post("http://localhost:8801/api/event/createEvent", formData, {
+            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/event/createEvent", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

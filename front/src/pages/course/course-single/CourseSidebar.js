@@ -8,7 +8,7 @@ import QR from './QR';
 // Image
 import videoImg from '../../../assets/img/about/about-video-bg2.png';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const CourseSidebar = () => {
     const { id } = useParams();
@@ -55,6 +55,10 @@ const CourseSidebar = () => {
     const fetchEdu = async () => {
         try {
             const response = await axios.get(`${API_URL}/lecture/count/${id}`);
+<<<<<<< HEAD
+=======
+            console.log("Nombre d'étudiants:", response.data);
+>>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             setEdu(response.data || 0);
         } catch (error) {
             console.error("Erreur lors de la récupération des étudiants:", error);
@@ -201,7 +205,7 @@ const CourseSidebar = () => {
                 {course.image ? (
                     <img 
                         className="video-img" 
-                        src={`${API_URL}/image/${course.image}`} 
+                        src={course.image && course.image.startsWith("http") ? course.image : `${API_URL}/image/${course.image}`} 
                         alt="Video Image" 
                         style={{ width: '100%', borderRadius: '10px' }}
                         onError={(e) => {
