@@ -64,7 +64,7 @@ const InstructorPart = () => {
                         transition: 'transform 0.3s ease'
                     }}>
                         <img 
-                            src={teamImg2} 
+                            src={teamImg1} 
                             alt={nam || "Enseignant"}
                             style={{ width: '100%', height: '250px', objectFit: 'cover' }}
                         />

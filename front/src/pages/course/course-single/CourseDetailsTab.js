@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link,useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../../../context/authContext'; 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
 
 import FaqPart from './FaqPart';
 import ReviewPart from './ReviewPart';
@@ -10,128 +11,136 @@ import OverviewPart from './OverviewPart';
 import InstructorPart from './InstructorPart';
 import CurriculumPart from './CurriculumPart';
 
-
 const CourseDetailsTab = () => {
     const { id } = useParams();
-    const [complete,setComplete]=useState(0)
+    const [complete, setComplete] = useState(0);
+    const [loading, setLoading] = useState(true);
     const { idUser } = useAuth();
-    const {i,seti}=useState(0);
+
     useEffect(() => {
-        
         fetchDataC();
-    }, []);
+    }, [id]);
 
-        const fetchDataC = async () => {
+    const fetchDataC = async () => {
+        setLoading(true);
+        try {
             const userid = await idUser();
-            try {
-                const response = await axios.get(`http://localhost:8801/api/avc/avc/${id}/${userid}`);
-                setComplete(response.data.avc);
-
-            } catch (error) {
-                console.error('Error fetching AVC data:', error);
+            if (!userid || userid === 0) {
+                setComplete(0);
+                setLoading(false);
+                return;
             }
             
-        };
+            const response = await axios.get(`http://localhost:8801/api/avc/avc/${id}/${userid}`);
+            const progression = response.data?.avc || 0;
+            setComplete(progression);
+            
+            console.log(`Progression du cours ${id}: ${progression}%`);
+            
+        } catch (error) {
+            console.error('Error fetching AVC data:', error);
+            setComplete(0);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    let tab1 = "Résumé",
-        tab2 = "Parcours",
-        tab3 = "Enseignant",
-        tab4 = "Quiz",
-        tab5 = "Quiz"
-        
-    const tabStyle = 'intro-tabs tabs-box';
+    // Vérifier si le quiz est débloqué (progression >= 80%)
+    const isQuizUnlocked = complete >= 80;
+    
+    // Messages pour le quiz verrouillé
+    const getQuizLockMessage = () => {
+        const remaining = 80 - complete;
+        if (remaining > 0) {
+            return `🔒 Quiz verrouillé (${remaining}% restant pour débloquer)`;
+        }
+        return "🔒 Quiz verrouillé";
+    };
+
+    if (loading) {
+        return (
+            <div className="intro-info-tabs text-center p-5">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Chargement...</span>
+                </div>
+                <p className="mt-2">Chargement des informations...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="intro-info-tabs">
             <Tabs>
-                <TabList className={tabStyle}>
-                    <Tab>
-                        <button>{tab1}</button>
+                <TabList className="intro-tabs tabs-box">
+                    <Tab>Résumé</Tab>
+                    <Tab>Parcours</Tab>
+                    <Tab>Enseignant</Tab>
+                    <Tab disabled={!isQuizUnlocked}>
+                        Quiz
+                        {!isQuizUnlocked && (
+                            <img 
+                                style={{ marginLeft: "10px" }} 
+                                width="16" 
+                                height="16" 
+                                src="https://img.icons8.com/ios-glyphs/30/1A1A1A/lock--v1.png" 
+                                alt="lock" 
+                            />
+                        )}
                     </Tab>
-                    <Tab>
-                        <button>{tab2}</button>
-                    </Tab>
-                    <Tab>
-                        <button>{tab3}</button>
-                    </Tab>
-                    {complete && complete >= 80 ?
-                     <Tab>
-                     <button>{tab4}</button>
-                 </Tab>
-                 :
-                 <Tab>
-                 <button>{tab4}<img style={{marginLeft:"15px"}} width="18" height="18" src="https://img.icons8.com/ios-glyphs/30/1A1A1A/lock--v1.png" alt="lock--v1"/></button>
-             </Tab>
-                }
-                <Tab>
-                        
-                    </Tab>
-                   
-                    
-                     
                 </TabList>
 
+                {/* Panel Résumé */}
                 <TabPanel>
                     <OverviewPart />
                 </TabPanel>
 
+                {/* Panel Parcours */}
                 <TabPanel>
-                    <CurriculumPart i={i} />
-                </TabPanel>
-                <TabPanel>
-                    <InstructorPart />
-                </TabPanel>
-
-                {complete && complete >= 80 ?
-                     <TabPanel>
-                     <FaqPart />
-                 </TabPanel>
-                 :
-                 <TabPanel>
-                    <ReviewPart />
-                </TabPanel>
-                }
-               
-                
-
-                
-            </Tabs>
-            {/* <ul className="nav nav-tabs intro-tabs tabs-box" id="myTab" role="tablist">
-                <li className="nav-item tab-btns">
-                    <a className="nav-link tab-btn active" id="prod-overview-tab" data-toggle="tab" href="#prod-overview" role="tab" aria-controls="prod-overview" aria-selected="true">Overview</a>
-                </li>
-                <li className="nav-item tab-btns">
-                    <a className="nav-link tab-btn" id="prod-curriculum-tab" data-toggle="tab" href="#prod-curriculum" role="tab" aria-controls="prod-curriculum" aria-selected="false">Curriculum</a>
-                </li>
-                <li className="nav-item tab-btns">
-                    <a className="nav-link tab-btn" id="prod-instructor-tab" data-toggle="tab" href="#prod-instructor" role="tab" aria-controls="prod-instructor" aria-selected="false">Instructor</a>
-                </li>
-                <li className="nav-item tab-btns">
-                    <a className="nav-link tab-btn" id="prod-faq-tab" data-toggle="tab" href="#prod-faq" role="tab" aria-controls="prod-faq" aria-selected="false">Faq</a>
-                </li>
-                <li className="nav-item tab-btns">
-                    <a className="nav-link tab-btn" id="prod-reviews-tab" data-toggle="tab" href="#prod-reviews" role="tab" aria-controls="prod-reviews" aria-selected="false">Reviews</a>
-                </li>
-            </ul>
-            <div className="tab-content tabs-content" id="myTabContent">
-                <div className="tab-pane tab fade active show" id="prod-overview" role="tabpanel" aria-labelledby="prod-overview-tab">
-                    <OverviewPart />
-                </div>
-                <div className="tab-pane fade" id="prod-curriculum" role="tabpanel" aria-labelledby="prod-curriculum-tab">
                     <CurriculumPart />
-                </div>
-                <div className="tab-pane fade" id="prod-instructor" role="tabpanel" aria-labelledby="prod-instructor-tab">
+                </TabPanel>
+
+                {/* Panel Enseignant */}
+                <TabPanel>
                     <InstructorPart />
-                </div>
-                <div className="tab-pane fade" id="prod-faq" role="tabpanel" aria-labelledby="prod-faq-tab">
-                    <FaqPart />
-                </div>
-                <div className="tab-pane fade" id="prod-reviews" role="tabpanel" aria-labelledby="prod-reviews-tab">
-                    <ReviewPart />
-                </div>
-            </div> */}
+                </TabPanel>
+
+                {/* Panel Quiz - Conditionnel selon progression */}
+                {isQuizUnlocked ? (
+                    <TabPanel>
+                        <FaqPart />
+                    </TabPanel>
+                ) : (
+                    <TabPanel>
+                        <div className="text-center p-5 bg-light rounded">
+                            <i className="fas fa-lock fa-3x mb-3" style={{ color: '#ff5421' }}></i>
+                            <h4>Quiz verrouillé</h4>
+                            <p className="text-muted">
+                                Vous devez compléter au moins 80% du cours pour accéder au quiz.
+                            </p>
+                            <div className="progress mb-3" style={{ height: '10px' }}>
+                                <div 
+                                    className="progress-bar" 
+                                    style={{ 
+                                        width: `${complete}%`, 
+                                        backgroundColor: '#ff5421' 
+                                    }}
+                                />
+                            </div>
+                            <p className="small">
+                                Progression actuelle : <strong>{complete}%</strong>
+                                <br />
+                                Encore <strong>{80 - complete}%</strong> à compléter
+                            </p>
+                            <Link to={`/course/course/${id}`} className="btn btn-primary mt-2">
+                                <i className="fas fa-play-circle me-2"></i>
+                                Continuer le cours
+                            </Link>
+                        </div>
+                    </TabPanel>
+                )}
+            </Tabs>
         </div>
     );
-}
+};
 
 export default CourseDetailsTab;

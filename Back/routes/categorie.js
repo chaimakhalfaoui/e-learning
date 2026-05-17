@@ -1,24 +1,19 @@
+// routes/categorie.js
 import express from "express";
 import { 
   getAllCategorie, 
+  getCategorieById,
   createCategorie, 
   updateCategorie, 
-  deleteCategorie, 
-  upload 
+  deleteCategorie 
 } from "../controllers/categorie.js";
 
 const router = express.Router();
 
-// Récupérer toutes les catégories
 router.get("/", getAllCategorie);
-
-// Créer une nouvelle catégorie avec upload image
-router.post("/", upload.single("image"), createCategorie);
-
-// Mettre à jour une catégorie
-router.put("/:id", upload.single("image"), updateCategorie);
-
-// Supprimer une catégorie
+router.get("/:id", getCategorieById);
+router.post("/", updateCategorie);  // Utilise updateCategorie car il gère l'upload
+router.put("/:id", updateCategorie);
 router.delete("/:id", deleteCategorie);
 
 export default router;

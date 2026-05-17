@@ -22,28 +22,86 @@ const OverviewPart = () => {
             // Récupérer les informations du cours
             const courseResponse = await axios.get(`${API_URL}/cours/getCourse/${id}`);
             let courseData = null;
-            if (courseResponse.data && Array.isArray(courseResponse.data) && courseResponse.data.length > 0) {
-                courseData = courseResponse.data[0];
-            } else if (courseResponse.data && !Array.isArray(courseResponse.data)) {
-                courseData = courseResponse.data;
+            
+            // Gérer les différents formats de réponse
+            if (courseResponse.data) {
+                if (Array.isArray(courseResponse.data) && courseResponse.data.length > 0) {
+                    courseData = courseResponse.data[0];
+                } else if (!Array.isArray(courseResponse.data)) {
+                    courseData = courseResponse.data;
+                }
             }
             setCourse(courseData);
+            console.log("Cours chargé:", courseData);
             
-            // Récupérer les chapitres
-            const chapitreResponse = await axios.get(`${API_URL}/chapitre/getChapitre/${id}`);
-            setChapitre(chapitreResponse.data || []);
+            // Récupérer les chapitres (séquences) - Utiliser la bonne route
+            try {
+                // Utiliser getChapitresByCours (pluriel) comme défini dans les routes
+                const chapitreResponse = await axios.get(`${API_URL}/chapitre/getChapitresByCours/${id}`);
+                let chapitresData = [];
+                
+                console.log("Réponse chapitres:", chapitreResponse.data);
+                
+                if (chapitreResponse.data) {
+                    if (Array.isArray(chapitreResponse.data)) {
+                        chapitresData = chapitreResponse.data;
+                    } else if (chapitreResponse.data.chapitres) {
+                        chapitresData = chapitreResponse.data.chapitres;
+                    } else if (chapitreResponse.data.data) {
+                        chapitresData = chapitreResponse.data.data;
+                    } else {
+                        chapitresData = [chapitreResponse.data];
+                    }
+                }
+                setChapitre(chapitresData);
+                console.log("Séquences chargées:", chapitresData);
+            } catch (error) {
+                console.error("Erreur getChapitresByCours:", error);
+                // Fallback: essayer avec getChapitre
+                try {
+                    const fallbackResponse = await axios.get(`${API_URL}/chapitre/getChapitre/${id}`);
+                    let fallbackData = [];
+                    if (fallbackResponse.data) {
+                        if (Array.isArray(fallbackResponse.data)) {
+                            fallbackData = fallbackResponse.data;
+                        } else if (fallbackResponse.data.chapitres) {
+                            fallbackData = fallbackResponse.data.chapitres;
+                        } else {
+                            fallbackData = [fallbackResponse.data];
+                        }
+                    }
+                    // Filtrer pour ne garder que les chapitres du cours si nécessaire
+                    if (courseData && courseData.id_cours) {
+                        fallbackData = fallbackData.filter(chap => chap.id_cours === courseData.id_cours);
+                    }
+                    setChapitre(fallbackData);
+                    console.log("Séquences chargées (fallback):", fallbackData);
+                } catch (fallbackError) {
+                    console.error("Erreur fallback:", fallbackError);
+                    setChapitre([]);
+                }
+            }
             
             // Récupérer le nombre d'étudiants
-            const eduResponse = await axios.get(`${API_URL}/lecture/getLectureCours/${id}`);
-            setEdu(eduResponse.data || 0);
+            try {
+                const eduResponse = await axios.get(`${API_URL}/lecture/count/${id}`);
+                setEdu(eduResponse.data || 0);
+            } catch (error) {
+                console.error("Erreur récupération nombre étudiants:", error);
+                setEdu(0);
+            }
             
             // Récupérer les informations de l'enseignant
             if (courseData?.id_user) {
-                const enseignantResponse = await axios.get(`${API_URL}/users/${courseData.id_user}`);
-                setEnseignant(enseignantResponse.data);
+                try {
+                    const enseignantResponse = await axios.get(`${API_URL}/users/${courseData.id_user}`);
+                    setEnseignant(enseignantResponse.data);
+                } catch (error) {
+                    console.error("Erreur récupération enseignant:", error);
+                    setEnseignant(null);
+                }
             }
             
-            console.log("Cours chargé:", courseData);
         } catch (error) {
             console.error("Erreur lors de la récupération des données :", error);
         } finally {
@@ -142,7 +200,7 @@ const OverviewPart = () => {
                                     ENSEIGNANT
                                 </div>
                                 <div style={{ fontSize: '14px', fontWeight: '500', color: '#333' }}>
-                                    {enseignant.username || 'Non défini'}
+                                    {enseignant.username || enseignant.nom || 'Non défini'}
                                 </div>
                             </div>
                         )}
@@ -154,7 +212,7 @@ const OverviewPart = () => {
                                 CATÉGORIE
                             </div>
                             <div style={{ fontSize: '16px', fontWeight: '500', color: '#333' }}>
-                                {course.type || 'Non catégorisé'}
+                                {course.type || course.categorie || 'Non catégorisé'}
                             </div>
                         </div>
 
@@ -169,7 +227,7 @@ const OverviewPart = () => {
                                 DURÉE TOTALE
                             </div>
                             <div style={{ fontSize: '16px', fontWeight: '500', color: '#333' }}>
-                                {formatDuration(course.duration)}
+                                {formatDuration(course.duree || course.duration)}
                             </div>
                         </div>
 
@@ -183,29 +241,17 @@ const OverviewPart = () => {
                                 {edu || 0} étudiants
                             </div>
                         </div>
-                    </div>
-
-                    {/* Nombre de chapitres */}
-                    <div style={{ 
-                        backgroundColor: '#e8f5e9', 
-                        padding: '12px 15px', 
-                        borderRadius: '8px',
-                        marginBottom: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        flexWrap: 'wrap'
-                    }}>
-                        <i className="fa fa-book" style={{ color: '#28a745', fontSize: '18px' }}></i>
-                        <span style={{ color: '#333' }}>
-                            <strong>{chapitre.length}</strong> Séquence{chapitre.length > 1 ? 's' : ''} au total
-                        </span>
-                        {chapitre.length > 0 && (
-                            <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#666' }}>
-                                <i className="fa fa-clock-o me-1"></i>
-                                Environ {chapitre.length * 2} heures de contenu
-                            </span>
-                        )}
+                        
+                        {/* Nombre de chapitres */}
+                        <div style={{ flex: 1, minWidth: '120px' }}>
+                            <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>
+                                <i className="fa fa-book" style={{ color: '#ff5421', marginRight: '5px' }}></i>
+                                SÉQUENCES
+                            </div>
+                            <div style={{ fontSize: '16px', fontWeight: '500', color: '#333' }}>
+                                {chapitre.length || 0} séquence{chapitre.length > 1 ? 's' : ''}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Section "Qu'allez-vous apprendre ?" */}
@@ -221,7 +267,7 @@ const OverviewPart = () => {
                             gap: '12px'
                         }}>
                             {chapitre.map((chap, index) => (
-                                <div key={chap.id_chapitre || index} style={{ 
+                                <div key={chap.id_chapitre || chap.id || index} style={{ 
                                     display: 'flex',
                                     alignItems: 'center',
                                     padding: '12px',
@@ -247,7 +293,7 @@ const OverviewPart = () => {
                                     </div>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ fontWeight: '500', color: '#333', marginBottom: '4px' }}>
-                                            {chap.nom_chapitre || 'Séquence sans titre'}
+                                            {chap.nom_chapitre || chap.titre || chap.nom || 'Séquence sans titre'}
                                         </div>
                                         {chap.description && (
                                             <div style={{ fontSize: '12px', color: '#999' }}>
@@ -255,18 +301,44 @@ const OverviewPart = () => {
                                             </div>
                                         )}
                                     </div>
-                                    {chap.duree && (
+                                    {(chap.duree || chap.duration) && (
                                         <div style={{ fontSize: '11px', color: '#999', marginLeft: '10px' }}>
-                                            <i className="fa fa-clock-o"></i> {chap.duree} min
+                                            <i className="fa fa-clock-o"></i> {chap.duree || chap.duration} min
                                         </div>
                                     )}
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="alert alert-info">
-                            <i className="fas fa-info-circle me-2"></i>
-                            Aucune séquence disponible pour le moment.
+                        <div className="alert alert-info" style={{ padding: '20px', textAlign: 'center' }}>
+                            <i className="fas fa-info-circle fa-2x mb-2 d-block" style={{ color: '#17a2b8' }}></i>
+                            <p>Aucune séquence disponible pour le moment.</p>
+                            <small>Cette section sera bientôt enrichie avec du contenu pédagogique.</small>
+                        </div>
+                    )}
+                    
+                    {/* Informations supplémentaires sur le cours */}
+                    {course.objectifs && (
+                        <div style={{ marginTop: '30px' }}>
+                            <h3 style={{ marginBottom: '15px', fontSize: '18px', fontWeight: '600' }}>
+                                <i className="fa fa-bullseye" style={{ color: '#ff5421', marginRight: '10px' }}></i>
+                                Objectifs du cours
+                            </h3>
+                            <p style={{ lineHeight: '1.6', color: '#666' }}>
+                                {course.objectifs}
+                            </p>
+                        </div>
+                    )}
+                    
+                    {course.prerequis && (
+                        <div style={{ marginTop: '20px' }}>
+                            <h3 style={{ marginBottom: '15px', fontSize: '18px', fontWeight: '600' }}>
+                                <i className="fa fa-check-circle" style={{ color: '#ff5421', marginRight: '10px' }}></i>
+                                Prérequis
+                            </h3>
+                            <p style={{ lineHeight: '1.6', color: '#666' }}>
+                                {course.prerequis}
+                            </p>
                         </div>
                     )}
                 </div>

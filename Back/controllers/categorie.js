@@ -1,11 +1,20 @@
+// controllers/categorie.js
 import { db } from "../db.js";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
+import fs from "fs";
+import path from "path";
 
-// Définir le stockage pour multer
+// S'assurer que le dossier uploads existe
+const uploadDir = "uploads/";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Définir le stockage pour multer (identique à la création)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Répertoire où enregistrer les fichiers
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + uuidv4();
@@ -15,20 +24,26 @@ const storage = multer.diskStorage({
 
 // Vérifier le type de fichier
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Seules les images JPEG, PNG et WEBP sont autorisées."), false);
+    cb(new Error("Seules les images JPEG, PNG, JPG et WEBP sont autorisées."), false);
   }
 };
 
 // Configurer multer
-export const upload = multer({ storage, fileFilter });
+const upload = multer({ 
+  storage, 
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+export const uploadMiddleware = upload.single("image");
 
 // Récupérer toutes les catégories
 export const getAllCategorie = (req, res) => {
-  const query = "SELECT * FROM categorie";
+  const query = "SELECT * FROM categorie ORDER BY id DESC";
   db.query(query, (err, results) => {
     if (err) {
       console.error("Erreur lors de la récupération des catégories :", err);
@@ -38,6 +53,23 @@ export const getAllCategorie = (req, res) => {
   });
 };
 
+// Récupérer une catégorie par ID
+export const getCategorieById = (req, res) => {
+  const { id } = req.params;
+  const query = "SELECT * FROM categorie WHERE id = ?";
+  db.query(query, [id], (err, results) => {
+    if (err) {
+      console.error("Erreur lors de la récupération de la catégorie :", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Catégorie non trouvée" });
+    }
+    return res.status(200).json(results[0]);
+  });
+};
+
+// Créer une catégorie (inchangé)
 export const createCategorie = (req, res) => {
   const { title } = req.body;
   const imageName = req.file ? req.file.filename : null;
@@ -56,25 +88,10 @@ export const createCategorie = (req, res) => {
   });
 };
 
-// Supprimer une catégorie
-export const deleteCategorie = (req, res) => {
-  const id = req.params.id;
-  const query = "DELETE FROM categorie WHERE id = ?";
-  db.query(query, [id], (err, result) => {
-    if (err) {
-      console.error("Erreur lors de la suppression de la catégorie :", err);
-      return res.status(500).json({ error: "Erreur serveur." });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Catégorie non trouvée." });
-    }
-    return res.status(200).json({ message: "Catégorie supprimée avec succès." });
-  });
-};
-
-// Mettre à jour une catégorie
+// Mettre à jour une catégorie (CORRIGÉ - même logique que création)
 export const updateCategorie = (req, res) => {
-  upload.single("image")(req, res, function (err) {
+  // Utiliser le middleware multer de la même manière que createCategorie
+  upload.single("image")(req, res, function(err) {
     if (err) {
       console.error("Erreur upload :", err);
       return res.status(400).json({ error: err.message });
@@ -88,26 +105,79 @@ export const updateCategorie = (req, res) => {
       return res.status(400).json({ error: "Le champ title est requis." });
     }
 
-    let query = "UPDATE categorie SET title = ?";
-    const values = [title];
-
-    if (imageName) {
-      query += ", image = ?";
-      values.push(imageName);
-    }
-
-    query += " WHERE id = ?";
-    values.push(id);
-
-    db.query(query, values, (err, result) => {
+    // Vérifier si la catégorie existe
+    const checkQuery = "SELECT * FROM categorie WHERE id = ?";
+    db.query(checkQuery, [id], (err, results) => {
       if (err) {
-        console.error("Erreur lors de la mise à jour :", err);
+        console.error("Erreur lors de la vérification :", err);
+        return res.status(500).json({ error: "Erreur serveur" });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ error: "Catégorie non trouvée" });
+      }
+
+      // Construire la requête de mise à jour
+      let query = "UPDATE categorie SET title = ?";
+      const values = [title];
+
+      // Si nouvelle image, l'ajouter (comme dans la création)
+      if (imageName) {
+        // Supprimer l'ancienne image si elle existe
+        if (results[0].image) {
+          const oldImagePath = path.join(uploadDir, results[0].image);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
+        }
+        query += ", image = ?";
+        values.push(imageName);
+      }
+
+      query += " WHERE id = ?";
+      values.push(id);
+
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.error("Erreur lors de la mise à jour :", err);
+          return res.status(500).json({ error: "Erreur serveur." });
+        }
+        return res.status(200).json({ 
+          message: imageName ? "Catégorie mise à jour avec succès (image changée)" : "Catégorie mise à jour avec succès" 
+        });
+      });
+    });
+  });
+};
+
+// Supprimer une catégorie
+export const deleteCategorie = (req, res) => {
+  const { id } = req.params;
+  
+  const getImageQuery = "SELECT image FROM categorie WHERE id = ?";
+  db.query(getImageQuery, [id], (err, results) => {
+    if (err) {
+      console.error("Erreur lors de la récupération de l'image :", err);
+      return res.status(500).json({ error: "Erreur serveur." });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Catégorie non trouvée." });
+    }
+    
+    // Supprimer l'image du dossier uploads
+    if (results[0].image) {
+      const imagePath = path.join(uploadDir, results[0].image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+    
+    const deleteQuery = "DELETE FROM categorie WHERE id = ?";
+    db.query(deleteQuery, [id], (err, result) => {
+      if (err) {
+        console.error("Erreur lors de la suppression :", err);
         return res.status(500).json({ error: "Erreur serveur." });
       }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Catégorie non trouvée." });
-      }
-      return res.status(200).json({ message: "Catégorie mise à jour avec succès." });
+      return res.status(200).json({ message: "Catégorie supprimée avec succès." });
     });
   });
 };

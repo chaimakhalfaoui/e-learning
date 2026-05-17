@@ -22,6 +22,7 @@ import enseignantsRoutes from "./routes/enseignant.js"
 import etudiantsRoutes from "./routes/etudiant.js"
 import coordinateursRoutes from "./routes/coordinateurs.js";
 import ressourceRoutes from "./routes/ressource.js";
+import travauxRoutes from "./routes/travauxRoutes.js";
 
 
 
@@ -58,6 +59,7 @@ app.use("/api/enseignants",enseignantsRoutes);
 app.use("/api/etudiants",etudiantsRoutes);
 app.use("/api/ressource", ressourceRoutes);
 app.use("/api/coordinateurs",coordinateursRoutes);
+app.use('/api/travaux', travauxRoutes);
 app.use("/uploads", express.static("uploads"));
 
 

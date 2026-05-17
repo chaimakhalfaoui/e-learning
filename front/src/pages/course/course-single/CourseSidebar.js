@@ -12,9 +12,11 @@ const API_URL = 'http://localhost:8801/api';
 
 const CourseSidebar = () => {
     const { id } = useParams();
-    const [course, setCourse] = useState(null); // Changé de [] à null
+    const [course, setCourse] = useState(null);
     const [edu, setEdu] = useState(0);
-    const [complete, setComplete] = useState(0);
+    const [progression, setProgression] = useState(0);  // avc = pourcentage
+    const [chapN, setChapN] = useState(0);              // numéro du chapitre en cours
+    const [totalChapitres, setTotalChapitres] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const { idUser } = useAuth();
@@ -30,7 +32,8 @@ const CourseSidebar = () => {
             await Promise.all([
                 fetchCourse(),
                 fetchEdu(),
-                fetchDataC(userid)
+                fetchProgression(userid),
+                fetchTotalChapitres()
             ]);
         } catch (error) {
             console.error("Erreur lors du chargement:", error);
@@ -42,8 +45,6 @@ const CourseSidebar = () => {
     const fetchCourse = async () => {
         try {
             const response = await axios.get(`${API_URL}/cours/getCourse/${id}`);
-            console.log("Cours récupéré:", response.data);
-            // La réponse est directement l'objet cours, pas un tableau
             setCourse(response.data);
         } catch (error) {
             console.error("Erreur lors de la récupération du cours:", error);
@@ -53,8 +54,7 @@ const CourseSidebar = () => {
 
     const fetchEdu = async () => {
         try {
-            const response = await axios.get(`${API_URL}/lecture/getLectureCours/${id}`);
-            console.log("Nombre d'étudiants:", response.data);
+            const response = await axios.get(`${API_URL}/lecture/count/${id}`);
             setEdu(response.data || 0);
         } catch (error) {
             console.error("Erreur lors de la récupération des étudiants:", error);
@@ -62,19 +62,64 @@ const CourseSidebar = () => {
         }
     };
 
-    const fetchDataC = async (userid) => {
+    // Récupérer le nombre total de chapitres du cours
+    const fetchTotalChapitres = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/chapitre/getChapitre/${id}`);
+            const chapitres = response.data;
+            // Si response.data est un tableau
+            const count = Array.isArray(chapitres) ? chapitres.length : 1;
+            setTotalChapitres(count);
+        } catch (error) {
+            console.error("Erreur récupération chapitres:", error);
+            setTotalChapitres(0);
+        }
+    };
+
+    // Récupérer la progression depuis l'API avc
+    const fetchProgression = async (userid) => {
         if (!userid || userid === 0) {
-            setComplete(0);
+            setProgression(0);
+            setChapN(0);
             return;
         }
+        
         try {
+            // Appel à votre API getAvcByIds
             const response = await axios.get(`${API_URL}/avc/avc/${id}/${userid}`);
-            console.log("Progression récupérée:", response.data);
-            const progress = response.data?.avc || response.data?.progress || 0;
-            setComplete(progress);
+            
+            // Votre API retourne { avc, chapN, idCours, iduser }
+            const avcValue = response.data?.avc || 0;
+            const chapNValue = response.data?.chapN || 0;
+            
+            setProgression(Math.round(avcValue));
+            setChapN(chapNValue);
+            
+            console.log(`Progression du cours ${id}: ${avcValue}% (chapitre ${chapNValue}/${totalChapitres})`);
+            
         } catch (error) {
-            console.error('Error fetching AVC data:', error);
-            setComplete(0);
+            console.error("Erreur chargement progression:", error);
+            setProgression(0);
+            setChapN(0);
+        }
+    };
+
+    // Mettre à jour la progression quand l'étudiant avance
+    const updateProgression = async (nouveauChapitre) => {
+        const userid = await idUser();
+        if (!userid || userid === 0) return;
+        
+        try {
+            await axios.post(`${API_URL}/avc/createOrUpdateAvc`, {
+                idCours: id,
+                iduser: userid,
+                chapN: nouveauChapitre
+            });
+            
+            // Recharger la progression
+            await fetchProgression(userid);
+        } catch (error) {
+            console.error("Erreur mise à jour progression:", error);
         }
     };
 
@@ -90,12 +135,22 @@ const CourseSidebar = () => {
         return `${hours} heures`;
     };
 
-    // Couleur de la progression
+    // Couleur de la barre de progression selon le pourcentage
     const getProgressColor = (value) => {
-        if (value >= 100) return '#28a745';
-        if (value >= 70) return '#17a2b8';
-        if (value >= 30) return '#ffc107';
-        return '#dc3545';
+        if (value >= 100) return '#28a745';  // Vert - terminé
+        if (value >= 70) return '#17a2b8';   // Bleu - presque fini
+        if (value >= 30) return '#ffc107';   // Jaune - en cours
+        if (value > 0) return '#fd7e14';     // Orange - débuté
+        return '#dc3545';                     // Rouge - non commencé
+    };
+
+    // Message selon la progression
+    const getProgressMessage = (value) => {
+        if (value === 0) return '📚 Commencez votre apprentissage';
+        if (value < 30) return '📖 Continuez, vous êtes au début !';
+        if (value < 70) return '📈 Bonne progression, continuez !';
+        if (value < 100) return '🏁 Presque terminé, encore un effort !';
+        return '🎉 Félicitations ! Cours terminé avec succès !';
     };
 
     if (loading) {
@@ -126,12 +181,15 @@ const CourseSidebar = () => {
         );
     }
 
-    const progressValue = complete || 0;
-    const progressColor = getProgressColor(progressValue);
+    const progressionValue = Math.min(100, Math.max(0, progression));
+    const progressColor = getProgressColor(progressionValue);
     const formattedDuration = formatDuration(course.duration);
+    const chapitreActuel = chapN;
+    const progressionText = progressionValue === 100 ? 'Terminé' : `${Math.round(progressionValue)}%`;
 
     return (
         <div className="inner-column">
+            {/* Vidéo d'aperçu */}
             <ModalVideo 
                 channel='youtube' 
                 isOpen={isOpen} 
@@ -164,94 +222,114 @@ const CourseSidebar = () => {
                 <h4>Aperçu de ce cours</h4>
             </div>
             
-<br>
-</br>     
-<QR/>   
-<br/> 
+            <br />
             
-            {/* Barre de progression corrigée */}
-            <div className="max-w-sm mx-auto bg-white dark:bg-zinc-800 shadow-md rounded-lg overflow-hidden">
-                <div className="px-5 py-3 flex justify-between items-center">
-                    <h3 className="text-zinc-900 dark:text-white text-lg">Progression</h3>
-                    <svg
-                        strokeWidth="2"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="h-6 w-6 text-zinc-900 dark:text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            strokeLinejoin="round"
-                            strokeLinecap="round"
-                        />
-                    </svg>
-                </div>
-                <div className="px-5 pb-5">
-                    <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2.5">
-                        <div 
-                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-in-out"
-                            style={{ width: `${progressValue}%`, backgroundColor: progressColor }}
-                        />
-                    </div>
-                    <div className="flex justify-between items-center mt-3">
-                        <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                            {Math.round(progressValue)}% Completé
-                        </span>
-                        <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                            {progressValue === 100 ? '✅ Terminé' : '📚 En cours'}
-                        </span>
-                    </div>
+            {/* Forum de discussion */}
+            <QR />   
+            <br /> 
+            
+            {/* Barre de progression - Version fonctionnelle */}
+            <div className="card shadow-sm border-0 rounded-lg">
+                <div className="card-body p-4">
+                    <h5 className="card-title text-center mb-4">
+                        <i className="fas fa-chart-line me-2" style={{ color: '#ff5421' }}></i>
+                        Ma progression
+                    </h5>
                     
-                    {/* Message de progression */}
-                    {progressValue > 0 && progressValue < 100 && (
-                        <div className="mt-3 text-center">
-                            <Link 
-                                to={`/course/course/${id}`}
-                                className="inline-block w-full text-center py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                                style={{ backgroundColor: '#ff5421' }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#e03a00'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#ff5421'}
-                            >
-                                <i className="fas fa-play-circle me-2"></i>
-                                Reprendre le cours
-                            </Link>
+                    {/* Pourcentage central */}
+                    <div className="text-center mb-3">
+                        <div className="display-4 fw-bold" style={{ color: progressColor }}>
+                            {Math.round(progressionValue)}%
                         </div>
-                    )}
+                        <small className="text-muted">de progression</small>
+                    </div>
                     
-                    {progressValue === 0 && (
-                        <div className="mt-3 text-center">
+                    {/* Barre de progression */}
+                    <div className="progress mb-3" style={{ height: '12px', borderRadius: '10px', backgroundColor: '#e9ecef' }}>
+                        <div 
+                            className="progress-bar progress-bar-striped progress-bar-animated"
+                            style={{ 
+                                width: `${progressionValue}%`, 
+                                backgroundColor: progressColor,
+                                borderRadius: '10px',
+                                transition: 'width 0.5s ease-in-out'
+                            }}
+                        />
+                    </div>
+                    
+                    {/* Informations supplémentaires */}
+                    <div className="row text-center mt-3">
+                        <div className="col-6">
+                            <div className="border-end">
+                                <small className="text-muted">Chapitre</small>
+                                <div className="fw-bold">{chapitreActuel}/{totalChapitres || '?'}</div>
+                            </div>
+                        </div>
+                        <div className="col-6">
+                            <small className="text-muted">Statut</small>
+                            <div className="fw-bold" style={{ color: progressColor }}>
+                                {progressionValue === 100 ? 'Terminé' : 'En cours'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Message de motivation */}
+                    <div className="text-center mt-3 p-2 bg-light rounded">
+                        <small className="text-muted">
+                            <i className="fas fa-lightbulb me-1" style={{ color: '#ffc107' }}></i>
+                            {getProgressMessage(progressionValue)}
+                        </small>
+                    </div>
+                    
+                    {/* Bouton d'action */}
+                    <div className="mt-4">
+                        {progressionValue === 0 && (
                             <Link 
                                 to={`/course/course/${id}`}
-                                className="inline-block w-full text-center py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                className="btn w-100 text-white py-2"
                                 style={{ backgroundColor: '#ff5421' }}
                                 onMouseEnter={(e) => e.target.style.backgroundColor = '#e03a00'}
                                 onMouseLeave={(e) => e.target.style.backgroundColor = '#ff5421'}
                             >
                                 <i className="fas fa-play me-2"></i>
-                                Commencer
+                                Commencer le cours
                             </Link>
-                        </div>
-                    )}
-                    
-                    {progressValue === 100 && (
-                        <div className="mt-3 text-center">
-                            <div className="text-green-600 font-semibold">
-                                <i className="fas fa-trophy me-2"></i>
-                                Félicitations ! Cours terminé
-                            </div>
+                        )}
+                        
+                        {progressionValue > 0 && progressionValue < 100 && (
                             <Link 
                                 to={`/course/course/${id}`}
-                                className="inline-block w-full text-center py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors mt-2"
+                                className="btn w-100 text-white py-2"
+                                style={{ backgroundColor: '#ff5421' }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = '#e03a00'}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = '#ff5421'}
                             >
-                                <i className="fas fa-redo me-2"></i>
-                                Revoir le cours
+                                <i className="fas fa-play-circle me-2"></i>
+                                Continuer ({Math.round(progressionValue)}%)
                             </Link>
-                        </div>
-                    )}
+                        )}
+                        
+                        {progressionValue === 100 && (
+                            <div>
+                                <div className="text-center mb-2 p-2 bg-success bg-opacity-10 rounded">
+                                    <i className="fas fa-trophy text-warning me-2"></i>
+                                    <span className="text-success fw-semibold">Cours terminé !</span>
+                                </div>
+                                <Link 
+                                    to={`/course/course/${id}`}
+                                    className="btn w-100 text-white py-2"
+                                    style={{ backgroundColor: '#6c757d' }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#5a6268'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = '#6c757d'}
+                                >
+                                    <i className="fas fa-redo me-2"></i>
+                                    Revoir le cours
+                                </Link>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>      
+            </div>
         </div>
     );
 };

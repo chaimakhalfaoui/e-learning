@@ -1,23 +1,52 @@
-// routes/coordinateurs.js
 import express from "express";
 import {
-    getAllCoordinateurs,
-    getCoordinateurById,
-    addCoordinateur,
-    updateCoordinateur,
-    deleteCoordinateur
-} from "../controllers/coordinateur.js";
-import { updateUserRole } from "../controllers/users.js"; // 👈 Import de la fonction
+    getAllUsers,
+    getUserById,
+    getUsersByRole,
+    addUser,
+    updateUser,
+    updateUserSimple,
+    updateUserRole,
+    deleteUser
+} from "../controllers/users.js";
 
 const router = express.Router();
 
-router.get("/", getAllCoordinateurs);
-router.get("/:id", getCoordinateurById);
-router.post("/", addCoordinateur);
-router.put("/:id", updateCoordinateur);
-router.delete("/:id", deleteCoordinateur);
+// ==================== ROUTES PUBLIQUES ====================
+// GET /api/users - Récupérer tous les utilisateurs
+router.get("/", getAllUsers);
 
-// 👈 Ajouter cette route pour mettre à jour le rôle d'un coordinateur
-router.put("/:id/role", updateUserRole);
+// GET /api/users/all - Récupérer tous les utilisateurs (alias)
+router.get("/all", getAllUsers);
+
+// GET /api/users/role/:role - Récupérer les utilisateurs par rôle
+router.get("/role/:role", getUsersByRole);
+
+// GET /api/users/:id - Récupérer un utilisateur par ID
+router.get("/:id", getUserById);
+
+// ==================== ROUTES D'AJOUT ====================
+// POST /api/users/add - Ajouter un utilisateur
+router.post("/add", addUser);
+
+// POST /api/users - Ajouter un utilisateur (alias)
+router.post("/", addUser);
+
+// ==================== ROUTES DE MISE À JOUR ====================
+// PUT /api/users/update/:id - Mettre à jour un utilisateur
+router.put("/update/:id", updateUser);
+
+// PUT /api/users/update-simple/:id - Mettre à jour (version simplifiée)
+router.put("/update-simple/:id", updateUserSimple);
+
+// PUT /api/users/role/:id - Mettre à jour uniquement le rôle
+router.put("/role/:id", updateUserRole);
+
+// ==================== ROUTES DE SUPPRESSION ====================
+// DELETE /api/users/delete/:id - Supprimer un utilisateur
+router.delete("/delete/:id", deleteUser);
+
+// DELETE /api/users/:id - Supprimer un utilisateur (alias)
+router.delete("/:id", deleteUser);
 
 export default router;

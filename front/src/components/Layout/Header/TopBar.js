@@ -70,7 +70,7 @@ const TopHeader = (props) => {
 {nam ? (<><button style={{border:"none" , background:"transparent"}} onClick={handleLogout}><i className="fa fa-sign-in" ></i></button>{String(nam)}</>)  : (<><Link to="/login">Login</Link> / <Link to="/register">Register</Link></>)}
                             </li>
                             <li className="btn-part">
-                                <Link to="/contact" className="apply-btn">Postulez maintenant</Link>
+                                <Link to="/contact" className="apply-btn">Contacter-Nous</Link>
                             </li>
                         </ul>
                     </div>

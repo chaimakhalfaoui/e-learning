@@ -12,6 +12,10 @@ import SearchModal from "../../components/Layout/Header/SearchModal";
 import bannerbg from "../../assets/img/breadcrumbs/inner7.jpg";
 import Logo from "../../assets/img/logo/dark-logo.png";
 import footerLogo from "../../assets/img/logo/lite-logo.png";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const API_URL = 'http://localhost:8801/api';
 
 const ListCategorie = () => {
   const { role } = useAuth();
@@ -20,6 +24,7 @@ const ListCategorie = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [courseCounts, setCourseCounts] = useState({});
 
   // Vérification des droits (admin ou coordinateur)
   useEffect(() => {
@@ -27,7 +32,6 @@ const ListCategorie = () => {
       try {
         const userRole = await role();
         if (userRole !== 'admin' && userRole !== 'coordinateur') {
-          // Redirection si pas autorisé
           window.location.href = '/404';
         }
       } catch (error) {
@@ -37,17 +41,38 @@ const ListCategorie = () => {
     checkAccess();
   }, [role]);
 
+  // Récupérer le nombre de cours par catégorie
+  const fetchCourseCounts = async (categoriesData) => {
+    const counts = {};
+    for (const cat of categoriesData) {
+      try {
+        const response = await axios.get(`${API_URL}/cours/categorie/${cat.id}/cours?includeHidden=true`);
+        const coursData = response.data.cours || response.data || [];
+        counts[cat.id] = coursData.length;
+      } catch (error) {
+        console.error(`Erreur pour catégorie ${cat.id}:`, error);
+        counts[cat.id] = 0;
+      }
+    }
+    setCourseCounts(counts);
+  };
+
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:8801/api/categorie");
-        setCategories(response.data);
-        setFilteredCategories(response.data);
+        const response = await axios.get(`${API_URL}/categorie`);
+        const categoriesData = response.data;
+        setCategories(categoriesData);
+        setFilteredCategories(categoriesData);
         setError(null);
+        
+        // Récupérer le nombre de cours pour chaque catégorie
+        await fetchCourseCounts(categoriesData);
       } catch (error) {
         console.error("Erreur lors de la récupération des catégories :", error);
         setError("Impossible de charger les catégories. Veuillez réessayer plus tard.");
+        toast.error("Erreur de chargement des catégories");
       } finally {
         setLoading(false);
       }
@@ -77,16 +102,22 @@ const ListCategorie = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Voulez-vous vraiment supprimer cette catégorie ?")) {
+    if (window.confirm("⚠️ Voulez-vous vraiment supprimer cette catégorie ?\nTous les cours associés seront également supprimés !")) {
       try {
-        await axios.delete(`http://localhost:8801/api/categorie/${id}`);
+        await axios.delete(`${API_URL}/categorie/${id}`);
         const updatedCategories = categories.filter(cat => cat.id !== id);
         setCategories(updatedCategories);
         setFilteredCategories(updatedCategories);
-        alert("Catégorie supprimée avec succès !");
+        
+        // Mettre à jour les compteurs
+        const newCounts = { ...courseCounts };
+        delete newCounts[id];
+        setCourseCounts(newCounts);
+        
+        toast.success("✅ Catégorie supprimée avec succès !");
       } catch (error) {
         console.error("Erreur lors de la suppression :", error);
-        alert("Erreur lors de la suppression de la catégorie.");
+        toast.error("❌ Erreur lors de la suppression de la catégorie.");
       }
     }
   };
@@ -95,7 +126,8 @@ const ListCategorie = () => {
     marginBottom: "30px",
     display: "flex",
     justifyContent: "center",
-    gap: "10px"
+    gap: "10px",
+    flexWrap: "wrap"
   };
 
   const searchInputStyle = {
@@ -121,17 +153,18 @@ const ListCategorie = () => {
   };
 
   const cardStyle = {
-    padding: "15px",
+    padding: "20px",
     textAlign: "center",
     borderRadius: "10px",
     boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
     transition: "transform 0.3s ease",
-    height: "100%"
+    height: "100%",
+    position: "relative"
   };
 
   const imageStyle = {
     width: "100%",
-    height: "200px",
+    height: "180px",
     objectFit: "cover",
     borderRadius: "8px"
   };
@@ -140,14 +173,28 @@ const ListCategorie = () => {
     background: "none",
     border: "none",
     cursor: "pointer",
-    transition: "transform 0.2s ease"
+    transition: "transform 0.2s ease",
+    fontSize: "18px"
   };
 
   const resultCountStyle = {
     textAlign: "center",
     marginTop: "20px",
+    marginBottom: "30px",
     color: "#666",
     fontSize: "14px"
+  };
+
+  const courseCountBadge = {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    backgroundColor: "#ff5421",
+    color: "white",
+    borderRadius: "20px",
+    padding: "4px 10px",
+    fontSize: "12px",
+    fontWeight: "bold"
   };
 
   if (loading) {
@@ -212,6 +259,7 @@ const ListCategorie = () => {
         />
         <div className="container pt-100 pb-100">
           <div className="alert alert-danger text-center">
+            <i className="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>
             <p>{error}</p>
             <button className="btn btn-primary mt-2" onClick={() => window.location.reload()}>
               Réessayer
@@ -278,7 +326,7 @@ const ListCategorie = () => {
 
         {!loading && !error && (
           <div style={resultCountStyle}>
-            {filteredCategories.length} catégorie(s) trouvée(s)
+            📊 {filteredCategories.length} catégorie(s) trouvée(s)
           </div>
         )}
 
@@ -288,6 +336,9 @@ const ListCategorie = () => {
               filteredCategories.map((cat) => (
                 <div key={cat.id} className="col-lg-4 col-md-6 mb-30">
                   <div className="card" style={cardStyle}>
+                    <div style={courseCountBadge}>
+                      📚 {courseCounts[cat.id] || 0} cours
+                    </div>
                     <img
                       src={cat.image ? `http://localhost:8801/uploads/${cat.image}` : "https://via.placeholder.com/300x200?text=No+Image"}
                       alt={cat.title}
@@ -301,31 +352,31 @@ const ListCategorie = () => {
                     </h4>
                     {cat.description && (
                       <p style={{ fontSize: "14px", color: "#666", marginTop: "5px" }}>
-                        {cat.description.substring(0, 100)}
-                        {cat.description.length > 100 ? "..." : ""}
+                        {cat.description.substring(0, 80)}
+                        {cat.description.length > 80 ? "..." : ""}
                       </p>
                     )}
                     <div style={{ display: "flex", justifyContent: "center", gap: "25px", marginTop: "15px" }}>
                       <Link 
                         to={`/coordinateur/listecours/${cat.id}`} 
                         style={{ color: '#ff5421', fontWeight: 'bold', textDecoration: 'none' }}
-                        title="Voir les cours"
+                        title="Voir les cours de cette catégorie"
                       >
                         <i className="fas fa-book-open"></i> Voir Cours
                       </Link>
                       <Link 
                         to={`/categorie/edit/${cat.id}`} 
-                        title="Modifier"
+                        title="Modifier la catégorie"
                         style={{ color: '#007bff', textDecoration: 'none' }}
                       >
-                        <i className="fas fa-edit"></i>
+                        <i className="fas fa-edit" style={{ fontSize: "18px" }}></i>
                       </Link>
                       <button
                         onClick={() => handleDelete(cat.id)}
                         style={buttonStyle}
-                        title="Supprimer"
+                        title="Supprimer la catégorie"
                       >
-                        <i className="fas fa-trash" style={{ color: "red", fontSize: "18px" }}></i>
+                        <i className="fas fa-trash" style={{ color: "#dc3545", fontSize: "18px" }}></i>
                       </button>
                     </div>
                   </div>
@@ -334,12 +385,12 @@ const ListCategorie = () => {
             ) : (
               <div className="col-12">
                 <div className="alert alert-info text-center" role="alert">
-                  <i className="fas fa-search"></i>
-                  <p className="mt-2 mb-0">
+                  <i className="fas fa-search fa-2x mb-2 d-block"></i>
+                  <p className="mb-2">
                     Aucune catégorie trouvée pour "<strong>{searchTerm}</strong>"
                   </p>
-                  <button className="btn btn-link mt-2" onClick={clearSearch}>
-                    Effacer la recherche
+                  <button className="btn btn-link" onClick={clearSearch}>
+                    <i className="fas fa-times"></i> Effacer la recherche
                   </button>
                 </div>
               </div>

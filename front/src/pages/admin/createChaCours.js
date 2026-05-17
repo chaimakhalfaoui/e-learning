@@ -58,7 +58,6 @@ const CreateChaCours = () => {
             alignItems: 'center',
             gap: '8px'
         },
-        // Bouton Modifier en BLEU
         buttonEdit: {
             backgroundColor: '#007bff',
             color: 'white',
@@ -72,7 +71,6 @@ const CreateChaCours = () => {
             alignItems: 'center',
             gap: '5px'
         },
-        // Bouton Supprimer en ROUGE
         buttonDelete: {
             backgroundColor: '#dc3545',
             color: 'white',
@@ -154,12 +152,26 @@ const CreateChaCours = () => {
         }
     };
 
+    // FONCTION CORRIGÉE - Gère les différents formats de réponse
     const fetchChapitre = async () => {
         try {
-            const response = await axios.get(`${API_URL}/chapitre/getChapitre/${id}`);
-            setChapitre(response.data || []);
+            const response = await axios.get(`${API_URL}/chapitre/getChapitresByCours/${id}`);
+            
+            // Gérer différents formats de réponse
+            let chapitresData = [];
+            
+            if (response.data) {
+                if (Array.isArray(response.data)) {
+                    chapitresData = response.data;
+                } else if (typeof response.data === 'object' && response.data.id_chapitre) {
+                    // Si c'est un objet unique, le mettre dans un tableau
+                    chapitresData = [response.data];
+                }
+            }
+            
+            setChapitre(chapitresData);
         } catch (error) {
-            console.error("Erreur:", error);
+            console.error("Erreur fetchChapitre:", error);
             setChapitre([]);
         }
     };
@@ -332,6 +344,7 @@ const CreateChaCours = () => {
                 <Footer footerClass="rs-footer home9-style main-home" footerLogo={footerLogo} />
                 <ScrollToTop scrollClassName="scrollup orange-color" />
                 <SearchModal />
+                <ToastContainer position="top-right" autoClose={3000} />
             </React.Fragment>
         );
     }

@@ -149,7 +149,8 @@ const CreateCategorie = () => {
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
-        marginBottom: "20px"
+        marginBottom: "20px",
+        transition: "all 0.3s ease"
     };
 
     const imagePreviewStyle = {
@@ -227,18 +228,6 @@ const CreateCategorie = () => {
 
             <div className="register-section pt-100 pb-100 md-pt-80 md-pb-80">
                 <div className="container">
-                    <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-                        <button 
-                            type="button" 
-                            style={backButtonStyle}
-                            onClick={() => navigate(-1)}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = "#5a6268"}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = "#6c757d"}
-                        >
-                            <i className="fas fa-arrow-left"></i> Retour
-                        </button>
-                    </div>
-                    
                     <div className="register-box" style={{ maxWidth: "600px", margin: "0 auto" }}>
                         <div className="sec-title text-center mb-30">
                             <h2 className="title mb-10">
@@ -255,7 +244,13 @@ const CreateCategorie = () => {
                                 <div className="row clearfix">
                                     {/* Upload d'image */}
                                     <div className="form-group col-lg-12">
-                                        <label htmlFor="image" style={imageLabelStyle}>
+                                        <label style={{ fontWeight: "500", marginBottom: "10px", display: "block" }}>
+                                            <i className="fas fa-image me-2" style={{ color: '#ff5421' }}></i>
+                                            Image de la catégorie <span style={{ color: '#dc3545' }}>*</span>
+                                        </label>
+                                        <label htmlFor="image" style={imageLabelStyle}
+                                            onMouseEnter={(e) => e.currentTarget.style.borderColor = '#ff5421'}
+                                            onMouseLeave={(e) => e.currentTarget.style.borderColor = '#ddd'}>
                                             {inputs.imageUrl ? (
                                                 <img style={imagePreviewStyle} src={inputs.imageUrl} alt="Aperçu" />
                                             ) : (
@@ -272,13 +267,13 @@ const CreateCategorie = () => {
                                     <div className="form-group col-lg-12">
                                         <label style={{ fontWeight: "500", marginBottom: "5px", display: "block" }}>
                                             <i className="fas fa-heading me-2" style={{ color: '#ff5421' }}></i>
-                                            Nom de la catégorie
+                                            Nom de la catégorie <span style={{ color: '#dc3545' }}>*</span>
                                         </label>
                                         <input 
                                             type="text" 
                                             name="title" 
                                             value={inputs.title} 
-                                            placeholder="Nom de la catégorie" 
+                                            placeholder="Ex: Développement Web, Design, Marketing..." 
                                             onChange={handleInputChange} 
                                             style={inputStyle}
                                             required 
@@ -311,7 +306,7 @@ const CreateCategorie = () => {
                                         <div className="users">
                                             <Link to="/coordinateur/listecategorie" style={{ color: '#ff5421' }}>
                                                 <i className="fas fa-list me-2"></i>
-                                                Voir toutes les catégories
+                                                Voir toutes les catégories ({categories.length})
                                             </Link>
                                         </div>
                                     </div>

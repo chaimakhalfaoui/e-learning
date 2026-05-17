@@ -174,7 +174,7 @@ const CourseSingleFour = ({
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #eee' }}>
                     <Link 
-                        to={`/cours/etudiants/${btnLink}`}
+                        to={``}
                         style={{ fontSize: '11px', color: '#ff5421', textDecoration: 'none' }}
                     >
                         <i className="fa fa-user"></i> {studentText} étudiants

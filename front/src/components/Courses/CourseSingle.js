@@ -101,7 +101,7 @@ const CourseSingle = (props) => {
                         borderTop: '1px solid #eee'
                     }}>
                         <Link 
-                            to={`/course/course/${props.courseLink}`}
+                            to={`/course`}
                             style={{
                                 color: '#ff5421',
                                 fontSize: '13px',

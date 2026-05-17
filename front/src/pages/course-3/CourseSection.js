@@ -45,12 +45,24 @@ const Courses = () => {
             const response = await axios.get(`${API_URL}/cours/my-courses-validation/${id_user}`);
             const coursesData = Array.isArray(response.data) ? response.data : [];
             
+            // CORRECTION : Utiliser la nouvelle route /lecture/count/:id
             const coursesWithStudentCount = await Promise.all(
                 coursesData.map(async (course) => {
                     try {
-                        const studentCountResponse = await axios.get(`${API_URL}/lecture/getLectureCours/${course.id}`);
-                        return { ...course, studentCount: studentCountResponse.data || 0 };
+                        // Changement ici : /getLectureCours/ → /count/
+                        const studentCountResponse = await axios.get(`${API_URL}/lecture/count/${course.id}`);
+                        // La réponse peut être un nombre directement ou un objet
+                        let count = 0;
+                        if (typeof studentCountResponse.data === 'number') {
+                            count = studentCountResponse.data;
+                        } else if (studentCountResponse.data && typeof studentCountResponse.data === 'object') {
+                            count = studentCountResponse.data.lectureCount || studentCountResponse.data.count || 0;
+                        } else {
+                            count = studentCountResponse.data || 0;
+                        }
+                        return { ...course, studentCount: count };
                     } catch (error) {
+                        console.error(`Erreur pour le cours ${course.id}:`, error);
                         return { ...course, studentCount: 0 };
                     }
                 })
@@ -203,13 +215,6 @@ const Courses = () => {
                     <button onClick={() => handleStatusFilterChange("hidden")} style={filterButtonStyle(statusFilter === "hidden")}><i className="fas fa-eye-slash me-1"></i> Cachés</button>
                 </div>
 
-                {/* Filtres par statut de validation */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    <button onClick={() => handleValidationFilterChange("all")} style={filterButtonStyle(validationFilter === "all")}>Tous</button>
-                    <button onClick={() => handleValidationFilterChange("approved")} style={filterButtonStyle(validationFilter === "approved")}>✅ Validés</button>
-                    <button onClick={() => handleValidationFilterChange("pending")} style={filterButtonStyle(validationFilter === "pending")}>⏳ En attente</button>
-                    <button onClick={() => handleValidationFilterChange("rejected")} style={filterButtonStyle(validationFilter === "rejected")}>❌ Rejetés</button>
-                </div>
 
                 {/* Barre de recherche */}
                 {courses.length > 0 && (
@@ -245,9 +250,6 @@ const Courses = () => {
                     <div className="alert alert-info text-center">
                         <i className="fas fa-info-circle fa-2x mb-2 d-block"></i>
                         <p>Vous n'avez pas encore créé de cours.</p>
-                        <Link to="/admin/createcours" className="btn btn-primary mt-2" style={{ backgroundColor: "#ff5421", border: "none" }}>
-                            Créer mon premier cours
-                        </Link>
                     </div>
                 )}
 

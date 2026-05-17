@@ -35,10 +35,14 @@ const MenuItems = (props) => {
             </li>   
             ) : null}
            
-            {rol !== 'admin' && rol !== 'coordinateur'  && rol !== 'etudiant' ? (
+            {rol !== 'admin' && rol !== 'coordinateur'  && rol !== 'etudiant'  && rol !== 'enseignant' ? (
             <li className={parentMenu === 'course' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
             <Link to="/course">Courses</Link>
-                {rol === 'enseignant' ? (
+            </li>) : null}
+
+            {rol == 'enseignant' ? (
+            <li className={parentMenu === 'course' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>
+            <Link to="">Courses</Link>
                     <ul className="sub-menu">
                         <li>
                             <Link to="/admin/mycours" className={location.pathname === "/admin/mycours" ? "active-menu" : ""}>Liste des Cours</Link>
@@ -47,7 +51,6 @@ const MenuItems = (props) => {
                             <Link to="/admin/createcours" className={location.pathname === "/admin/createcours" ? "active-menu" : ""}>Ajouter un Cours</Link>
                         </li>
                     </ul>
-                ) : null}
             </li>) : null}
                {rol === 'etudiant' ? (
             <li className={parentMenu === 'course' ? 'menu-item-has-children current-menu-item' : 'menu-item-has-children'}>

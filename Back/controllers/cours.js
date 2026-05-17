@@ -1,3 +1,5 @@
+// controllers/cours.js - Version corrigée
+
 import { db } from "../db.js";
 import multer from "multer";
 import path from "path";
@@ -23,10 +25,9 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configurer multer avec le stockage et le filtre
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-// ==================== CRÉATION D'UN COURS ====================
+// ==================== CRÉATION D'UN COURS (Enseignant) ====================
 export const createCours = (req, res) => {
     upload.single('image')(req, res, function (err) {
         if (err instanceof multer.MulterError) {
@@ -44,7 +45,6 @@ export const createCours = (req, res) => {
             return res.status(400).json({ error: "Tous les champs sont requis." });
         }
 
-        // ✅ Statut par défaut: 'hidden' (caché) et validation_status: 'pending' (en attente)
         const insertCoursQuery = `
             INSERT INTO Cours 
             (titre, description, dateCre, id_user, image, duration, id_categorie, id_level, status, validation_status) 
@@ -69,7 +69,7 @@ export const createCours = (req, res) => {
     });
 };
 
-// ==================== RÉCUPÉRATION DES COURS ====================
+// ==================== RÉCUPÉRATION DE TOUS LES COURS ====================
 export const getAllCourses = (req, res) => {
     const selectCoursesQuery = `
         SELECT C.*, cat.title AS type, lvl.title AS level, u.username AS enseignant
@@ -89,6 +89,7 @@ export const getAllCourses = (req, res) => {
     });
 };
 
+// ==================== RÉCUPÉRATION DES COURS D'UN ENSEIGNANT ====================
 export const getAllCoursesId = (req, res) => {
     const id_user = req.params.id; 
     
@@ -110,6 +111,7 @@ export const getAllCoursesId = (req, res) => {
     });
 };
 
+// ==================== RÉCUPÉRATION D'UN COURS PAR ID ====================
 export const getCourse = (req, res) => {
     const id_cours = req.params.id; 
     
@@ -134,6 +136,7 @@ export const getCourse = (req, res) => {
     });
 };
 
+// ==================== NOM DE L'ENSEIGNANT PAR ID DU COURS ====================
 export const getUserNameByCourseId = (req, res) => {
     const id_cours = req.params.id;
     const query = `
@@ -153,6 +156,7 @@ export const getUserNameByCourseId = (req, res) => {
     });
 };
 
+// ==================== ID DE L'ENSEIGNANT PAR ID DU COURS ====================
 export const getUserIdByCourseId = (req, res) => {
     const id_cours = req.params.id;
     const query = `
@@ -176,83 +180,16 @@ export const getUserIdByCourseId = (req, res) => {
 export const deleteCourse = (req, res) => {
     const id_cours = req.params.id;
 
-    db.beginTransaction(err => {
+    const deleteCourseQuery = "DELETE FROM Cours WHERE id = ?";
+    db.query(deleteCourseQuery, [id_cours], (err, result) => {
         if (err) {
-            console.error("Erreur transaction:", err);
+            console.error("Erreur suppression cours:", err);
             return res.status(500).json({ error: "Erreur serveur." });
         }
-
-        const deleteLectureQuery = "DELETE FROM lecture WHERE id_cours = ?";
-        db.query(deleteLectureQuery, [id_cours], (err) => {
-            if (err) return db.rollback(() => {
-                console.error("Erreur suppression lecture:", err);
-                return res.status(500).json({ error: "Erreur serveur." });
-            });
-
-            const deleteAVCQuery = "DELETE FROM avc WHERE idCours = ?";
-            db.query(deleteAVCQuery, [id_cours], (err) => {
-                if (err) return db.rollback(() => {
-                    console.error("Erreur suppression avc:", err);
-                    return res.status(500).json({ error: "Erreur serveur." });
-                });
-
-                const deleteActivitiesQuery = `
-                    DELETE Activite FROM Activite
-                    JOIN Chapitre ON Activite.id_chapitre = Chapitre.id_chapitre
-                    WHERE Chapitre.id_cours = ?
-                `;
-                db.query(deleteActivitiesQuery, [id_cours], (err) => {
-                    if (err) return db.rollback(() => {
-                        console.error("Erreur suppression activités:", err);
-                        return res.status(500).json({ error: "Erreur serveur." });
-                    });
-
-                    const deleteChaptersQuery = "DELETE FROM Chapitre WHERE id_cours = ?";
-                    db.query(deleteChaptersQuery, [id_cours], (err) => {
-                        if (err) return db.rollback(() => {
-                            console.error("Erreur suppression chapitres:", err);
-                            return res.status(500).json({ error: "Erreur serveur." });
-                        });
-
-                        const deleteQuizQuestionsQuery = `
-                            DELETE question FROM question
-                            JOIN Quiz ON question.id_quiz = Quiz.id
-                            WHERE Quiz.id_cours = ?
-                        `;
-                        db.query(deleteQuizQuestionsQuery, [id_cours], (err) => {
-                            if (err) return db.rollback(() => {
-                                console.error("Erreur suppression questions:", err);
-                                return res.status(500).json({ error: "Erreur serveur." });
-                            });
-
-                            const deleteQuizzesQuery = "DELETE FROM Quiz WHERE id_cours = ?";
-                            db.query(deleteQuizzesQuery, [id_cours], (err) => {
-                                if (err) return db.rollback(() => {
-                                    console.error("Erreur suppression quizzes:", err);
-                                    return res.status(500).json({ error: "Erreur serveur." });
-                                });
-
-                                const deleteCourseQuery = "DELETE FROM Cours WHERE id = ?";
-                                db.query(deleteCourseQuery, [id_cours], (err) => {
-                                    if (err) return db.rollback(() => {
-                                        console.error("Erreur suppression cours:", err);
-                                        return res.status(500).json({ error: "Erreur serveur." });
-                                    });
-
-                                    db.commit(err => {
-                                        if (err) return db.rollback(() => {
-                                            console.error("Erreur validation:", err);
-                                            return res.status(500).json({ error: "Erreur serveur." });
-                                        });
-                                        return res.status(200).json({ message: "Cours supprimé avec succès." });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Cours non trouvé." });
+        }
+        return res.status(200).json({ message: "Cours supprimé avec succès." });
     });
 };
 
@@ -442,51 +379,7 @@ export const getCoursesByStatus = (req, res) => {
         });
     });
 };
-// Récupérer les cours suivis par un étudiant - VERSION CORRIGÉE
-export const getCoursesByStudent = (req, res) => {
-    const { idUser } = req.params;
-    
-    if (!idUser) {
-        return res.status(400).json({ 
-            success: false,
-            message: "L'ID de l'utilisateur est requis." 
-        });
-    }
 
-    // Version corrigée sans ORDER BY sur created_at
-    const query = `
-        SELECT DISTINCT 
-            C.*, 
-            cat.title AS type, 
-            lvl.title AS level, 
-            u.username AS enseignant,
-            COALESCE(A.avc, 0) AS progression
-        FROM Cours C
-        INNER JOIN categorie cat ON C.id_categorie = cat.id
-        INNER JOIN level lvl ON C.id_level = lvl.id
-        INNER JOIN users u ON C.id_user = u.id
-        INNER JOIN Lecture L ON C.id = L.id_cours
-        LEFT JOIN Avc A ON C.id = A.idCours AND A.idUser = ?
-        WHERE L.id_user = ? AND C.status = 'published'
-        ORDER BY C.id DESC
-    `;
-
-    db.query(query, [idUser, idUser], (err, data) => {
-        if (err) {
-            console.error("Erreur:", err);
-            return res.status(500).json({ 
-                success: false,
-                message: "Erreur serveur.",
-                error: err.message
-            });
-        }
-        return res.status(200).json({
-            success: true,
-            count: data.length,
-            cours: data
-        });
-    });
-};
 // ==================== COURS SUIVIS PAR UN ÉTUDIANT ====================
 export const getStudentEnrolledCourses = (req, res) => {
     const { idUser } = req.params;
@@ -511,7 +404,7 @@ export const getStudentEnrolledCourses = (req, res) => {
         INNER JOIN level lvl ON C.id_level = lvl.id
         INNER JOIN users u ON C.id_user = u.id
         INNER JOIN Lecture L ON C.id = L.id_cours
-        WHERE L.id_user = ? AND C.status = 'published'
+        WHERE L.id_user = ? AND C.status = 'published' AND C.validation_status = 'approved'
         GROUP BY C.id
         ORDER BY C.id DESC
     `;
@@ -522,7 +415,6 @@ export const getStudentEnrolledCourses = (req, res) => {
             return res.status(500).json({ error: "Erreur serveur." });
         }
         
-        // CORRECTION : Retourner une structure cohérente avec ce qu'attend le frontend
         return res.status(200).json({
             success: true,
             cours: data
@@ -530,37 +422,67 @@ export const getStudentEnrolledCourses = (req, res) => {
     });
 };
 
-// ==================== ÉTUDIANTS INSCRITS À UN COURS ====================
+// ==================== ÉTUDIANTS INSCRITS À UN COURS (VERSION CORRIGÉE) ====================
 export const getEtudiantsByCours = (req, res) => {
-    const { idCours } = req.params;
+    const { coursId } = req.params;
     
-    const query = `
-        SELECT DISTINCT 
-            u.id,
-            u.username,
-            u.email,
-            u.telephone,
-            u.genre,
-            u.age,
-            COALESCE(a.avc, 0) AS progression,
-            l.created_at AS date_inscription
-        FROM Users u
-        INNER JOIN Lecture l ON u.id = l.id_user
-        LEFT JOIN Avc a ON u.id = a.idUser AND a.idCours = ?
-        WHERE l.id_cours = ? AND u.role = 'etudiant'
-        ORDER BY l.id DESC
-    `;
+    if (!coursId) {
+        return res.status(400).json({ error: "L'ID du cours est requis." });
+    }
     
-    db.query(query, [idCours, idCours], (err, data) => {
+    // Vérifier d'abord si la table inscription existe
+    const checkTableQuery = "SHOW TABLES LIKE 'inscription'";
+    db.query(checkTableQuery, (err, tableResult) => {
         if (err) {
-            console.error("Erreur:", err);
-            return res.status(500).json({ error: "Erreur serveur" });
+            console.error("Erreur vérification table:", err);
+            return res.status(500).json({ error: "Erreur serveur." });
         }
-        return res.status(200).json(data);
+        
+        // Si la table inscription n'existe pas, utiliser la table Lecture
+        if (tableResult.length === 0) {
+            const query = `
+                SELECT DISTINCT 
+                    u.id, 
+                    u.username, 
+                    u.email
+                FROM users u
+                INNER JOIN Lecture l ON u.id = l.id_user
+                WHERE l.id_cours = ? AND u.role = 'etudiant'
+                ORDER BY u.username ASC
+            `;
+            
+            db.query(query, [coursId], (err, results) => {
+                if (err) {
+                    console.error("Erreur SQL:", err);
+                    return res.status(500).json({ error: "Erreur lors de la récupération des étudiants" });
+                }
+                return res.status(200).json(results);
+            });
+        } else {
+            // Utiliser la table inscription
+            const query = `
+                SELECT DISTINCT 
+                    u.id, 
+                    u.username, 
+                    u.email
+                FROM users u
+                INNER JOIN inscription i ON u.id = i.id_etudiant
+                WHERE i.id_cours = ? AND u.role = 'etudiant'
+                ORDER BY u.username ASC
+            `;
+            
+            db.query(query, [coursId], (err, results) => {
+                if (err) {
+                    console.error("Erreur SQL:", err);
+                    return res.status(500).json({ error: "Erreur lors de la récupération des étudiants" });
+                }
+                return res.status(200).json(results);
+            });
+        }
     });
 };
 
-// ==================== VALIDATION DES COURS ====================
+// ==================== VALIDATION DES COURS (Coordinateur) ====================
 
 // Demander la validation (enseignant)
 export const requestValidation = (req, res) => {
@@ -595,26 +517,37 @@ export const approveCourse = (req, res) => {
     const { id } = req.params;
     const { validated_by, comment } = req.body;
     
-    const query = `
-        UPDATE Cours 
-        SET validation_status = 'approved',
-            validation_comment = ?,
-            validation_date = NOW(),
-            validated_by = ?
-        WHERE id = ?
-    `;
-    
-    db.query(query, [comment || 'Cours validé', validated_by, id], (err, result) => {
+    const checkQuery = "SELECT id, validation_status FROM Cours WHERE id = ?";
+    db.query(checkQuery, [id], (err, result) => {
         if (err) {
             console.error("Erreur:", err);
             return res.status(500).json({ error: "Erreur serveur" });
         }
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Cours non trouvé." });
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Cours non trouvé" });
         }
-        return res.status(200).json({ 
-            message: "Cours validé avec succès. L'enseignant peut maintenant le publier.",
-            validation_status: 'approved'
+        if (result[0].validation_status !== 'pending') {
+            return res.status(400).json({ error: "Ce cours n'est pas en attente de validation" });
+        }
+
+        const query = `
+            UPDATE Cours 
+            SET validation_status = 'approved',
+                validation_comment = ?,
+                validation_date = NOW(),
+                validated_by = ?
+            WHERE id = ?
+        `;
+        
+        db.query(query, [comment || 'Cours validé', validated_by, id], (err, result) => {
+            if (err) {
+                console.error("Erreur:", err);
+                return res.status(500).json({ error: "Erreur serveur" });
+            }
+            return res.status(200).json({ 
+                message: "Cours validé avec succès. L'enseignant peut maintenant le publier.",
+                validation_status: 'approved'
+            });
         });
     });
 };
@@ -624,25 +557,36 @@ export const rejectCourse = (req, res) => {
     const { id } = req.params;
     const { comment } = req.body;
     
-    const query = `
-        UPDATE Cours 
-        SET validation_status = 'rejected',
-            validation_comment = ?,
-            status = 'hidden'
-        WHERE id = ?
-    `;
-    
-    db.query(query, [comment || 'Cours rejeté - modifications nécessaires', id], (err, result) => {
+    const checkQuery = "SELECT id, validation_status FROM Cours WHERE id = ?";
+    db.query(checkQuery, [id], (err, result) => {
         if (err) {
             console.error("Erreur:", err);
             return res.status(500).json({ error: "Erreur serveur" });
         }
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Cours non trouvé." });
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Cours non trouvé" });
         }
-        return res.status(200).json({ 
-            message: "Cours rejeté. L'enseignant doit modifier et re-soumettre.",
-            validation_status: 'rejected'
+        if (result[0].validation_status !== 'pending') {
+            return res.status(400).json({ error: "Ce cours n'est pas en attente de validation" });
+        }
+
+        const query = `
+            UPDATE Cours 
+            SET validation_status = 'rejected',
+                validation_comment = ?,
+                status = 'hidden'
+            WHERE id = ?
+        `;
+        
+        db.query(query, [comment || 'Cours rejeté - modifications nécessaires', id], (err, result) => {
+            if (err) {
+                console.error("Erreur:", err);
+                return res.status(500).json({ error: "Erreur serveur" });
+            }
+            return res.status(200).json({ 
+                message: "Cours rejeté. L'enseignant doit modifier et re-soumettre.",
+                validation_status: 'rejected'
+            });
         });
     });
 };
