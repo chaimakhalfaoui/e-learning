@@ -413,7 +413,7 @@ const CreateActivite = () => {
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
-            formData.append('description', inputs.description || );
+            formData.append('description', inputs.description || '' );
             formData.append('video', inputs.ressourceVideo);
             formData.append('type_ressource', 'video');
             formData.append('id_chapitre', id);
@@ -449,7 +449,7 @@ const CreateActivite = () => {
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
-            formData.append('description', inputs.description || );
+            formData.append('description', inputs.description || '' );
             if (inputs.fichier && typeof inputs.fichier !== 'string') {
                 formData.append('fichier', inputs.fichier);
             }
