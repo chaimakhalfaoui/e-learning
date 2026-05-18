@@ -20,7 +20,7 @@ import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/inner7.jpg';
 
-// FIX: URL de base centralisée pour éviter les incohérences localhost vs AWS
+// URL de base pour AWS
 const BASE_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com';
 
 const INITIAL_INPUTS = {
@@ -47,16 +47,16 @@ const CreateActivite = () => {
     const [openModalRessource, setOpenModalRessource] = useState(false);
     const [isAddingActive, setIsAddingActive] = useState(true);
     const [isAddingRessource, setIsAddingRessource] = useState(true);
-    
+
     // Modales pour les activités
     const [openModalQuestionnaire, setOpenModalQuestionnaire] = useState(false);
     const [openModalDevoir, setOpenModalDevoir] = useState(false);
     const [openModalVideoInteractive, setOpenModalVideoInteractive] = useState(false);
-    
+
     // Modales pour les ressources
     const [openModalRessourceFile, setOpenModalRessourceFile] = useState(false);
     const [openModalRessourceVideo, setOpenModalRessourceVideo] = useState(false);
-    
+
     const [activite, setActivite] = useState([]);
     const [ressources, setRessources] = useState([]);
     const [activeTab, setActiveTab] = useState('ressources');
@@ -64,17 +64,13 @@ const CreateActivite = () => {
     const [travauxCount, setTravauxCount] = useState({});
     const { id } = useParams();
     const { idUser } = useAuth();
-    
-    // État pour les questions du questionnaire (texte simple sans options)
-    const [questions, setQuestions] = useState([
-        { texte: "" }
-    ]);
-    
-    // État pour les questions de la vidéo interactive (texte simple sans options)
-    const [videoQuestions, setVideoQuestions] = useState([
-        { texte: "", timestamp: 0 }
-    ]);
-    
+
+    // État pour les questions du questionnaire
+    const [questions, setQuestions] = useState([{ texte: "" }]);
+
+    // État pour les questions de la vidéo interactive
+    const [videoQuestions, setVideoQuestions] = useState([{ texte: "", timestamp: 0 }]);
+
     const [inputs, setInputs] = useState({
         id: "",
         titre: "",
@@ -94,7 +90,7 @@ const CreateActivite = () => {
         ressourceVideo: null,
         ressourceVideoUrl: null
     });
-    
+
     const navigate = useNavigate();
 
     const [openIndex, setOpenIndex] = useState(null);
@@ -114,7 +110,6 @@ const CreateActivite = () => {
         setInputs(prev => ({ ...prev, video: selectedVideo, videoUrl }));
     };
 
-    // FIX: Supprimé le doublon - une seule déclaration de handleRessourceVideoChange
     const handleRessourceVideoChange = (e) => {
         const selectedVideo = e.target.files[0];
         if (!selectedVideo) return;
@@ -151,35 +146,33 @@ const CreateActivite = () => {
         }));
     };
 
-    // Gestion du fichier pour le devoir
     const handleDevoirFichierChange = (e) => {
         const selectedFile = e.target.files[0];
         const fileUrl = URL.createObjectURL(selectedFile);
         const fileType = selectedFile.type;
         let type_fichier = 'other';
-        
+
         if (fileType === 'application/pdf') {
             type_fichier = 'pdf';
-        } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+        } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
                    fileType === 'application/msword') {
             type_fichier = 'word';
         } else if (fileType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ||
                    fileType === 'application/vnd.ms-powerpoint') {
             type_fichier = 'powerpoint';
         }
-        
+
         if (selectedFile) {
-            setInputs(prev => ({ 
-                ...prev, 
-                fichierDevoir: selectedFile, 
-                fichierDevoirUrl: fileUrl, 
+            setInputs(prev => ({
+                ...prev,
+                fichierDevoir: selectedFile,
+                fichierDevoirUrl: fileUrl,
                 fichierDevoirName: selectedFile.name,
                 type_fichier_devoir: type_fichier
             }));
         }
     };
 
-    // Gestion des questions du questionnaire (texte simple)
     const handleAddQuestion = () => {
         setQuestions([...questions, { texte: "" }]);
     };
@@ -196,7 +189,6 @@ const CreateActivite = () => {
         setQuestions(newQuestions);
     };
 
-    // Gestion des questions pour vidéo interactive (texte simple)
     const handleAddVideoQuestion = () => {
         setVideoQuestions([...videoQuestions, { texte: "", timestamp: 0 }]);
     };
@@ -213,7 +205,6 @@ const CreateActivite = () => {
         setVideoQuestions(newQuestions);
     };
 
-    // Récupérer le nombre de travaux pour une activité
     const fetchTravauxCount = async (activiteId) => {
         try {
             const response = await axios.get(`${BASE_URL}/api/travaux/getByActivite/${activiteId}`);
@@ -238,7 +229,6 @@ const CreateActivite = () => {
         fetchUserData();
     }, [idUser, navigate]);
 
-    // FIX: useCallback pour stabiliser les références et corriger les dépendances useEffect
     const fetchActivite = useCallback(async () => {
         try {
             const response = await axios.get(`${BASE_URL}/api/activite/getAllActiviteId/${id}`);
@@ -262,32 +252,29 @@ const CreateActivite = () => {
         }
     }, [id]);
 
-    // FIX: dépendances correctes grâce à useCallback
     useEffect(() => {
         fetchActivite();
         fetchRessources();
     }, [fetchActivite, fetchRessources]);
 
     // ==================== ACTIVITÉS ====================
-    
-    // Questionnaire (questions texte simple)
+
     const handleSubmitQuestionnaire = async (e) => {
         e.preventDefault();
-        
+
         if (!inputs.titre) {
             toast.error('Le titre est requis.');
             return;
         }
-        
-        // Vérifier que toutes les questions ont du texte
+
         const hasEmptyQuestion = questions.some(q => !q.texte.trim());
         if (hasEmptyQuestion) {
             toast.error('Veuillez remplir toutes les questions.');
             return;
         }
-        
+
         try {
-             await axios.post(`${BASE_URL}/api/activite/createQuestionnaire`, {
+            await axios.post(`${BASE_URL}/api/activite/createQuestionnaire`, {
                 titre: inputs.titre,
                 questions: questions,
                 id_chapitre: id
@@ -303,15 +290,14 @@ const CreateActivite = () => {
         }
     };
 
-    // Devoir avec fichier (PDF/Word/PowerPoint) - UNIQUEMENT titre, fichier et date de rendu
     const handleSubmitDevoir = async (e) => {
         e.preventDefault();
-        
+
         if (!inputs.titre || !inputs.fichierDevoir) {
             toast.error('Le titre et le fichier sont requis.');
             return;
         }
-        
+
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
@@ -319,15 +305,15 @@ const CreateActivite = () => {
             formData.append('fichier', inputs.fichierDevoir);
             formData.append('type_fichier', inputs.type_fichier_devoir);
             formData.append('id_chapitre', id);
-            
+
             await axios.post(`${BASE_URL}/api/activite/createDevoir`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             toast.success('Devoir créé avec succès');
-            setInputs(prev => ({ 
-                ...prev, 
-                titre: "", 
-                date_limite: "", 
+            setInputs(prev => ({
+                ...prev,
+                titre: "",
+                date_limite: "",
                 fichierDevoir: null,
                 fichierDevoirUrl: null,
                 fichierDevoirName: "",
@@ -341,22 +327,21 @@ const CreateActivite = () => {
         }
     };
 
-    // Vidéo interactive (questions texte simple)
     const handleSubmitVideoInteractive = async (e) => {
         e.preventDefault();
-        
+
         if (!inputs.titre || !inputs.video) {
             toast.error('Le titre et la vidéo sont requis.');
             return;
         }
-        
+
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
             formData.append('video', inputs.video);
             formData.append('questions_interactives', JSON.stringify(videoQuestions));
             formData.append('id_chapitre', id);
-            
+
             await axios.post(`${BASE_URL}/api/activite/createVideoInteractive`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
@@ -384,12 +369,13 @@ const CreateActivite = () => {
     };
 
     // ==================== RESSOURCES ====================
+
     const handleSubmitFichier = async (e) => {
         e.preventDefault();
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
-            formData.append('description', inputs.description || '' );
+            formData.append('description', inputs.description || '');
             formData.append('fichier', inputs.fichier);
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('type_ressource', 'fichier');
@@ -397,7 +383,7 @@ const CreateActivite = () => {
             await axios.post(`${BASE_URL}/api/ressource/createRessource`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            
+
             toast.success('Fichier ajouté');
             setInputs({ titre: "", description: "", fichier: null, fichierUrl: null, fichierName: "", type_fichier: "" });
             fetchRessources();
@@ -413,15 +399,15 @@ const CreateActivite = () => {
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
-            formData.append('description', inputs.description || '' );
+            formData.append('description', inputs.description || '');
             formData.append('video', inputs.ressourceVideo);
             formData.append('type_ressource', 'video');
             formData.append('id_chapitre', id);
-            
+
             await axios.post(`${BASE_URL}/api/ressource/createRessourceVideo`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            
+
             toast.success('Vidéo ajoutée');
             setInputs({ titre: "", description: "", ressourceVideo: null, ressourceVideoUrl: null });
             fetchRessources();
@@ -449,7 +435,7 @@ const CreateActivite = () => {
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
-            formData.append('description', inputs.description || '' );
+            formData.append('description', inputs.description || '');
             if (inputs.fichier && typeof inputs.fichier !== 'string') {
                 formData.append('fichier', inputs.fichier);
             }
@@ -467,7 +453,6 @@ const CreateActivite = () => {
         }
     };
 
-    // FIX: cette fonction est maintenant utilisée via le bouton Modifier dans la liste
     const handleUpdateRessourceModal = (ressourceId, titre, description, fichier, type_fichier) => {
         const fileUrl = `${BASE_URL}/api/ressource/fichier/${fichier}`;
         setInputs({
@@ -490,6 +475,7 @@ const CreateActivite = () => {
     };
 
     // ==================== MODALES ====================
+
     const modalQuestionnaire = () => {
         setInputs(prev => ({ ...prev, categorie: "questionnaire" }));
         setOpenModalQuestionnaire(true);
@@ -509,7 +495,7 @@ const CreateActivite = () => {
     };
 
     const openRessourceModal = () => setOpenModalRessource(true);
-    
+
     const modalFichier = () => {
         setOpenModalRessourceFile(true);
         setOpenModalRessource(false);
@@ -527,10 +513,10 @@ const CreateActivite = () => {
     };
 
     const closModalDevoir = () => {
-        setInputs(prev => ({ 
-            ...prev, 
-            titre: "", 
-            date_limite: "", 
+        setInputs(prev => ({
+            ...prev,
+            titre: "",
+            date_limite: "",
             fichierDevoir: null,
             fichierDevoirUrl: null,
             fichierDevoirName: "",
@@ -557,53 +543,27 @@ const CreateActivite = () => {
     };
 
     const getFileIcon = (type_fichier) => {
-        const icons = {
-            pdf: '📄',
-            word: '📝',
-            powerpoint: '📊',
-            excel: '📈',
-            video: '🎬',
-            other: '📁'
-        };
-        const names = {
-            pdf: 'PDF',
-            word: 'Word',
-            powerpoint: 'PowerPoint',
-            excel: 'Excel',
-            video: 'Vidéo',
-            other: 'Fichier'
-        };
+        const icons = { pdf: '📄', word: '📝', powerpoint: '📊', excel: '📈', video: '🎬', other: '📁' };
+        const names = { pdf: 'PDF', word: 'Word', powerpoint: 'PowerPoint', excel: 'Excel', video: 'Vidéo', other: 'Fichier' };
         return `${icons[type_fichier]} ${names[type_fichier]}`;
     };
 
     const getDevoirFileIcon = (type_fichier) => {
-        const icons = {
-            pdf: '📄 PDF',
-            word: '📝 Word',
-            powerpoint: '📊 PowerPoint'
-        };
+        const icons = { pdf: '📄 PDF', word: '📝 Word', powerpoint: '📊 PowerPoint' };
         return icons[type_fichier] || '📁 Fichier';
     };
 
     const getActiviteIcon = (categorie) => {
-        const icons = {
-            questionnaire: '📋',
-            devoir: '📚',
-            video_interactive: '🎯'
-        };
+        const icons = { questionnaire: '📋', devoir: '📚', video_interactive: '🎯' };
         return icons[categorie] || '📄';
     };
 
     const getActiviteTypeName = (categorie) => {
-        const names = {
-            questionnaire: 'Questionnaire',
-            devoir: 'Devoir',
-            video_interactive: 'Vidéo interactive'
-        };
+        const names = { questionnaire: 'Questionnaire', devoir: 'Devoir', video_interactive: 'Vidéo interactive' };
         return names[categorie] || 'Activité';
     };
 
-    // ==================== STYLES ====================
+    // Styles
     const styles = {
         container: { padding: '30px 0' },
         tabsHeader: { display: 'flex', gap: '10px', marginBottom: '30px', borderBottom: '2px solid #eee', flexWrap: 'wrap' },
@@ -637,31 +597,8 @@ const CreateActivite = () => {
         videoPreview: { maxWidth: '100%', maxHeight: '150px', borderRadius: '8px' },
         questionCard: { background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '15px' },
         questionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' },
-        viewTravauxButton: {
-            background: '#28a745',
-            color: '#fff',
-            border: 'none',
-            padding: '6px 12px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px',
-            textDecoration: 'none'
-        },
-        travauxBadge: {
-            background: '#ff5421',
-            color: '#fff',
-            borderRadius: '50%',
-            width: '20px',
-            height: '20px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '11px',
-            marginLeft: '8px'
-        },
+        viewTravauxButton: { background: '#28a745', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '5px', textDecoration: 'none' },
+        travauxBadge: { background: '#ff5421', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', marginLeft: '8px' },
         addButtonSecondary: { background: '#28a745', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', marginTop: '10px' },
         removeButton: { background: '#dc3545', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }
     };
@@ -687,10 +624,10 @@ const CreateActivite = () => {
                 CanvasClass="right_menu_togle hidden-md"
                 headerClass="full-width-header header-style1 home8-style4"
                 TopBar='enable' TopBarClass="topbar-area home8-topbar"
-                emailAddress='admin@isetso.rnu.tn' Location='Cité Erriadh - B.P 135' />
-
+                emailAddress='admin@isetso.rnu.tn' Location='Cité Erriadh - B.P 135'
+            />
             <SiteBreadcrumb pageTitle="Ressources & Activités" pageName="Gestion des contenus" breadcrumbsImg={bannerbg} />
-
+            
             <div style={styles.container} className="register-section pt-100 pb-100">
                 <div className="container">
                     {/* TABS */}
@@ -703,7 +640,7 @@ const CreateActivite = () => {
                         </button>
                     </div>
 
-                    {/* ==================== RESSOURCES ==================== */}
+                    {/* RESSOURCES */}
                     {activeTab === 'ressources' && (
                         <div style={styles.card}>
                             <div style={styles.cardHeader}>
@@ -720,7 +657,7 @@ const CreateActivite = () => {
                                     </div>
                                 ) : (
                                     ressources.map((item, index) => (
-                                        <div key={index}>
+                                        <div key={item.id || index}>
                                             <div style={styles.listItem}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <div style={{ flex: 1 }} onClick={() => toggleRessource(index)}>
@@ -771,7 +708,7 @@ const CreateActivite = () => {
                         </div>
                     )}
 
-                    {/* ==================== ACTIVITÉS ==================== */}
+                    {/* ACTIVITÉS */}
                     {activeTab === 'activites' && (
                         <div style={styles.card}>
                             <div style={styles.cardHeader}>
@@ -912,8 +849,6 @@ const CreateActivite = () => {
                 </div>
             </div>
 
-            {/* ==================== MODALES RESSOURCES ==================== */}
-            
             {/* MODALE CHOIX RESSOURCE */}
             {openModalRessource && (
                 <div style={styles.modalOverlay} onClick={() => setOpenModalRessource(false)}>
@@ -1016,8 +951,6 @@ const CreateActivite = () => {
                 </div>
             )}
 
-            {/* ==================== MODALES ACTIVITÉS ==================== */}
-            
             {/* MODALE CHOIX ACTIVITÉ */}
             {openModal && (
                 <div style={styles.modalOverlay} onClick={() => setOpenModal(false)}>
@@ -1049,7 +982,7 @@ const CreateActivite = () => {
                 </div>
             )}
 
-            {/* MODALE QUESTIONNAIRE - Questions à réponse texte */}
+            {/* MODALE QUESTIONNAIRE */}
             {openModalQuestionnaire && (
                 <div style={styles.modalOverlay} onClick={closModalQuestionnaire}>
                     <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
@@ -1094,7 +1027,7 @@ const CreateActivite = () => {
                 </div>
             )}
 
-            {/* MODALE DEVOIR - UNIQUEMENT Titre, Fichier et Date de rendu */}
+            {/* MODALE DEVOIR */}
             {openModalDevoir && (
                 <div style={styles.modalOverlay} onClick={closModalDevoir}>
                     <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
