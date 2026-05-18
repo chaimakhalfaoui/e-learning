@@ -28,7 +28,7 @@ const INITIAL_INPUTS = {
     titre: "",
     categorie: "",
     contenu: "",
-    duration: "",
+    duration: 0,
     image: null,
     imageUrl: null,
     video: null,
