@@ -389,7 +389,7 @@ const CreateActivite = () => {
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
-            formData.append('description', inputs.description || );
+            formData.append('description', inputs.description || '' );
             formData.append('fichier', inputs.fichier);
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('type_ressource', 'fichier');
