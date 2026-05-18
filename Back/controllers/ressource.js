@@ -1,12 +1,11 @@
-<<<<<<< HEAD
-// controllers/ressource.js - Version sans type_ressource
-
-=======
+// controllers/ressource.js - Version complète et corrigée
 import { createS3Upload } from "../middleware/s3upload.js";
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 import { db } from "../db.js";
+import path from "path";
+import fs from 'fs';
+import multer from "multer";
+import { v4 as uuidv4 } from 'uuid';
 
-<<<<<<< HEAD
 // Créer le dossier uploads s'il n'existe pas
 const uploadDir = 'uploads/ressources/';
 if (!fs.existsSync(uploadDir)) {
@@ -40,16 +39,11 @@ const fileFilter = (req, file, cb) => {
         'video/quicktime',
         'video/x-msvideo'
     ];
-    
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error("Format de fichier non supporté."), false);
-    }
+    allowedTypes.includes(file.mimetype) ? cb(null, true) : cb(new Error("Format de fichier non supporté."), false);
 };
 
-export const upload = multer({ 
-    storage, 
+export const upload = multer({
+    storage,
     fileFilter,
     limits: { fileSize: 500 * 1024 * 1024 }
 });
@@ -68,121 +62,64 @@ const videoStorage = multer.diskStorage({
 
 const videoFilter = (req, file, cb) => {
     const allowedVideoTypes = ['video/mp4', 'video/avi', 'video/quicktime', 'video/x-msvideo'];
-    if (allowedVideoTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error("Format vidéo non supporté."), false);
-    }
+    allowedVideoTypes.includes(file.mimetype) ? cb(null, true) : cb(new Error("Format vidéo non supporté."), false);
 };
 
-export const uploadVideo = multer({ 
-    storage: videoStorage, 
+export const uploadVideo = multer({
+    storage: videoStorage,
     fileFilter: videoFilter,
     limits: { fileSize: 500 * 1024 * 1024 }
 });
-=======
-const upload = createS3Upload("uploads");
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
+
+// ==================== CRUD RESSOURCES ====================
 
 // Récupérer toutes les ressources d'un chapitre
 export const getRessourcesByChapitre = (req, res) => {
-    const { id_chapitre } = req.params;
-<<<<<<< HEAD
-    
-    const query = "SELECT *, CASE WHEN fichier LIKE '%.mp4%' OR fichier LIKE '%.avi%' OR fichier LIKE '%.mov%' THEN 'video' ELSE 'fichier' END as type_ressource FROM ressources WHERE id_chapitre = ? ORDER BY created_at DESC";
-=======
-    const query = "SELECT * FROM ressources WHERE id_chapitre = ? ORDER BY created_at DESC";
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
+    const id_chapitre = req.params.id_chapitre;
+    const query = "SELECT *, id as ressource_id FROM ressources WHERE id_chapitre = ? ORDER BY id DESC";
     db.query(query, [id_chapitre], (err, data) => {
-        if (err) {
-            console.error("Erreur:", err);
-            return res.status(500).json({ error: "Erreur serveur." });
-        }
-        return res.status(200).json(data);
+        if (err) return res.status(500).json({ error: "Erreur serveur." });
+        res.status(200).json(data);
     });
 };
+
+// Alias pour getAllRessourceId
+export const getAllRessourceId = getRessourcesByChapitre;
 
 // Récupérer une ressource par ID
 export const getRessourceById = (req, res) => {
     const { id } = req.params;
-    const query = "SELECT * FROM ressources WHERE id = ?";
-    db.query(query, [id], (err, data) => {
-        if (err) {
-            console.error("Erreur:", err);
-            return res.status(500).json({ error: "Erreur serveur." });
-        }
-        if (data.length === 0) {
-            return res.status(404).json({ error: "Ressource non trouvée." });
-        }
-        return res.status(200).json(data[0]);
+    db.query("SELECT * FROM ressources WHERE id = ?", [id], (err, data) => {
+        if (err) return res.status(500).json({ error: "Erreur serveur." });
+        if (data.length === 0) return res.status(404).json({ error: "Ressource non trouvée." });
+        res.status(200).json(data[0]);
     });
 };
 
-// Créer une ressource avec fichier
+// Créer une ressource fichier
 export const createRessource = (req, res) => {
-    upload.single('fichier')(req, res, function (err) {
-<<<<<<< HEAD
-        if (err instanceof multer.MulterError) {
-            console.error("Erreur Multer:", err);
-            if (err.code === 'LIMIT_FILE_SIZE') {
-                return res.status(500).json({ error: "Le fichier est trop volumineux. Maximum 500MB." });
-            }
-            return res.status(500).json({ error: "Erreur lors du téléchargement." });
-        } else if (err) {
-            console.error("Erreur:", err);
-=======
-        if (err) {
-            console.error("Erreur upload:", err);
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
-            return res.status(500).json({ error: err.message });
-        }
+    upload.single('fichier')(req, res, (err) => {
+        if (err) return res.status(500).json({ error: err.message || "Erreur upload" });
 
         const { titre, description, type_fichier, id_chapitre } = req.body;
-        const fichier = req.file ? req.file.location : null;
+        const fichier = req.file ? req.file.filename : null;
 
         if (!titre || !fichier || !id_chapitre) {
             return res.status(400).json({ error: "Titre, fichier et chapitre sont requis." });
         }
 
-<<<<<<< HEAD
-        // Version sans type_ressource
-        const query = `INSERT INTO ressources (titre, description, fichier, type_fichier, id_chapitre) 
-=======
-        const query = `INSERT INTO ressources (titre, description, fichier, type_fichier, id_chapitre)
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
-                       VALUES (?, ?, ?, ?, ?)`;
-
+        const query = "INSERT INTO ressources (titre, description, fichier, type_fichier, id_chapitre) VALUES (?, ?, ?, ?, ?)";
         db.query(query, [titre, description || null, fichier, type_fichier || 'other', id_chapitre], (err, result) => {
-            if (err) {
-<<<<<<< HEAD
-                console.error("Erreur:", err);
-=======
-                console.error("Erreur SQL:", err);
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
-                return res.status(500).json({ error: "Erreur serveur." });
-            }
-            return res.status(201).json({
-                message: "Ressource créée avec succès.",
-                id: result.insertId,
-                fichier: fichier
-            });
+            if (err) return res.status(500).json({ error: "Erreur serveur." });
+            res.status(201).json({ message: "Ressource créée", id: result.insertId, fichier });
         });
     });
 };
 
-// Créer une ressource vidéo (détectée automatiquement par l'extension)
+// Créer une ressource vidéo
 export const createRessourceVideo = (req, res) => {
-    uploadVideo.single('video')(req, res, function (err) {
-        if (err instanceof multer.MulterError) {
-            console.error("Erreur Multer:", err);
-            if (err.code === 'LIMIT_FILE_SIZE') {
-                return res.status(500).json({ error: "La vidéo est trop volumineuse. Maximum 500MB." });
-            }
-            return res.status(500).json({ error: "Erreur lors du téléchargement." });
-        } else if (err) {
-            console.error("Erreur:", err);
-            return res.status(500).json({ error: err.message });
-        }
+    uploadVideo.single('video')(req, res, (err) => {
+        if (err) return res.status(500).json({ error: err.message || "Erreur upload vidéo" });
 
         const { titre, description, id_chapitre } = req.body;
         const video = req.file ? req.file.filename : null;
@@ -191,53 +128,26 @@ export const createRessourceVideo = (req, res) => {
             return res.status(400).json({ error: "Titre, vidéo et chapitre sont requis." });
         }
 
-        // Version sans type_ressource - on utilise type_fichier = 'video'
-        const query = `INSERT INTO ressources (titre, description, fichier, type_fichier, id_chapitre) 
-                       VALUES (?, ?, ?, ?, ?)`;
-        
-        db.query(query, [titre, description || null, video, 'video', id_chapitre], (err, result) => {
-            if (err) {
-                console.error("Erreur:", err);
-                return res.status(500).json({ error: "Erreur serveur." });
-            }
-            return res.status(201).json({ 
-                message: "Vidéo ajoutée avec succès.", 
-                id: result.insertId,
-                video: video
-            });
+        const query = "INSERT INTO ressources (titre, description, fichier, type_fichier, id_chapitre) VALUES (?, ?, ?, 'video', ?)";
+        db.query(query, [titre, description || null, video, id_chapitre], (err, result) => {
+            if (err) return res.status(500).json({ error: "Erreur serveur." });
+            res.status(201).json({ message: "Vidéo ajoutée", id: result.insertId, video });
         });
     });
 };
 
 // Mettre à jour une ressource
 export const updateRessource = (req, res) => {
-    upload.single('fichier')(req, res, function (err) {
-<<<<<<< HEAD
-        if (err instanceof multer.MulterError) {
-            console.error("Erreur Multer:", err);
-            return res.status(500).json({ error: "Erreur lors du téléchargement." });
-        } else if (err) {
-            console.error("Erreur:", err);
-=======
-        if (err) {
-            console.error("Erreur upload:", err);
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
-            return res.status(500).json({ error: err.message });
-        }
+    upload.single('fichier')(req, res, (err) => {
+        if (err) return res.status(500).json({ error: err.message || "Erreur upload" });
 
         const { id } = req.params;
         const { titre, description, type_fichier, id_chapitre } = req.body;
-        const nouveauFichier = req.file ? req.file.location : null;
+        const nouveauFichier = req.file ? req.file.filename : null;
 
-        const getOldFileQuery = "SELECT fichier FROM ressources WHERE id = ?";
-        db.query(getOldFileQuery, [id], (err, result) => {
-            if (err) {
-                console.error("Erreur:", err);
-                return res.status(500).json({ error: "Erreur serveur." });
-            }
-            if (result.length === 0) {
-                return res.status(404).json({ error: "Ressource non trouvée." });
-            }
+        db.query("SELECT fichier FROM ressources WHERE id = ?", [id], (err, result) => {
+            if (err) return res.status(500).json({ error: "Erreur serveur" });
+            if (result.length === 0) return res.status(404).json({ error: "Ressource non trouvée" });
 
             let query = "UPDATE ressources SET titre = ?, description = ?, type_fichier = ?, id_chapitre = ?";
             const values = [titre, description || null, type_fichier || 'other', id_chapitre];
@@ -245,32 +155,14 @@ export const updateRessource = (req, res) => {
             if (nouveauFichier) {
                 query += ", fichier = ?";
                 values.push(nouveauFichier);
-<<<<<<< HEAD
-                
-                const oldFilePath = path.join('uploads/ressources/', oldFile);
-                if (fs.existsSync(oldFilePath)) {
-                    try {
-                        fs.unlinkSync(oldFilePath);
-                    } catch (unlinkErr) {
-                        console.error("Erreur suppression ancien fichier:", unlinkErr);
-                    }
-                }
-=======
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             }
 
             query += " WHERE id = ?";
             values.push(id);
 
-            db.query(query, values, (err, updateResult) => {
-                if (err) {
-                    console.error("Erreur mise à jour:", err);
-                    return res.status(500).json({ error: "Erreur serveur." });
-                }
-                if (updateResult.affectedRows === 0) {
-                    return res.status(404).json({ error: "Ressource non trouvée." });
-                }
-                return res.status(200).json({ message: "Ressource mise à jour avec succès." });
+            db.query(query, values, (err) => {
+                if (err) return res.status(500).json({ error: "Erreur mise à jour" });
+                res.status(200).json({ message: "Ressource mise à jour" });
             });
         });
     });
@@ -279,137 +171,74 @@ export const updateRessource = (req, res) => {
 // Supprimer une ressource
 export const deleteRessource = (req, res) => {
     const { id } = req.params;
-<<<<<<< HEAD
-    
-=======
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
-    const getFileQuery = "SELECT fichier FROM ressources WHERE id = ?";
-    db.query(getFileQuery, [id], (err, result) => {
-        if (err) {
-            console.error("Erreur:", err);
-            return res.status(500).json({ error: "Erreur serveur." });
-        }
-        if (result.length === 0) {
-            return res.status(404).json({ error: "Ressource non trouvée." });
-        }
 
-<<<<<<< HEAD
+    db.query("SELECT fichier FROM ressources WHERE id = ?", [id], (err, result) => {
+        if (err) return res.status(500).json({ error: "Erreur serveur" });
+        if (result.length === 0) return res.status(404).json({ error: "Ressource non trouvée" });
+
         const fichier = result[0].fichier;
-        
-=======
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
-        const deleteQuery = "DELETE FROM ressources WHERE id = ?";
-        db.query(deleteQuery, [id], (err, deleteResult) => {
-            if (err) {
-                console.error("Erreur suppression:", err);
-                return res.status(500).json({ error: "Erreur serveur." });
-            }
-<<<<<<< HEAD
-            
+
+        db.query("DELETE FROM ressources WHERE id = ?", [id], (err) => {
+            if (err) return res.status(500).json({ error: "Erreur suppression" });
+
             if (fichier) {
-                const filePath = path.join('uploads/ressources/', fichier);
-                if (fs.existsSync(filePath)) {
-                    try {
-                        fs.unlinkSync(filePath);
-                    } catch (unlinkErr) {
-                        console.error("Erreur suppression fichier:", unlinkErr);
-                    }
-                }
+                const filePath = path.join(uploadDir, fichier);
+                if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
             }
-            
-=======
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
-            return res.status(200).json({ message: "Ressource supprimée avec succès." });
+            res.status(200).json({ message: "Ressource supprimée" });
         });
     });
 };
 
-<<<<<<< HEAD
 // Télécharger un fichier
 export const downloadFichier = (req, res) => {
     const { filename } = req.params;
-    const filePath = path.join('uploads/ressources/', filename);
-    
-    if (fs.existsSync(filePath)) {
-        return res.download(filePath, (err) => {
-            if (err) {
-                console.error("Erreur téléchargement:", err);
-                return res.status(500).json({ error: "Erreur lors du téléchargement." });
-            }
-        });
-    } else {
-        return res.status(404).json({ error: "Fichier non trouvé." });
-    }
+    const filePath = path.join(uploadDir, filename);
+    fs.existsSync(filePath) ? res.download(filePath) : res.status(404).json({ error: "Fichier non trouvé" });
 };
 
 // Lire une vidéo (streaming)
 export const getVideo = (req, res) => {
     const { filename } = req.params;
-    const filePath = path.join('uploads/ressources/', filename);
-    
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: "Vidéo non trouvée." });
-    }
+    const filePath = path.join(uploadDir, filename);
+
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: "Vidéo non trouvée" });
 
     const stat = fs.statSync(filePath);
     const fileSize = stat.size;
     const range = req.headers.range;
-    
+
     if (range) {
         const parts = range.replace(/bytes=/, "").split("-");
         const start = parseInt(parts[0], 10);
         const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
         const chunksize = (end - start) + 1;
-        const file = fs.createReadStream(filePath, { start, end });
-        const head = {
+        const stream = fs.createReadStream(filePath, { start, end });
+        res.writeHead(206, {
             'Content-Range': `bytes ${start}-${end}/${fileSize}`,
             'Accept-Ranges': 'bytes',
             'Content-Length': chunksize,
             'Content-Type': 'video/mp4',
-        };
-        res.writeHead(206, head);
-        file.pipe(res);
+        });
+        stream.pipe(res);
     } else {
-        const head = {
-            'Content-Length': fileSize,
-            'Content-Type': 'video/mp4',
-        };
-        res.writeHead(200, head);
+        res.writeHead(200, { 'Content-Length': fileSize, 'Content-Type': 'video/mp4' });
         fs.createReadStream(filePath).pipe(res);
     }
 };
 
-=======
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
-// Obtenir l'URL du fichier
+// Obtenir l'URL du fichier (S3)
 export const getFichierUrl = (req, res) => {
     const { filename } = req.params;
-    // Retourner l'URL S3
     const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/${filename}`;
-    return res.json({ url: fileUrl });
+    res.json({ url: fileUrl });
 };
 
 // Statistiques
 export const getRessourcesStats = (req, res) => {
     const { id_chapitre } = req.params;
-    const query = `
-        SELECT type_fichier, COUNT(*) as count
-        FROM ressources
-        WHERE id_chapitre = ?
-        GROUP BY type_fichier
-    `;
-    db.query(query, [id_chapitre], (err, data) => {
-        if (err) {
-            console.error("Erreur statistiques:", err);
-            return res.status(500).json({ error: "Erreur serveur." });
-        }
-        return res.status(200).json(data);
+    db.query("SELECT type_fichier, COUNT(*) as count FROM ressources WHERE id_chapitre = ? GROUP BY type_fichier", [id_chapitre], (err, data) => {
+        if (err) return res.status(500).json({ error: "Erreur serveur." });
+        res.status(200).json(data);
     });
-};
-
-// Télécharger un fichier
-export const downloadFichier = (req, res) => {
-    const { filename } = req.params;
-    const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/${filename}`;
-    return res.redirect(fileUrl);
 };

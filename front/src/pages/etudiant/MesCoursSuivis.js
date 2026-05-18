@@ -39,21 +39,10 @@ const MesCoursSuivis = () => {
 
     const colors = {
         primary: '#4A90A4',
-<<<<<<< HEAD
         primaryDark: '#3A7383',
         success: '#5A9E6E',
         warning: '#D4A05A',
         info: '#6B8CAE',
-=======
-        primaryLight: '#6BA5B8',
-        primaryDark: '#3A7383',
-        success: '#5A9E6E',
-        successLight: '#7BB58C',
-        warning: '#D4A05A',
-        warningLight: '#E0B87A',
-        info: '#6B8CAE',
-        infoLight: '#8BA8C4',
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
         grayBg: '#F5F7FA',
         border: '#E1E8EE',
         textDark: '#4A5568',
@@ -80,11 +69,7 @@ const MesCoursSuivis = () => {
                 return;
             }
             
-<<<<<<< HEAD
             // Récupérer les cours via l'API lecture
-=======
-            // Utiliser l'API lecture/user/:id_user pour récupérer les cours inscrits
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             const response = await axios.get(`${API_URL}/lecture/user/${userId}`);
             
             let coursesData = [];
@@ -96,10 +81,6 @@ const MesCoursSuivis = () => {
             if (response.data && Array.isArray(response.data)) {
                 coursesData = response.data;
                 
-<<<<<<< HEAD
-=======
-                // Parcourir les cours pour calculer les statistiques
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                 for (const course of coursesData) {
                     const prog = course.progression || 0;
                     progressData[course.id] = prog;
@@ -107,39 +88,12 @@ const MesCoursSuivis = () => {
                     if (prog === 100) completed++;
                     if (prog > 0 && prog < 100) inProgress++;
                     
-<<<<<<< HEAD
-=======
-                    // Ajouter la durée (convertir en heures si nécessaire)
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                     if (course.duration) {
                         let duration = parseFloat(course.duration);
                         if (isNaN(duration)) duration = 0;
                         totalH += duration;
                     }
                 }
-<<<<<<< HEAD
-=======
-            } else {
-                // Fallback : essayer de récupérer via l'ancienne méthode
-                console.log("Tentative de récupération alternative...");
-                const fallbackResponse = await axios.get(`${API_URL}/cours/student-courses/${userId}`);
-                if (fallbackResponse.data && fallbackResponse.data.success && Array.isArray(fallbackResponse.data.cours)) {
-                    coursesData = fallbackResponse.data.cours;
-                    
-                    for (const course of coursesData) {
-                        try {
-                            const progRes = await axios.get(`${API_URL}/avc/avc/${course.id}/${userId}`);
-                            const prog = progRes.data?.avc || 0;
-                            progressData[course.id] = prog;
-                            if (prog === 100) completed++;
-                            if (prog > 0 && prog < 100) inProgress++;
-                            if (course.duration) totalH += parseFloat(course.duration) || 0;
-                        } catch (e) {
-                            progressData[course.id] = 0;
-                        }
-                    }
-                }
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             }
             
             setCourses(coursesData);
@@ -151,19 +105,7 @@ const MesCoursSuivis = () => {
             
         } catch (error) {
             console.error("Erreur lors du chargement des cours:", error);
-<<<<<<< HEAD
             setError("Impossible de charger vos cours. Veuillez réessayer.");
-=======
-            
-            // Afficher un message d'erreur plus précis
-            if (error.response?.status === 404) {
-                setError("Service non disponible. Veuillez réessayer plus tard.");
-            } else if (error.response?.status === 500) {
-                setError("Erreur serveur. Contactez l'administrateur.");
-            } else {
-                setError("Impossible de charger vos cours. Vérifiez votre connexion.");
-            }
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
         } finally {
             setLoading(false);
         }
@@ -177,12 +119,7 @@ const MesCoursSuivis = () => {
             const filtered = courses.filter(course =>
                 (course.titre?.toLowerCase().includes(query)) ||
                 (course.description?.toLowerCase().includes(query)) ||
-<<<<<<< HEAD
                 (course.categorie?.toLowerCase().includes(query))
-=======
-                (course.categorie?.toLowerCase().includes(query)) ||
-                (course.type?.toLowerCase().includes(query))
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             );
             setFilteredCourses(filtered);
         }
@@ -441,10 +378,7 @@ const MesCoursSuivis = () => {
                     <div className="alert alert-info text-center">
                         <i className="fas fa-book-open fa-3x mb-3 d-block"></i>
                         <h5>Vous n'avez pas encore de cours suivis</h5>
-<<<<<<< HEAD
                         <Link to="/courses" className="btn btn-primary mt-3">Découvrir des cours</Link>
-=======
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                     </div>
                 )}
 
@@ -461,11 +395,7 @@ const MesCoursSuivis = () => {
                                         courseCategory={cours.categorie}
                                         courseDuration={cours.duration}
                                         courseid={cours.id}
-<<<<<<< HEAD
                                         initialProgression={progress[cours.id] || cours.progression || 0}
-=======
-                                        progression={progress[cours.id] || cours.progression || 0}
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
                                         showProgress={true}
                                     />
                                 </div>

@@ -83,7 +83,6 @@ const OverviewPart = () => {
             }
             
             // Récupérer le nombre d'étudiants
-<<<<<<< HEAD
             try {
                 const eduResponse = await axios.get(`${API_URL}/lecture/count/${id}`);
                 setEdu(eduResponse.data || 0);
@@ -91,10 +90,6 @@ const OverviewPart = () => {
                 console.error("Erreur récupération nombre étudiants:", error);
                 setEdu(0);
             }
-=======
-            const eduResponse = await axios.get(`${API_URL}/lecture/count/${id}`);
-            setEdu(eduResponse.data || 0);
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             
             // Récupérer les informations de l'enseignant
             if (courseData?.id_user) {

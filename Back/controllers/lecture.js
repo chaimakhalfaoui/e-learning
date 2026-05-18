@@ -1,7 +1,6 @@
 // controllers/lecture.js
 import { db } from "../db.js";
 
-// ==================== CRÉATION (Inscription) ====================
 export const createLecture = (req, res) => {
     const { avancement, id_cours, id_user } = req.body;
 
@@ -49,7 +48,6 @@ export const createLecture = (req, res) => {
     });
 };
 
-// ==================== NOMBRE D'ÉTUDIANTS INSCRITS ====================
 export const getLectureCours = (req, res) => {
     const id_cours = req.params.id;
     
@@ -70,7 +68,6 @@ export const getLectureCours = (req, res) => {
     });
 };
 
-// ==================== VÉRIFIER SI ÉTUDIANT EST INSCRIT ====================
 export const getLectureCountByUser = (req, res) => {
     const { id_cours, id_user } = req.params;
     
@@ -92,7 +89,6 @@ export const getLectureCountByUser = (req, res) => {
     });
 };
 
-// ==================== COURS SUIVIS PAR UN ÉTUDIANT ====================
 export const getUserEnrolledCourses = (req, res) => {
     const { id_user } = req.params;
     
@@ -135,7 +131,6 @@ export const getUserEnrolledCourses = (req, res) => {
     });
 };
 
-// ==================== TOP 6 COURS POPULAIRES ====================
 export const getTop6CoursesByLecture = (req, res) => {
     const selectTopCoursesQuery = `
         SELECT 
@@ -170,7 +165,6 @@ export const getTop6CoursesByLecture = (req, res) => {
     });
 };
 
-// ==================== DÉTAILS D'UNE INSCRIPTION ====================
 export const getLectureById = (req, res) => {
     const { id_cours, id_user } = req.params;
     
@@ -197,7 +191,6 @@ export const getLectureById = (req, res) => {
     });
 };
 
-// ==================== METTRE À JOUR L'AVANCEMENT ====================
 export const updateLectureProgress = (req, res) => {
     const { id_cours, id_user } = req.params;
     const { avancement } = req.body;
@@ -220,7 +213,6 @@ export const updateLectureProgress = (req, res) => {
     });
 };
 
-// ==================== DÉSINSCRIPTION ====================
 export const deleteLecture = (req, res) => {
     const { id_cours, id_user } = req.params;
     
@@ -242,7 +234,6 @@ export const deleteLecture = (req, res) => {
     });
 };
 
-// ==================== TOUS LES COURS AVEC NOMBRE D'INSCRITS ====================
 export const getAllCoursesWithCount = (req, res) => {
     const query = `
         SELECT 

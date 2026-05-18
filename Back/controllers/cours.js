@@ -1,6 +1,7 @@
 // controllers/cours.js - Version corrigée
 
 import { db } from "../db.js";
+import multer from "multer";
 import { createS3Upload, getFileUrl } from "../middleware/s3upload.js";
 
 
@@ -8,15 +9,9 @@ import { createS3Upload, getFileUrl } from "../middleware/s3upload.js";
 // Définir le stockage pour multer
 const upload = createS3Upload("uploads");
 
-// Vérifier le type de fichier pour l'image
 
-<<<<<<< HEAD
-const upload = multer({ storage: storage, fileFilter: fileFilter });
-=======
 // Configurer multer avec le stockage et le filtre
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
 
-// ==================== CRÉATION D'UN COURS (Enseignant) ====================
 export const createCours = (req, res) => {
     upload.single('image')(req, res, function (err) {
         if (err instanceof multer.MulterError) {
@@ -58,7 +53,6 @@ export const createCours = (req, res) => {
     });
 };
 
-// ==================== RÉCUPÉRATION DE TOUS LES COURS ====================
 export const getAllCourses = (req, res) => {
     const selectCoursesQuery = `
         SELECT C.*, cat.title AS type, lvl.title AS level, u.username AS enseignant
@@ -78,7 +72,6 @@ export const getAllCourses = (req, res) => {
     });
 };
 
-// ==================== RÉCUPÉRATION DES COURS D'UN ENSEIGNANT ====================
 export const getAllCoursesId = (req, res) => {
     const id_user = req.params.id; 
     
@@ -100,7 +93,6 @@ export const getAllCoursesId = (req, res) => {
     });
 };
 
-// ==================== RÉCUPÉRATION D'UN COURS PAR ID ====================
 export const getCourse = (req, res) => {
     const id_cours = req.params.id; 
     
@@ -125,7 +117,6 @@ export const getCourse = (req, res) => {
     });
 };
 
-// ==================== NOM DE L'ENSEIGNANT PAR ID DU COURS ====================
 export const getUserNameByCourseId = (req, res) => {
     const id_cours = req.params.id;
     const query = `
@@ -145,7 +136,6 @@ export const getUserNameByCourseId = (req, res) => {
     });
 };
 
-// ==================== ID DE L'ENSEIGNANT PAR ID DU COURS ====================
 export const getUserIdByCourseId = (req, res) => {
     const id_cours = req.params.id;
     const query = `
@@ -165,7 +155,6 @@ export const getUserIdByCourseId = (req, res) => {
     });
 };
 
-// ==================== SUPPRESSION D'UN COURS ====================
 export const deleteCourse = (req, res) => {
     const id_cours = req.params.id;
 
@@ -182,7 +171,6 @@ export const deleteCourse = (req, res) => {
     });
 };
 
-// ==================== MISE À JOUR D'UN COURS ====================
 export const updateCours = (req, res) => {
     upload.single('image')(req, res, function (err) {
         if (err instanceof multer.MulterError) {
@@ -232,7 +220,6 @@ export const updateCours = (req, res) => {
     });
 };
 
-// ==================== COURS PAR CATÉGORIE ====================
 export const getCoursByCategorie = (req, res) => {
     const { idCategorie } = req.params;
     const { includeHidden } = req.query;
@@ -290,7 +277,6 @@ export const getCoursByCategorie = (req, res) => {
     });
 };
 
-// ==================== PUBLIER/CACHER UN COURS ====================
 export const updateCourseStatus = (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
@@ -334,7 +320,6 @@ export const updateCourseStatus = (req, res) => {
     });
 };
 
-// ==================== COURS PAR STATUT ====================
 export const getCoursesByStatus = (req, res) => {
     const { status } = req.params;
     
@@ -369,7 +354,6 @@ export const getCoursesByStatus = (req, res) => {
     });
 };
 
-// ==================== COURS SUIVIS PAR UN ÉTUDIANT ====================
 export const getStudentEnrolledCourses = (req, res) => {
     const { idUser } = req.params;
     
@@ -411,15 +395,12 @@ export const getStudentEnrolledCourses = (req, res) => {
     });
 };
 
-// ==================== ÉTUDIANTS INSCRITS À UN COURS (VERSION CORRIGÉE) ====================
 export const getEtudiantsByCours = (req, res) => {
     const { coursId } = req.params;
     
-<<<<<<< HEAD
     if (!coursId) {
         return res.status(400).json({ error: "L'ID du cours est requis." });
     }
-=======
     const query = `
         SELECT DISTINCT 
             u.id,
@@ -436,7 +417,6 @@ export const getEtudiantsByCours = (req, res) => {
         WHERE l.id_cours = ? AND u.role = 'etudiant'
         ORDER BY l.id DESC
     `;
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
     
     // Vérifier d'abord si la table inscription existe
     const checkTableQuery = "SHOW TABLES LIKE 'inscription'";
@@ -490,7 +470,6 @@ export const getEtudiantsByCours = (req, res) => {
     });
 };
 
-// ==================== VALIDATION DES COURS (Coordinateur) ====================
 
 // Demander la validation (enseignant)
 export const requestValidation = (req, res) => {

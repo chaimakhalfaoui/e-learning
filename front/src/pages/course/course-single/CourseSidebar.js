@@ -55,10 +55,6 @@ const CourseSidebar = () => {
     const fetchEdu = async () => {
         try {
             const response = await axios.get(`${API_URL}/lecture/count/${id}`);
-<<<<<<< HEAD
-=======
-            console.log("Nombre d'étudiants:", response.data);
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
             setEdu(response.data || 0);
         } catch (error) {
             console.error("Erreur lors de la récupération des étudiants:", error);

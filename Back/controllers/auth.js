@@ -1,13 +1,13 @@
 import { createS3Upload } from "../middleware/s3upload.js";
 import { db } from "../db.js";
 import bcrypt from "bcryptjs";
+import multer from "multer";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from 'uuid';
 import nodemailer from "nodemailer";
 import dotenv from 'dotenv';
 dotenv.config();
 
-// ==================== CONFIGURATION EMAIL (GMAIL) ====================
 
 // Configuration Gmail - utilisez votre compte Gmail avec mot de passe d'application
 const transporter = nodemailer.createTransport({

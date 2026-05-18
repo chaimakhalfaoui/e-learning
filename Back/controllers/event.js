@@ -1,6 +1,7 @@
 import { createS3Upload } from "../middleware/s3upload.js";
 import { db } from "../db.js";
 import path from "path";
+import multer from "multer";
 import { v4 as uuidv4 } from 'uuid';
 
 // Définir le stockage pour multer

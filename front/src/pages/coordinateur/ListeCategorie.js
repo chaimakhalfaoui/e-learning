@@ -61,16 +61,10 @@ const ListCategorie = () => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-<<<<<<< HEAD
         const response = await axios.get(`${API_URL}/categorie`);
         const categoriesData = response.data;
         setCategories(categoriesData);
         setFilteredCategories(categoriesData);
-=======
-        const response = await axios.get("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/categorie");
-        setCategories(response.data);
-        setFilteredCategories(response.data);
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
         setError(null);
         
         // Récupérer le nombre de cours pour chaque catégorie
@@ -110,11 +104,7 @@ const ListCategorie = () => {
   const handleDelete = async (id) => {
     if (window.confirm("⚠️ Voulez-vous vraiment supprimer cette catégorie ?\nTous les cours associés seront également supprimés !")) {
       try {
-<<<<<<< HEAD
         await axios.delete(`${API_URL}/categorie/${id}`);
-=======
-        await axios.delete(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/categorie/${id}`);
->>>>>>> 08659bf02d98d91ae50074d86f666aa0ce63aeb7
         const updatedCategories = categories.filter(cat => cat.id !== id);
         setCategories(updatedCategories);
         setFilteredCategories(updatedCategories);
