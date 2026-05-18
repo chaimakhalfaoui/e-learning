@@ -216,7 +216,7 @@ const CreateActivite = () => {
     // Récupérer le nombre de travaux pour une activité
     const fetchTravauxCount = async (activiteId) => {
         try {
-            const response = await axios.get(`http://localhost:8801/api/travaux/getByActivite/${activiteId}`);
+            const response = await axios.get(`${BASE_URL}/api/travaux/getByActivite/${activiteId}`);
             setTravauxCount(prev => ({ ...prev, [activiteId]: response.data.length }));
         } catch (error) {
             console.error("Erreur:", error);
@@ -287,7 +287,7 @@ const CreateActivite = () => {
         }
         
         try {
-            await axios.post("http://localhost:8801/api/activite/createQuestionnaire", {
+             await axios.post(`${BASE_URL}/api/activite/createQuestionnaire`, {
                 titre: inputs.titre,
                 questions: questions,
                 id_chapitre: id
@@ -320,7 +320,7 @@ const CreateActivite = () => {
             formData.append('type_fichier', inputs.type_fichier_devoir);
             formData.append('id_chapitre', id);
             
-            await axios.post("http://localhost:8801/api/activite/createDevoir", formData, {
+            await axios.post(`${BASE_URL}/api/activite/createDevoir`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             toast.success('Devoir créé avec succès');
@@ -357,7 +357,7 @@ const CreateActivite = () => {
             formData.append('questions_interactives', JSON.stringify(videoQuestions));
             formData.append('id_chapitre', id);
             
-            await axios.post("http://localhost:8801/api/activite/createVideoInteractive", formData, {
+            await axios.post(`${BASE_URL}/api/activite/createVideoInteractive`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             toast.success('Vidéo interactive créée avec succès');
@@ -389,7 +389,7 @@ const CreateActivite = () => {
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
-            formData.append('description', inputs.description || '');
+            formData.append('description', inputs.description || );
             formData.append('fichier', inputs.fichier);
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('type_ressource', 'fichier');
@@ -413,12 +413,12 @@ const CreateActivite = () => {
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
-            formData.append('description', inputs.description || '');
+            formData.append('description', inputs.description || );
             formData.append('video', inputs.ressourceVideo);
             formData.append('type_ressource', 'video');
             formData.append('id_chapitre', id);
             
-            await axios.post("http://localhost:8801/api/ressource/createRessourceVideo", formData, {
+            await axios.post(`${BASE_URL}/api/ressource/createRessourceVideo`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             
@@ -449,7 +449,7 @@ const CreateActivite = () => {
         try {
             const formData = new FormData();
             formData.append('titre', inputs.titre);
-            formData.append('description', inputs.description || '');
+            formData.append('description', inputs.description || );
             if (inputs.fichier && typeof inputs.fichier !== 'string') {
                 formData.append('fichier', inputs.fichier);
             }
@@ -473,7 +473,7 @@ const CreateActivite = () => {
         setInputs({
             id: ressourceId,
             titre,
-            description: description || '',
+            description: description || ,
             fichier: fichier,
             fichierUrl: fileUrl,
             fichierName: fichier,
@@ -755,10 +755,10 @@ const CreateActivite = () => {
                                                     <p><strong>Description :</strong> {item.description || 'Aucune description'}</p>
                                                     {item.type_ressource === 'video' ? (
                                                         <video controls style={{ width: '100%', borderRadius: '8px' }}>
-                                                            <source src={`http://localhost:8801/api/ressource/video/${item.fichier}`} type="video/mp4" />
+                                                            <source src={`${BASE_URL}/api/ressource/video/${item.fichier}`} type="video/mp4" />
                                                         </video>
                                                     ) : (
-                                                        <a href={`http://localhost:8801/api/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
+                                                        <a href={`${BASE_URL}/api/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
                                                             <i className="fas fa-download me-2"></i>Télécharger
                                                         </a>
                                                     )}
@@ -863,7 +863,7 @@ const CreateActivite = () => {
                                                                             {devoirData.fichier && (
                                                                                 <div>
                                                                                     <p><strong>Document joint:</strong> {getDevoirFileIcon(devoirData.type_fichier)}</p>
-                                                                                    <a href={`http://localhost:8801/api/activite/fichier/${devoirData.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#17a2b8', color: '#fff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', display: 'inline-block' }}>
+                                                                                    <a href={`${BASE_URL}/api/activite/fichier/${devoirData.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#17a2b8', color: '#fff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', display: 'inline-block' }}>
                                                                                         <i className="fas fa-download me-2"></i>Télécharger le sujet
                                                                                     </a>
                                                                                 </div>
@@ -885,7 +885,7 @@ const CreateActivite = () => {
                                                                     return (
                                                                         <div>
                                                                             <video controls style={{ width: '100%', borderRadius: '8px', marginBottom: '15px' }}>
-                                                                                <source src={`http://localhost:8801/api/video/${videoData.video}`} type="video/mp4" />
+                                                                                <source src={`${BASE_URL}/api/video/${videoData.video}`} type="video/mp4" />
                                                                             </video>
                                                                             <h6>Questions:</h6>
                                                                             {videoData.questions && videoData.questions.map((q, qIndex) => (
