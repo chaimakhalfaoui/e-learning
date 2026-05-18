@@ -473,7 +473,7 @@ const CreateActivite = () => {
         setInputs({
             id: ressourceId,
             titre,
-            description: description || ,
+            description: description || '',
             fichier: fichier,
             fichierUrl: fileUrl,
             fichierName: fichier,
