@@ -76,7 +76,7 @@ const CurriculumPart = () => {
     const fetchUserInfo = async () => {
         try {
             const userId = await idUser();
-            const response = await axios.get(`http://localhost:8801/api/auth/getUser/${userId}`);
+            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/getUser/${userId}`);
             setUserInfo(response.data);
         } catch (error) {
             console.error("Erreur récupération user:", error);
@@ -95,7 +95,7 @@ const CurriculumPart = () => {
     const fetchTravauxByActivite = async (activiteId) => {
         try {
             const userId = await idUser();
-            const response = await axios.get(`http://localhost:8801/api/travaux/getByActiviteAndEtudiant/${activiteId}/${userId}`);
+            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/getByActiviteAndEtudiant/${activiteId}/${userId}`);
             setTravaux(prev => ({ ...prev, [activiteId]: response.data }));
         } catch (error) {
             console.error("Erreur chargement travaux:", error);
@@ -110,7 +110,7 @@ const CurriculumPart = () => {
             const chapitresAvecRessources = await Promise.all(
                 response.data.map(async (chap, chapIndex) => {
                     try {
-                        const resResponse = await axios.get(`http://localhost:8801/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
+                        const resResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
                         
                         // Charger les travaux pour chaque activité
                         if (chap.activites) {
@@ -123,7 +123,7 @@ const CurriculumPart = () => {
                         const userId = await idUser();
                         if (userId && userId !== 0) {
                             try {
-                                const avcResponse = await axios.get(`http://localhost:8801/api/avc/avc/${id}/${userId}`);
+                                const avcResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/avc/avc/${id}/${userId}`);
                                 const chapN = avcResponse.data?.chapN || 0;
                                 
                                 // Marquer comme complété si le chapitre est <= chapN
@@ -224,7 +224,7 @@ const CurriculumPart = () => {
                 formData.append('fichier', nouveauTravail.fichier);
             }
             
-            await axios.post("http://localhost:8801/api/travaux/create", formData, {
+            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/create", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             
@@ -257,7 +257,7 @@ const CurriculumPart = () => {
         
         try {
             const userId = await idUser();
-            await axios.post("http://localhost:8801/api/reponses/create", {
+            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/reponses/create", {
                 id_activite: activiteId,
                 id_etudiant: userId,
                 reponses: activiteReponses
@@ -305,7 +305,7 @@ const CurriculumPart = () => {
                         )}
                         {devoirData.fichier && (
                             <a 
-                                href={`http://localhost:8801/api/activite/fichier/${devoirData.fichier}`} 
+                                href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/activite/fichier/${devoirData.fichier}`} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
                                 style={{ background: '#dc3545', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}
@@ -329,7 +329,7 @@ const CurriculumPart = () => {
                             <i className="fa fa-play-circle"></i> Vidéo interactive
                         </h6>
                         <video controls style={styles.modalVideo}>
-                            <source src={`http://localhost:8801/api/video/${videoData.video}`} type="video/mp4" />
+                            <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/video/${videoData.video}`} type="video/mp4" />
                         </video>
                         {videoData.questions && videoData.questions.length > 0 && (
                             <div style={{ marginTop: '20px' }}>
@@ -347,7 +347,7 @@ const CurriculumPart = () => {
                 return (
                     <div>
                         <video controls style={styles.modalVideo}>
-                            <source src={`http://localhost:8801/api/video/${activite.contenu}`} type="video/mp4" />
+                            <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/video/${activite.contenu}`} type="video/mp4" />
                         </video>
                     </div>
                 );
@@ -359,12 +359,12 @@ const CurriculumPart = () => {
             return <div style={styles.textContent}>{activite.contenu}</div>;
         }
         if (activite.categorie === "image") {
-            return <img src={`http://localhost:8801/api/image/${activite.contenu}`} alt="contenu" style={styles.modalImage} />;
+            return <img src={`${activite.contenu?.startsWith("http") ? activite.contenu : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/image/${activite.contenu}`}`} alt="contenu" style={styles.modalImage} />;
         }
         if (activite.categorie === "video") {
             return (
                 <video controls style={styles.modalVideo}>
-                    <source src={`http://localhost:8801/api/video/${activite.contenu}`} type="video/mp4" />
+                    <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/video/${activite.contenu}`} type="video/mp4" />
                 </video>
             );
         }
@@ -382,7 +382,7 @@ const CurriculumPart = () => {
                         style={{ width: '100%', maxHeight: '300px', borderRadius: '8px' }}
                         poster="/video-poster-placeholder.jpg"
                     >
-                        <source src={`http://localhost:8801/api/ressource/video/${ressource.fichier}`} type="video/mp4" />
+                        <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/video/${ressource.fichier}`} type="video/mp4" />
                         Votre navigateur ne supporte pas la lecture de vidéos.
                     </video>
                 </div>
@@ -776,7 +776,7 @@ const CurriculumPart = () => {
                                                             </span>
                                                         ) : (
                                                             <a 
-                                                                href={`http://localhost:8801/api/ressource/fichier/${ressource.fichier}`}
+                                                                href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/fichier/${ressource.fichier}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 style={styles.downloadBtn}
@@ -803,7 +803,7 @@ const CurriculumPart = () => {
                                                                         style={{ width: '100%', maxHeight: '400px', borderRadius: '8px', marginTop: '10px' }}
                                                                         controlsList="nodownload"
                                                                     >
-                                                                        <source src={`http://localhost:8801/api/ressource/video/${ressource.fichier}`} type="video/mp4" />
+                                                                        <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/video/${ressource.fichier}`} type="video/mp4" />
                                                                         Votre navigateur ne supporte pas la lecture de vidéos.
                                                                     </video>
                                                                 </div>
@@ -895,7 +895,7 @@ const CurriculumPart = () => {
                                                                                         </a>
                                                                                     )}
                                                                                     {travailExistant.fichier && (
-                                                                                        <a href={`http://localhost:8801/api/travaux/fichier/${travailExistant.fichier}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#ff5421', display: 'inline-block', marginLeft: '15px', marginTop: '8px' }}>
+                                                                                        <a href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/fichier/${travailExistant.fichier}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#ff5421', display: 'inline-block', marginLeft: '15px', marginTop: '8px' }}>
                                                                                             <i className="fa fa-download"></i> Télécharger
                                                                                         </a>
                                                                                     )}

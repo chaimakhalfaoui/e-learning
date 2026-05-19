@@ -16,8 +16,8 @@ import bannerbg from "../../assets/img/breadcrumbs/inner7.jpg";
 import Logo from "../../assets/img/logo/dark-logo.png";
 import footerLogo from "../../assets/img/logo/lite-logo.png";
 
-const API_URL = 'http://localhost:8801/api';
-const UPLOADS_URL = 'http://localhost:8801/uploads'; // Correction : pas de /api
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
+const UPLOADS_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/uploads'; // Correction : pas de /api
 
 const EditCategorie = () => {
   const { id } = useParams();

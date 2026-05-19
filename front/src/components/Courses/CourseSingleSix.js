@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/authContext';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const CourseSingleSix = (props) => {
     const { 

@@ -18,7 +18,7 @@ import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/inner7.jpg';
 
-const API_URL = 'http://localhost:8801/api';
+const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const CreateCours = () => {
     const { idUser, role } = useAuth();

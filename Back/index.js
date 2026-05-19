@@ -23,20 +23,30 @@ import etudiantsRoutes from "./routes/etudiant.js"
 import coordinateursRoutes from "./routes/coordinateurs.js";
 import ressourceRoutes from "./routes/ressource.js";
 import travauxRoutes from "./routes/travauxRoutes.js";
+import corsMiddleware from './middleware/cors.js';
 
-
-
-
-import corsMiddleware from './middleware/cors.js'; 
+// Importer les métriques Prometheus
+import { register, httpRequestDuration, errorCounter, activiteCounter } from './metrics.js';
 
 const app = express();
 
 app.use(corsMiddleware);
-
 app.use(express.json());
 app.use(cookieParser());
 
+// ==================== MIDDLEWARE PROMETHEUS ====================
+// Middleware pour mesurer la durée des requêtes
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        const route = req.route?.path || req.path;
+        httpRequestDuration.labels(req.method, route, res.statusCode).observe(duration / 1000);
+    });
+    next();
+});
 
+// ==================== ROUTES ====================
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/event", eventRoutes);
@@ -61,9 +71,18 @@ app.use("/api/ressource", ressourceRoutes);
 app.use("/api/coordinateurs",coordinateursRoutes);
 app.use('/api/travaux', travauxRoutes);
 app.use("/uploads", express.static("uploads"));
+
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'Backend ISETSO E-learning is running' });
 });
+
+// ==================== ENDPOINT PROMETHEUS ====================
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+});
+
+console.log('✅ Métriques Prometheus activées sur /metrics');
 
 app.listen(8801, '0.0.0.0', () => {
   console.log("Connected!");
