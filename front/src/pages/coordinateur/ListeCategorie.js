@@ -340,11 +340,11 @@ const ListCategorie = () => {
                       📚 {courseCounts[cat.id] || 0} cours
                     </div>
                     <img
-                      src={cat.image ? (cat.image.startsWith("http") ? cat.image : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/uploads/${cat.image}`) : "https://via.placeholder.com/300x200?text=No+Image"}
+                      src={cat.image ? (cat.image.startsWith("http") ? cat.image : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/uploads/${cat.image}`) : "/placeholder.svg"}
                       alt={cat.title}
                       style={imageStyle}
                       onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/300x200?text=Image+non+trouvée";
+                        e.target.src = "/placeholder.svg";
                       }}
                     />
                     <h4 style={{ marginTop: "15px", fontSize: "18px", fontWeight: "bold" }}>

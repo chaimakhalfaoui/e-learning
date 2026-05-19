@@ -36,11 +36,11 @@ const CourseSingle = (props) => {
                 <div className="img-part">
                     <Link to={`/course/course/${props.courseLink}`}>
                         <img
-                            src={props.image || "https://via.placeholder.com/400x250?text=Image+non+disponible"}
+                            src={props.image || "/placeholder.svg"}
                             alt={props.title || "Cours"}
                             style={{ width: '100%', height: '200px', objectFit: 'cover' }}
                             onError={(e) => {
-                                e.target.src = "https://via.placeholder.com/400x250?text=Image+non+disponible";
+                                e.target.src = "/placeholder.svg";
                             }}
                         />
                         {props.category && (

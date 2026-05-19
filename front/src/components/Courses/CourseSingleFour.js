@@ -148,7 +148,7 @@ const CourseSingleFour = ({
             {/* Image */}
             <Link to={`/course/course/${btnLink}`}>
                 <img
-                    src={courseImg || "https://via.placeholder.com/400x250"}
+                    src={courseImg || "/placeholder.svg"}
                     alt={courseTitle}
                     style={{ width: '100%', height: '180px', objectFit: 'cover' }}
                 />

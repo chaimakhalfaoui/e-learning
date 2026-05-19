@@ -60,7 +60,7 @@ const AboutMain = () => {
                         <div className="col-lg-6 md-mb-50">
                             <div className="about-img">
                                 <img 
-                                    src="https://via.placeholder.com/600x400?text=ISETSO+E-Learning" 
+                                    src="/placeholder.svg" 
                                     alt="À propos ISETSO" 
                                     style={{ width: '100%', borderRadius: '10px' }}
                                 />

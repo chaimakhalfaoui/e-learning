@@ -156,11 +156,11 @@ const ListeCoursParCategorie = () => {
             <div key={course.id} className="col-lg-4 col-md-6 mb-30">
               <div className="card h-100 shadow-sm" style={{ borderRadius: "10px", overflow: "hidden" }}>
                 <img 
-                  src={course.image ? `${API_URL}/image/${course.image}` : "https://via.placeholder.com/400x250"}
+                  src={course.image ? `${API_URL}/image/${course.image}` : "/placeholder.svg"}
                   className="card-img-top"
                   alt={course.titre}
                   style={{ height: "180px", objectFit: "cover" }}
-                  onError={(e) => e.target.src = "https://via.placeholder.com/400x250"}
+                  onError={(e) => e.target.src = "/placeholder.svg"}
                 />
                 <div className="card-body">
                   <div className="d-flex justify-content-between align-items-start mb-2">

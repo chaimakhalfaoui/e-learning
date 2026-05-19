@@ -119,7 +119,7 @@ const CourseSingleSix = (props) => {
             }}>
                 <div className="img-part" style={{ position: 'relative', overflow: 'hidden' }}>
                     <img
-                        src={courseImg || "https://via.placeholder.com/400x250?text=Chargement..."}
+                        src={courseImg || "/placeholder.svg"}
                         alt="Chargement"
                         style={{ width: '100%', height: '220px', objectFit: 'cover' }}
                     />
@@ -155,13 +155,13 @@ const CourseSingleSix = (props) => {
             <div className="img-part" style={{ position: 'relative', overflow: 'hidden' }}>
                 <Link to={`/course/course/${courseid}`}>
                     <img
-                        src={courseImg || "https://via.placeholder.com/400x250?text=Image+non+disponible"}
+                        src={courseImg || "/placeholder.svg"}
                         alt={courseTitle || "Cours"}
                         style={{ width: '100%', height: '220px', objectFit: 'cover', transition: 'transform 0.5s ease' }}
                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         onError={(e) => {
-                            e.target.src = "https://via.placeholder.com/400x250?text=Image+non+disponible";
+                            e.target.src = "/placeholder.svg";
                         }}
                     />
                     {courseCategory && (

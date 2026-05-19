@@ -166,7 +166,7 @@ const OverviewPart = () => {
                                     borderRadius: '10px'
                                 }}
                                 onError={(e) => {
-                                    e.target.src = 'https://via.placeholder.com/800x400?text=Image+non+disponible';
+                                    e.target.src = '/placeholder.svg';
                                 }}
                             />
                         </div>
