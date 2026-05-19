@@ -1,3 +1,4 @@
+import { getImageUrl } from "../../utils/imageUtils";
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -409,7 +410,7 @@ const handleImageChange = (e) => {
                                                     ...imageStyle,
                                                     opacity: isEditing ? "0.7" : "1"
                                                 }}
-                                                src={previewImage || `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/image/${userData.image}`} 
+                                                src={previewImage || getImageUrl(userData.image)} 
                                                 alt="profile" 
                                             />
                                         ) : (

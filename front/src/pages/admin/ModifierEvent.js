@@ -1,3 +1,4 @@
+import { getImageUrl } from "../../utils/imageUtils";
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -87,7 +88,7 @@ const ModifierEvent = () => {
                     datefin: eventData.datefin ? eventData.datefin.split('T')[0] : "",
                     heurefin: eventData.heurefin || "",
                     image: null,
-                    imageUrl: `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/image/${eventData.image}`
+                    imageUrl: getImageUrl(eventData.image)
                 });
             } catch (error) {
                 console.error("Erreur lors de la récupération des données:", error);

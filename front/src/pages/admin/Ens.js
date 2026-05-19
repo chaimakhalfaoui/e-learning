@@ -1,3 +1,4 @@
+import { getImageUrl } from "../../utils/imageUtils";
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link , useNavigate } from 'react-router-dom';
@@ -130,7 +131,7 @@ const Ens = () => {
                         <div key={index} className="col-lg-4 col-md-6 mb-30">
                             <SingleTeam
                                 itemClass="team-item"
-                                Image={teacher.image ? `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/image/${teacher.image}` : getRandomImage()}
+                                Image={teacher.image ? getImageUrl(teacher.image) : getRandomImage()}
                                 Title={teacher.username}
                                 Designation="teacher"
                                 email={teacher.email}

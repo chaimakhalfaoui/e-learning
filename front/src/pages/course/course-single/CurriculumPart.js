@@ -1,3 +1,4 @@
+import { getImageUrl } from "../../utils/imageUtils";
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
@@ -359,7 +360,7 @@ const CurriculumPart = () => {
             return <div style={styles.textContent}>{activite.contenu}</div>;
         }
         if (activite.categorie === "image") {
-            return <img src={`${activite.contenu?.startsWith("http") ? activite.contenu : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/image/${activite.contenu}`}`} alt="contenu" style={styles.modalImage} />;
+            return <img src={getImageUrl(activite.contenu)} alt="contenu" style={styles.modalImage} />;
         }
         if (activite.categorie === "video") {
             return (
