@@ -18,8 +18,8 @@ if (!fs.existsSync(uploadDevoirDir)) fs.mkdirSync(uploadDevoirDir, { recursive: 
 // Utiliser S3 pour le stockage
 const upload = createS3Upload("uploads");
 
-const uploadDevoir = createS3Upload("uploads/devoirs");
-const uploadv = createS3Upload("uploads/videos");
+const uploadDevoir = createS3Upload("uploads/devoirs", { fileSize: 50 * 1024 * 1024 });
+const uploadv = createS3Upload("uploads/videos", { fileSize: 500 * 1024 * 1024 });
 // ==================== CRÉATION ====================
 
 export const createActivite = (req, res) => {
