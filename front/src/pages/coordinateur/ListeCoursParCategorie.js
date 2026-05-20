@@ -156,7 +156,7 @@ const ListeCoursParCategorie = () => {
             <div key={course.id} className="col-lg-4 col-md-6 mb-30">
               <div className="card h-100 shadow-sm" style={{ borderRadius: "10px", overflow: "hidden" }}>
                 <img 
-                  src={course.image ? `${API_URL}/image/${course.image}` : "/placeholder.svg"}
+                  src={course.image ? (course.image.startsWith("http") ? course.image : `${API_URL}/image/${course.image}`) : "/placeholder.svg"}
                   className="card-img-top"
                   alt={course.titre}
                   style={{ height: "180px", objectFit: "cover" }}

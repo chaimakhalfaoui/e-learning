@@ -454,7 +454,7 @@ const CreateActivite = () => {
     };
 
     const handleUpdateRessourceModal = (ressourceId, titre, description, fichier, type_fichier) => {
-        const fileUrl = `${BASE_URL}/api/ressource/fichier/${fichier}`;
+        const fileUrl = fichier?.startsWith('http') ? fichier : `${BASE_URL}/api/ressource/fichier/${fichier}`;
         setInputs({
             id: ressourceId,
             titre,
@@ -695,7 +695,7 @@ const CreateActivite = () => {
                                                             <source src={`${BASE_URL}/api/ressource/video/${item.fichier}`} type="video/mp4" />
                                                         </video>
                                                     ) : (
-                                                        <a href={`${BASE_URL}/api/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
+                                                        <a href={item.fichier?.startsWith('http') ? item.fichier : `${BASE_URL}/api/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
                                                             <i className="fas fa-download me-2"></i>Télécharger
                                                         </a>
                                                     )}
@@ -1110,7 +1110,7 @@ const CreateActivite = () => {
                                             type="number" 
                                             placeholder="Timestamp (secondes)" 
                                             value={q.timestamp} 
-                                            onChange={(e) => handleVideoQuestionChange(qIndex, 'timestamp', parseInt(e.target.value))} 
+                                            onChange={(e) => handleVideoQuestionChange(qIndex, 'timestamp', parseInt(e.target.value) || 0)}
                                             style={styles.input} 
                                             required 
                                         />

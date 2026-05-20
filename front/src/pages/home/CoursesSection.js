@@ -155,7 +155,7 @@ const Courses = () => {
                             <div className="col-lg-4 col-md-6 mb-30" key={course.id}>
                                 <CourseSingle
                                     itemClass="courses-item"
-                                    image={course.image && course.image.startsWith("http") ? course.image : course.image && course.image.startsWith("http") ? course.image : `${API_URL}/image/${course.image}`}
+                                    image={course.image?.startsWith("http") ? course.image : "/placeholder.svg"}
                                     title={course.titre}
                                     description={course.description}
                                     category={course.type}

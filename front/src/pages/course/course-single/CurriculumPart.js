@@ -359,7 +359,7 @@ const CurriculumPart = () => {
             return <div style={styles.textContent}>{activite.contenu}</div>;
         }
         if (activite.categorie === "image") {
-            return <img src={activite.contenu?.startsWith("http") ? activite.contenu : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/image/${activite.contenu}`} alt="contenu" style={styles.modalImage} />;
+            return <img src={activite.contenu} alt="contenu" style={styles.modalImage} />;
         }
         if (activite.categorie === "video") {
             return (
@@ -776,7 +776,7 @@ const CurriculumPart = () => {
                                                             </span>
                                                         ) : (
                                                             <a 
-                                                                href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/fichier/${ressource.fichier}`}
+                                                                href={ressource.fichier?.startsWith("http") ? ressource.fichier : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/fichier/${ressource.fichier}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 style={styles.downloadBtn}
