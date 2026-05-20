@@ -244,11 +244,11 @@ const Q = () => {
     }, []);
 
     const fetchEnseignantId = async () => {
-        try {
-            const res = await axios.get(`${API_URL}/cours/getUserIdByCourseId/${id}`);
-            setEnseignantId(res.data);
-        } catch (e) { console.error(e); }
-    };
+    try {
+        const res = await axios.get(`${API_URL}/cours/getUserIdByCourseId/${id}`);
+        setEnseignantId(res.data.id_user); // ← was: res.data
+    } catch (e) { console.error(e); }
+};
 
     const fetchCurrentUser = async () => {
         try {
