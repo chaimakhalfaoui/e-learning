@@ -18,40 +18,8 @@ if (!fs.existsSync(uploadDevoirDir)) fs.mkdirSync(uploadDevoirDir, { recursive: 
 // Utiliser S3 pour le stockage
 const upload = createS3Upload("uploads");
 
-// Stockage pour les fichiers de devoir
-const devoirStorage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/devoirs/'),
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + uuidv4();
-        cb(null, uniqueSuffix + '-' + file.originalname);
-    }
-});
-
-const devoirFileFilter = (req, file, cb) => {
-    const allowedTypes = ['application/pdf', 'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
-    allowedTypes.includes(file.mimetype) ? cb(null, true) : cb(new Error("Format non supporté"), false);
-};
-
-const uploadDevoir = multer({ storage: devoirStorage, fileFilter: devoirFileFilter, limits: { fileSize: 50 * 1024 * 1024 } });
-
-// Stockage pour vidéos
-const storagev = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/videos/'),
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + uuidv4();
-        cb(null, uniqueSuffix + '-' + file.originalname);
-    }
-});
-
-const fileFilterv = (req, file, cb) => {
-    const allowed = ['video/mp4', 'video/mpeg', 'video/quicktime'];
-    allowed.includes(file.mimetype) ? cb(null, true) : cb(null, false);
-};
-
-const uploadv = multer({ storage: storagev, fileFilter: fileFilterv, limits: { fileSize: 500 * 1024 * 1024 } });
-
+const uploadDevoir = createS3Upload("uploads/devoirs");
+const uploadv = createS3Upload("uploads/videos");
 // ==================== CRÉATION ====================
 
 export const createActivite = (req, res) => {
@@ -112,7 +80,7 @@ export const createDevoir = (req, res) => {
     uploadDevoir.single('fichier')(req, res, (err) => {
         if (err) return res.status(500).json("Erreur upload fichier.");
         const { titre, date_limite, id_chapitre } = req.body;
-        const fichier = req.file?.filename;
+        const fichier = req.file?.location;
         if (!titre || !id_chapitre || !fichier) return res.status(400).json("Titre, fichier et chapitre requis.");
         const devoirData = JSON.stringify({ fichier, type_fichier: req.body.type_fichier || 'other', date_limite: date_limite || null });
         db.query("INSERT INTO activite (titre, categorie, contenu, id_chapitre) VALUES (?, 'devoir', ?, ?)",
@@ -127,7 +95,7 @@ export const createVideoInteractive = (req, res) => {
     uploadv.single('video')(req, res, (err) => {
         if (err) return res.status(500).json("Erreur upload vidéo.");
         const { titre, id_chapitre, questions_interactives } = req.body;
-        const videoName = req.file?.filename;
+        const videoName = req.file?.location;
         if (!titre || !id_chapitre || !videoName) return res.status(400).json("Titre, vidéo et chapitre requis.");
         const videoData = JSON.stringify({ video: videoName, questions: questions_interactives ? JSON.parse(questions_interactives) : [] });
         db.query("INSERT INTO activite (titre, categorie, contenu, id_chapitre) VALUES (?, 'video_interactive', ?, ?)",
