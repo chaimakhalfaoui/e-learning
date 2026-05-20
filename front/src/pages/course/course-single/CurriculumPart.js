@@ -76,7 +76,7 @@ const CurriculumPart = () => {
     const fetchUserInfo = async () => {
         try {
             const userId = await idUser();
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/getUser/${userId}`);
+            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/users/${userId}`);
             setUserInfo(response.data);
         } catch (error) {
             console.error("Erreur récupération user:", error);
