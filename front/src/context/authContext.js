@@ -23,7 +23,8 @@ export const AuthContextProvider = ({ children }) => {
       try {
         const token = localStorage.getItem("access_token");
         if (!token) {
-          throw new Error("No access token found");
+        resolve(null); 
+  	return;
         }
 
         const decodedToken = parseJwt(token);
@@ -42,7 +43,8 @@ export const AuthContextProvider = ({ children }) => {
       try {
         const token = localStorage.getItem("access_token");
         if (!token) {
-          throw new Error("No access token found");
+          resolve(null);
+          return;
         }
 
         const decodedToken = parseJwt(token);
