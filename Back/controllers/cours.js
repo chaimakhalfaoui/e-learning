@@ -140,7 +140,7 @@ export const getUserIdByCourseId = (req, res) => {
     const id_cours = req.params.id;
     const query = `
         SELECT Users.id FROM
-        Cours JOIN Users ON Cours.id_user = Users.id WHERE Cours.id = ?;
+        cours JOIN Users ON cours.id_user = Users.id WHERE cours.id = ?;
     `;
 
     db.query(query, [id_cours], (err, data) => {
@@ -149,12 +149,11 @@ export const getUserIdByCourseId = (req, res) => {
             return res.status(500).json({ error: "Erreur serveur." });
         }
         if (data.length === 0) {
-            return res.status(404).json({ error: "Aucun utilisateur trouvé." });
+            return res.status(404).json({ message: "Cours non trouvé" });
         }
-        return res.status(200).json(data[0].id);
+        res.json({ id_user: data[0].id });
     });
 };
-
 export const deleteCourse = (req, res) => {
     const id_cours = req.params.id;
 
