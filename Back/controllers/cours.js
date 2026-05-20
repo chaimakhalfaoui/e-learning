@@ -120,8 +120,8 @@ export const getCourse = (req, res) => {
 export const getUserNameByCourseId = (req, res) => {
     const id_cours = req.params.id;
     const query = `
-        SELECT Users.username FROM
-        Cours JOIN Users ON Cours.id_user = Users.id WHERE Cours.id = ?;
+        SELECT users.username FROM
+        Cours JOIN users ON cours.id_user = users.id WHERE cours.id = ?;
     `;
 
     db.query(query, [id_cours], (err, data) => {
@@ -139,8 +139,8 @@ export const getUserNameByCourseId = (req, res) => {
 export const getUserIdByCourseId = (req, res) => {
     const id_cours = req.params.id;
     const query = `
-        SELECT Users.id FROM
-        cours JOIN Users ON cours.id_user = Users.id WHERE cours.id = ?;
+        SELECT users.id FROM
+        cours JOIN users ON cours.id_user = users.id WHERE cours.id = ?;
     `;
 
     db.query(query, [id_cours], (err, data) => {
