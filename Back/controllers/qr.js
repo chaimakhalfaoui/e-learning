@@ -17,7 +17,7 @@ export const createMessage = (req, res) => {
         const userName = userResult[0]?.username || `Étudiant ${idUser}`;
         
         const insertQuery = `
-            INSERT INTO qr (idCours, idUser, idEns, message, sentBy, parentId, userName, created_at)
+            INSERT INTO qr (idCours, idUser, idEns, message, sentBy, parentId, userName, createdAt)
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
         `;
         
@@ -38,7 +38,7 @@ export const getMessagesByCours = (req, res) => {
     const query = `
         SELECT * FROM qr 
         WHERE idCours = ? 
-        ORDER BY created_at ASC
+        ORDER BY createdAt ASC
     `;
     
     db.query(query, [idCours], (err, results) => {
