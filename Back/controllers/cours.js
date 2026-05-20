@@ -30,7 +30,7 @@ export const createCours = (req, res) => {
         }
 
         const insertCoursQuery = `
-            INSERT INTO Cours 
+            INSERT INTO cours 
             (titre, description, dateCre, id_user, image, duration, id_categorie, id_level, status, validation_status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'hidden', 'pending')
         `;
@@ -56,7 +56,7 @@ export const createCours = (req, res) => {
 export const getAllCourses = (req, res) => {
     const selectCoursesQuery = `
         SELECT C.*, cat.title AS type, lvl.title AS level, u.username AS enseignant
-        FROM Cours AS C
+        FROM cours AS C
         INNER JOIN categorie AS cat ON C.id_categorie = cat.id
         INNER JOIN level AS lvl ON C.id_level = lvl.id
         INNER JOIN users AS u ON C.id_user = u.id
@@ -77,7 +77,7 @@ export const getAllCoursesId = (req, res) => {
     
     const selectCoursesQuery = `
         SELECT C.*, cat.title AS type, lvl.title AS level
-        FROM Cours AS C 
+        FROM cours AS C 
         INNER JOIN categorie AS cat ON C.id_categorie = cat.id
         INNER JOIN level AS lvl ON C.id_level = lvl.id
         WHERE C.id_user = ?
@@ -98,7 +98,7 @@ export const getCourse = (req, res) => {
     
     const selectCoursesQuery = `
         SELECT C.*, cat.title AS type, lvl.title AS level, u.username AS enseignant
-        FROM Cours AS C 
+        FROM cours AS C 
         INNER JOIN categorie AS cat ON C.id_categorie = cat.id
         INNER JOIN level AS lvl ON C.id_level = lvl.id
         INNER JOIN users AS u ON C.id_user = u.id
@@ -158,7 +158,7 @@ export const getUserIdByCourseId = (req, res) => {
 export const deleteCourse = (req, res) => {
     const id_cours = req.params.id;
 
-    const deleteCourseQuery = "DELETE FROM Cours WHERE id = ?";
+    const deleteCourseQuery = "DELETE FROM cours WHERE id = ?";
     db.query(deleteCourseQuery, [id_cours], (err, result) => {
         if (err) {
             console.error("Erreur suppression cours:", err);
@@ -189,7 +189,7 @@ export const updateCours = (req, res) => {
             return res.status(400).json({ error: "Tous les champs sont requis." });
         }
 
-        let updateCoursQuery = "UPDATE Cours SET titre = ?, description = ?, dateCre = ?, id_categorie = ?, id_level = ?, id_user = ?, duration = ?";
+        let updateCoursQuery = "UPDATE cours SET titre = ?, description = ?, dateCre = ?, id_categorie = ?, id_level = ?, id_user = ?, duration = ?";
         const values = [titre, description, dateCre, type, level, id_user, duration];
 
         if (status && (status === 'published' || status === 'hidden')) {
@@ -255,7 +255,7 @@ export const getCoursByCategorie = (req, res) => {
                 c.id, c.titre, c.description, c.dateCre, c.image, c.duration,
                 c.id_categorie, c.id_user, c.id_level, c.status, c.validation_status,
                 cat.title AS type, lvl.title AS level, u.username AS enseignant
-            FROM Cours c
+            FROM cours c
             INNER JOIN categorie cat ON c.id_categorie = cat.id
             INNER JOIN level lvl ON c.id_level = lvl.id
             INNER JOIN users u ON c.id_user = u.id
@@ -289,7 +289,7 @@ export const updateCourseStatus = (req, res) => {
         return res.status(400).json({ error: "Statut invalide." });
     }
 
-    const checkQuery = "SELECT id, titre, validation_status FROM Cours WHERE id = ?";
+    const checkQuery = "SELECT id, titre, validation_status FROM cours WHERE id = ?";
     db.query(checkQuery, [id], (err, result) => {
         if (err) {
             console.error("Erreur:", err);
@@ -306,7 +306,7 @@ export const updateCourseStatus = (req, res) => {
             });
         }
 
-        const query = "UPDATE Cours SET status = ? WHERE id = ?";
+        const query = "UPDATE cours SET status = ? WHERE id = ?";
         db.query(query, [status, id], (err, data) => {
             if (err) {
                 console.error("Erreur:", err);
@@ -333,7 +333,7 @@ export const getCoursesByStatus = (req, res) => {
             cat.title AS type, 
             lvl.title AS level, 
             u.username AS enseignant
-        FROM Cours C
+        FROM cours C
         INNER JOIN categorie cat ON C.id_categorie = cat.id
         INNER JOIN level lvl ON C.id_level = lvl.id
         INNER JOIN users u ON C.id_user = u.id
@@ -372,7 +372,7 @@ export const getStudentEnrolledCourses = (req, res) => {
             cat.title AS categorie,
             lvl.title AS niveau,
             u.username AS enseignant
-        FROM Cours C
+        FROM cours C
         INNER JOIN categorie cat ON C.id_categorie = cat.id
         INNER JOIN level lvl ON C.id_level = lvl.id
         INNER JOIN users u ON C.id_user = u.id
@@ -477,7 +477,7 @@ export const requestValidation = (req, res) => {
     const { message } = req.body;
     
     const query = `
-        UPDATE Cours 
+        UPDATE cours 
         SET validation_status = 'pending', 
             validation_comment = ?,
             status = 'hidden'
@@ -504,7 +504,7 @@ export const approveCourse = (req, res) => {
     const { id } = req.params;
     const { validated_by, comment } = req.body;
     
-    const checkQuery = "SELECT id, validation_status FROM Cours WHERE id = ?";
+    const checkQuery = "SELECT id, validation_status FROM cours WHERE id = ?";
     db.query(checkQuery, [id], (err, result) => {
         if (err) {
             console.error("Erreur:", err);
@@ -518,7 +518,7 @@ export const approveCourse = (req, res) => {
         }
 
         const query = `
-            UPDATE Cours 
+            UPDATE cours 
             SET validation_status = 'approved',
                 validation_comment = ?,
                 validation_date = NOW(),
@@ -544,7 +544,7 @@ export const rejectCourse = (req, res) => {
     const { id } = req.params;
     const { comment } = req.body;
     
-    const checkQuery = "SELECT id, validation_status FROM Cours WHERE id = ?";
+    const checkQuery = "SELECT id, validation_status FROM cours WHERE id = ?";
     db.query(checkQuery, [id], (err, result) => {
         if (err) {
             console.error("Erreur:", err);
@@ -558,7 +558,7 @@ export const rejectCourse = (req, res) => {
         }
 
         const query = `
-            UPDATE Cours 
+            UPDATE cours 
             SET validation_status = 'rejected',
                 validation_comment = ?,
                 status = 'hidden'
@@ -586,7 +586,7 @@ export const getPendingCourses = (req, res) => {
                lvl.title AS niveau,
                u.username AS enseignant,
                u.email AS enseignant_email
-        FROM Cours C
+        FROM cours C
         INNER JOIN categorie cat ON C.id_categorie = cat.id
         INNER JOIN level lvl ON C.id_level = lvl.id
         INNER JOIN users u ON C.id_user = u.id
@@ -619,7 +619,7 @@ export const getCoursesWithValidationStatus = (req, res) => {
                    WHEN C.validation_status = 'rejected' THEN 'Rejeté'
                    ELSE 'Non soumis'
                END AS validation_status_text
-        FROM Cours C
+        FROM cours C
         INNER JOIN categorie cat ON C.id_categorie = cat.id
         INNER JOIN level lvl ON C.id_level = lvl.id
         WHERE C.id_user = ?

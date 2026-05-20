@@ -535,7 +535,7 @@ export const getAllStudents = (req, res) => {
 };
 
 const deleteCourseByUser = (userId, callback) => {
-    const deleteCourseQuery = "SELECT id FROM Cours WHERE id_user = ?";
+    const deleteCourseQuery = "SELECT id FROM cours WHERE id_user = ?";
     db.query(deleteCourseQuery, [userId], (err, courses) => {
         if (err) return callback(err);
 
@@ -573,7 +573,7 @@ const deleteCourseByUser = (userId, callback) => {
                                             db.query(deleteQuizzesQuery, [id_cours], (err) => {
                                                 if (err) return db.rollback(() => reject(err));
                                                 
-                                                const deleteCourseQuery = "DELETE FROM Cours WHERE id = ?";
+                                                const deleteCourseQuery = "DELETE FROM cours WHERE id = ?";
                                                 db.query(deleteCourseQuery, [id_cours], (err) => {
                                                     if (err) return db.rollback(() => reject(err));
                                                     

@@ -64,7 +64,20 @@ const CreateActivite = () => {
     const [travauxCount, setTravauxCount] = useState({});
     const { id } = useParams();
     const { idUser } = useAuth();
+     
 
+
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+
+
+    const [uploadingDevoir, setUploadingDevoir] = useState(false);
+    const [uploadProgressDevoir, setUploadProgressDevoir] = useState(0);
+
+    const [uploadingFile, setUploadingFile] = useState(false);
+    const [uploadProgressFile, setUploadProgressFile] = useState(0);
+    const [uploadingVideo, setUploadingVideo] = useState(false);
+    const [uploadProgressVideo, setUploadProgressVideo] = useState(0);
     // État pour les questions du questionnaire
     const [questions, setQuestions] = useState([{ texte: "" }]);
 
@@ -306,9 +319,15 @@ const CreateActivite = () => {
             formData.append('type_fichier', inputs.type_fichier_devoir);
             formData.append('id_chapitre', id);
 
-            await axios.post(`${BASE_URL}/api/activite/createDevoir`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            setUploadingDevoir(true);
+await axios.post(`${BASE_URL}/api/activite/createDevoir`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (progressEvent) => {
+        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgressDevoir(percent);
+    }
+});
+setUploadingDevoir(false);
             toast.success('Devoir créé avec succès');
             setInputs(prev => ({
                 ...prev,
@@ -342,9 +361,15 @@ const CreateActivite = () => {
             formData.append('questions_interactives', JSON.stringify(videoQuestions));
             formData.append('id_chapitre', id);
 
-            await axios.post(`${BASE_URL}/api/activite/createVideoInteractive`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            setUploading(true);
+await axios.post(`${BASE_URL}/api/activite/createVideoInteractive`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (progressEvent) => {
+        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgress(percent);
+    }
+});
+setUploading(false);
             toast.success('Vidéo interactive créée avec succès');
             setInputs(prev => ({ ...prev, titre: "", video: null, videoUrl: null }));
             setVideoQuestions([{ texte: "", timestamp: 0 }]);
@@ -380,9 +405,15 @@ const CreateActivite = () => {
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('type_ressource', 'fichier');
             formData.append('id_chapitre', id);
-            await axios.post(`${BASE_URL}/api/ressource/createRessource`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            setUploadingFile(true);
+await axios.post(`${BASE_URL}/api/ressource/createRessource`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (progressEvent) => {
+        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgressFile(percent);
+    }
+});
+setUploadingFile(false);
 
             toast.success('Fichier ajouté');
             setInputs({ titre: "", description: "", fichier: null, fichierUrl: null, fichierName: "", type_fichier: "" });
@@ -404,9 +435,15 @@ const CreateActivite = () => {
             formData.append('type_ressource', 'video');
             formData.append('id_chapitre', id);
 
-            await axios.post(`${BASE_URL}/api/ressource/createRessourceVideo`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            setUploadingVideo(true);
+await axios.post(`${BASE_URL}/api/ressource/createRessourceVideo`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (progressEvent) => {
+        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgressVideo(percent);
+    }
+});
+setUploadingVideo(false);
 
             toast.success('Vidéo ajoutée');
             setInputs({ titre: "", description: "", ressourceVideo: null, ressourceVideoUrl: null });
@@ -906,7 +943,9 @@ const CreateActivite = () => {
                             </div>
                             <div style={styles.modalFooter}>
                                 <button type="button" onClick={closModalRessourceFile} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
-                                <button type="submit" style={{ background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>{isAddingRessource ? 'Ajouter' : 'Modifier'}</button>
+                                <button type="submit" disabled={uploadingFile} style={{ background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>
+    {uploadingFile ? `Upload... ${uploadProgressFile}%` : (isAddingRessource ? 'Ajouter' : 'Modifier')}
+</button>
                             </div>
                         </form>
                     </div>
@@ -944,7 +983,9 @@ const CreateActivite = () => {
                             </div>
                             <div style={styles.modalFooter}>
                                 <button type="button" onClick={closModalRessourceVideo} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
-                                <button type="submit" style={{ background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>Ajouter</button>
+                                <button type="submit" disabled={uploadingVideo} style={{ background: '#ff5421', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>
+    {uploadingVideo ? `Upload... ${uploadProgressVideo}%` : 'Ajouter'}
+</button>
                             </div>
                         </form>
                     </div>
@@ -1060,7 +1101,9 @@ const CreateActivite = () => {
                             </div>
                             <div style={styles.modalFooter}>
                                 <button type="button" onClick={closModalDevoir} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
-                                <button type="submit" style={{ background: '#dc3545', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>Créer le devoir</button>
+                                <button type="submit" disabled={uploadingDevoir} style={{ background: '#dc3545', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>
+    {uploadingDevoir ? `Upload... ${uploadProgressDevoir}%` : 'Créer le devoir'}
+</button>
                             </div>
                         </form>
                     </div>
@@ -1129,7 +1172,9 @@ const CreateActivite = () => {
                             </div>
                             <div style={styles.modalFooter}>
                                 <button type="button" onClick={closModalVideoInteractive} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
-                                <button type="submit" style={{ background: '#fd7e14', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>Créer la vidéo interactive</button>
+                                <button type="submit" disabled={uploading} style={{ background: '#fd7e14', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>
+    {uploading ? `Upload... ${uploadProgress}%` : 'Créer la vidéo interactive'}
+</button>
                             </div>
                         </form>
                     </div>
