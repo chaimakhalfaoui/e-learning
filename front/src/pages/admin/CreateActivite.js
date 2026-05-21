@@ -220,7 +220,7 @@ const CreateActivite = () => {
 
     const fetchTravauxCount = async (activiteId) => {
         try {
-            const response = await axios.get(`${BASE_URL}/api/travaux/getByActivite/${activiteId}`);
+            const response = await axios.get(`${BASE_URL}/travaux/getByActivite/${activiteId}`);
             setTravauxCount(prev => ({ ...prev, [activiteId]: response.data.length }));
         } catch (error) {
             console.error("Erreur:", error);
@@ -231,7 +231,7 @@ const CreateActivite = () => {
         const fetchUserData = async () => {
             try {
                 const userId = await idUser();
-                const response = await axios.get(`${BASE_URL}/api/auth/checkUserRole/${userId}`);
+                const response = await axios.get(`${BASE_URL}/auth/checkUserRole/${userId}`);
                 if (response.data.role !== 'enseignant') {
                     navigate('/404');
                 }
@@ -244,7 +244,7 @@ const CreateActivite = () => {
 
     const fetchActivite = useCallback(async () => {
         try {
-            const response = await axios.get(`${BASE_URL}/api/activite/getAllActiviteId/${id}`);
+            const response = await axios.get(`${BASE_URL}/activite/getAllActiviteId/${id}`);
             setActivite(response.data);
             response.data.forEach(act => {
                 fetchTravauxCount(act.id);
@@ -258,7 +258,7 @@ const CreateActivite = () => {
 
     const fetchRessources = useCallback(async () => {
         try {
-            const response = await axios.get(`${BASE_URL}/api/ressource/getAllRessourceId/${id}`);
+            const response = await axios.get(`${BASE_URL}/ressource/getAllRessourceId/${id}`);
             setRessources(response.data);
         } catch (error) {
             console.error("Erreur fetchRessources:", error);
@@ -287,7 +287,7 @@ const CreateActivite = () => {
         }
 
         try {
-            await axios.post(`${BASE_URL}/api/activite/createQuestionnaire`, {
+            await axios.post(`${BASE_URL}/activite/createQuestionnaire`, {
                 titre: inputs.titre,
                 questions: questions,
                 id_chapitre: id
@@ -320,7 +320,7 @@ const CreateActivite = () => {
             formData.append('id_chapitre', id);
 
             setUploadingDevoir(true);
-await axios.post(`${BASE_URL}/api/activite/createDevoir`, formData, {
+await axios.post(`${BASE_URL}/activite/createDevoir`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: (progressEvent) => {
         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -362,7 +362,7 @@ setUploadingDevoir(false);
             formData.append('id_chapitre', id);
 
             setUploading(true);
-await axios.post(`${BASE_URL}/api/activite/createVideoInteractive`, formData, {
+await axios.post(`${BASE_URL}/activite/createVideoInteractive`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: (progressEvent) => {
         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -384,7 +384,7 @@ setUploading(false);
     const handleDeleteActivite = async (idActivite) => {
         if (window.confirm("Supprimer cette activité ?")) {
             try {
-                await axios.delete(`${BASE_URL}/api/activite/deleteActivite/${idActivite}`);
+                await axios.delete(`${BASE_URL}/activite/deleteActivite/${idActivite}`);
                 toast.success('Activité supprimée');
                 fetchActivite();
             } catch (err) {
@@ -406,7 +406,7 @@ setUploading(false);
             formData.append('type_ressource', 'fichier');
             formData.append('id_chapitre', id);
             setUploadingFile(true);
-await axios.post(`${BASE_URL}/api/ressource/createRessource`, formData, {
+await axios.post(`${BASE_URL}/ressource/createRessource`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: (progressEvent) => {
         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -436,7 +436,7 @@ setUploadingFile(false);
             formData.append('id_chapitre', id);
 
             setUploadingVideo(true);
-await axios.post(`${BASE_URL}/api/ressource/createRessourceVideo`, formData, {
+await axios.post(`${BASE_URL}/ressource/createRessourceVideo`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: (progressEvent) => {
         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -458,7 +458,7 @@ setUploadingVideo(false);
     const handleDeleteRessource = async (idRessource) => {
         if (window.confirm("Supprimer cette ressource ?")) {
             try {
-                await axios.delete(`${BASE_URL}/api/ressource/deleteRessource/${idRessource}`);
+                await axios.delete(`${BASE_URL}/ressource/deleteRessource/${idRessource}`);
                 toast.success('Ressource supprimée');
                 fetchRessources();
             } catch (err) {
@@ -478,7 +478,7 @@ setUploadingVideo(false);
             }
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('id_chapitre', id);
-            await axios.put(`${BASE_URL}/api/ressource/updateRessource/${inputs.id}`, formData, {
+            await axios.put(`${BASE_URL}/ressource/updateRessource/${inputs.id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             toast.success('Ressource mise à jour');
@@ -491,7 +491,7 @@ setUploadingVideo(false);
     };
 
     const handleUpdateRessourceModal = (ressourceId, titre, description, fichier, type_fichier) => {
-        const fileUrl = fichier?.startsWith('http') ? fichier : `${BASE_URL}/api/ressource/fichier/${fichier}`;
+        const fileUrl = fichier?.startsWith('http') ? fichier : `${BASE_URL}/ressource/fichier/${fichier}`;
         setInputs({
             id: ressourceId,
             titre,
@@ -729,10 +729,10 @@ setUploadingVideo(false);
                                                     <p><strong>Description :</strong> {item.description || 'Aucune description'}</p>
                                                     {item.type_ressource === 'video' ? (
                                                         <video controls style={{ width: '100%', borderRadius: '8px' }}>
-                                                            <source src={`${BASE_URL}/api/ressource/video/${item.fichier}`} type="video/mp4" />
+                                                            <source src={`${BASE_URL}/ressource/video/${item.fichier}`} type="video/mp4" />
                                                         </video>
                                                     ) : (
-                                                        <a href={item.fichier?.startsWith('http') ? item.fichier : `${BASE_URL}/api/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
+                                                        <a href={item.fichier?.startsWith('http') ? item.fichier : `${BASE_URL}/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
                                                             <i className="fas fa-download me-2"></i>Télécharger
                                                         </a>
                                                     )}
@@ -837,7 +837,7 @@ setUploadingVideo(false);
                                                                             {devoirData.fichier && (
                                                                                 <div>
                                                                                     <p><strong>Document joint:</strong> {getDevoirFileIcon(devoirData.type_fichier)}</p>
-                                                                                    <a href={`${BASE_URL}/api/activite/fichier/${devoirData.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#17a2b8', color: '#fff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', display: 'inline-block' }}>
+                                                                                    <a href={`${BASE_URL}/activite/fichier/${devoirData.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#17a2b8', color: '#fff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', display: 'inline-block' }}>
                                                                                         <i className="fas fa-download me-2"></i>Télécharger le sujet
                                                                                     </a>
                                                                                 </div>
@@ -859,7 +859,7 @@ setUploadingVideo(false);
                                                                     return (
                                                                         <div>
                                                                             <video controls style={{ width: '100%', borderRadius: '8px', marginBottom: '15px' }}>
-                                                                                <source src={`${BASE_URL}/api/video/${videoData.video}`} type="video/mp4" />
+                                                                                <source src={`${BASE_URL}/video/${videoData.video}`} type="video/mp4" />
                                                                             </video>
                                                                             <h6>Questions:</h6>
                                                                             {videoData.questions && videoData.questions.map((q, qIndex) => (
