@@ -1,51 +1,8 @@
 import { db } from '../db.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import multer from 'multer';
+import { createS3Upload } from "../middleware/s3upload.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Configuration multer directement dans le controller
-const uploadDir = path.join(__dirname, '../uploads/travaux');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, 'travail-' + uniqueSuffix + ext);
-    }
-});
-
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'image/jpeg',
-        'image/png',
-        'image/gif'
-    ];
-    
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error('Type de fichier non supporté'), false);
-    }
-};
-
-const upload = multer({ 
-    storage: storage, 
-    fileFilter: fileFilter,
-    limits: { fileSize: 50 * 1024 * 1024 }
-});
+// Configuration S3 upload
+const upload = createS3Upload("uploads/travaux", { fileSize: 50 * 1024 * 1024 });
 
 // Créer un nouveau travail
 export const createTravail = (req, res) => {
@@ -53,27 +10,22 @@ export const createTravail = (req, res) => {
         if (err) {
             return res.status(400).json({ error: err.message });
         }
-        
         const { titre, description, id_activite, id_etudiant, lien } = req.body;
         let fichier = null;
-        
         if (req.file) {
-            fichier = req.file.filename;
+            fichier = req.file.location; // S3 URL
         }
-        
         const checkQuery = 'SELECT * FROM travaux_etudiants WHERE id_activite = ? AND id_etudiant = ?';
         db.query(checkQuery, [id_activite, id_etudiant], (err, existing) => {
             if (err) {
                 console.error(err);
                 return res.status(500).json({ error: 'Erreur lors de la vérification' });
             }
-            
             if (existing.length > 0) {
-                const updateQuery = `
-                    UPDATE travaux_etudiants 
+                const updateQuery = 
+                    `UPDATE travaux_etudiants
                     SET titre = ?, description = ?, fichier = COALESCE(?, fichier), lien = ?, date_rendu = NOW()
-                    WHERE id_activite = ? AND id_etudiant = ?
-                `;
+                    WHERE id_activite = ? AND id_etudiant = ?`;
                 db.query(updateQuery, [titre, description, fichier, lien, id_activite, id_etudiant], (err, result) => {
                     if (err) {
                         console.error(err);
@@ -82,10 +34,9 @@ export const createTravail = (req, res) => {
                     res.status(200).json({ message: 'Travail mis à jour avec succès' });
                 });
             } else {
-                const insertQuery = `
-                    INSERT INTO travaux_etudiants (titre, description, fichier, lien, id_activite, id_etudiant, date_rendu)
-                    VALUES (?, ?, ?, ?, ?, ?, NOW())
-                `;
+                const insertQuery = 
+                    `INSERT INTO travaux_etudiants (titre, description, fichier, lien, id_activite, id_etudiant, date_rendu)
+                    VALUES (?, ?, ?, ?, ?, ?, NOW())`;
                 db.query(insertQuery, [titre, description, fichier, lien, id_activite, id_etudiant], (err, result) => {
                     if (err) {
                         console.error(err);
@@ -98,42 +49,17 @@ export const createTravail = (req, res) => {
     });
 };
 
-// Récupérer tous les travaux d'une activité - CORRIGÉ pour username
-export const getTravauxByActivite = (req, res) => {
-    const { activiteId } = req.params;
-    
+// Récupérer tous les travaux d'un étudiant
+export const getTravauxByEtudiant = (req, res) => {
+    const { etudiantId } = req.params;
     const query = `
-        SELECT t.*, 
-               u.username as etudiant_nom, 
-               u.email as etudiant_email
+        SELECT t.*, a.titre as activite_titre, a.description as activite_description
         FROM travaux_etudiants t
-        LEFT JOIN users u ON t.id_etudiant = u.id
-        WHERE t.id_activite = ?
+        INNER JOIN activite a ON t.id_activite = a.id
+        WHERE t.id_etudiant = ?
         ORDER BY t.date_rendu DESC
     `;
-    
-    db.query(query, [activiteId], (err, results) => {
-        if (err) {
-            console.error('Erreur SQL:', err);
-            return res.status(500).json({ error: 'Erreur lors de la récupération', details: err.message });
-        }
-        res.status(200).json(results);
-    });
-};
-
-// Récupérer le travail d'un étudiant pour une activité - CORRIGÉ
-export const getTravauxByActiviteAndEtudiant = (req, res) => {
-    const { activiteId, etudiantId } = req.params;
-    const query = `
-        SELECT t.*, 
-               u.username as etudiant_nom,
-               u.email as etudiant_email
-        FROM travaux_etudiants t
-        LEFT JOIN users u ON t.id_etudiant = u.id
-        WHERE t.id_activite = ? AND t.id_etudiant = ?
-        ORDER BY t.date_rendu DESC
-    `;
-    db.query(query, [activiteId, etudiantId], (err, results) => {
+    db.query(query, [etudiantId], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Erreur lors de la récupération' });
@@ -142,17 +68,17 @@ export const getTravauxByActiviteAndEtudiant = (req, res) => {
     });
 };
 
-// Récupérer tous les travaux d'un étudiant
-export const getTravauxByEtudiant = (req, res) => {
-    const { etudiantId } = req.params;
+// Récupérer tous les travaux d'une activité
+export const getTravauxByActivite = (req, res) => {
+    const { activiteId } = req.params;
     const query = `
-        SELECT t.*, a.titre as activite_titre
+        SELECT t.*, u.username, u.email
         FROM travaux_etudiants t
-        JOIN activite a ON t.id_activite = a.id
-        WHERE t.id_etudiant = ?
+        INNER JOIN users u ON t.id_etudiant = u.id
+        WHERE t.id_activite = ?
         ORDER BY t.date_rendu DESC
     `;
-    db.query(query, [etudiantId], (err, results) => {
+    db.query(query, [activiteId], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Erreur lors de la récupération' });
@@ -167,34 +93,27 @@ export const updateTravail = (req, res) => {
         if (err) {
             return res.status(400).json({ error: err.message });
         }
-        
         const { id } = req.params;
         const { titre, description, lien } = req.body;
         let fichier = null;
-        
         if (req.file) {
-            fichier = req.file.filename;
+            fichier = req.file.location; // S3 URL
         }
-        
         let query = '';
         let params = [];
-        
         if (fichier) {
-            query = `
-                UPDATE travaux_etudiants 
+            query = 
+                `UPDATE travaux_etudiants
                 SET titre = ?, description = ?, fichier = ?, lien = ?, date_rendu = NOW()
-                WHERE id = ?
-            `;
+                WHERE id = ?`;
             params = [titre, description, fichier, lien, id];
         } else {
-            query = `
-                UPDATE travaux_etudiants 
+            query = 
+                `UPDATE travaux_etudiants
                 SET titre = ?, description = ?, lien = ?, date_rendu = NOW()
-                WHERE id = ?
-            `;
+                WHERE id = ?`;
             params = [titre, description, lien, id];
         }
-        
         db.query(query, params, (err, result) => {
             if (err) {
                 console.error(err);
@@ -205,58 +124,39 @@ export const updateTravail = (req, res) => {
     });
 };
 
-// Noter un travail
-export const noterTravail = (req, res) => {
-    const { id } = req.params;
-    const { note, commentaire } = req.body;
-    
-    const query = 'UPDATE travaux_etudiants SET note = ?, commentaire = ? WHERE id = ?';
-    db.query(query, [note, commentaire || null, id], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Erreur lors de l\'attribution de la note' });
-        }
-        res.status(200).json({ message: 'Note attribuée avec succès' });
-    });
-};
-
 // Supprimer un travail
 export const deleteTravail = (req, res) => {
     const { id } = req.params;
-    
-    db.query('SELECT fichier FROM travaux_etudiants WHERE id = ?', [id], (err, travail) => {
+    const query = 'DELETE FROM travaux_etudiants WHERE id = ?';
+    db.query(query, [id], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Erreur lors de la suppression' });
+        }
+        res.status(200).json({ message: 'Travail supprimé avec succès' });
+    });
+};
+
+// Télécharger un fichier (redirection vers S3)
+export const getFichier = (req, res) => {
+    const { filename } = req.params;
+    // Rediriger vers l'URL S3
+    const s3Url = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/travaux/${filename}`;
+    res.redirect(s3Url);
+};
+
+// Récupérer un travail par ID
+export const getTravailById = (req, res) => {
+    const { id } = req.params;
+    const query = 'SELECT * FROM travaux_etudiants WHERE id = ?';
+    db.query(query, [id], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Erreur lors de la récupération' });
         }
-        
-        if (travail[0] && travail[0].fichier) {
-            const filePath = path.join(__dirname, '../uploads/travaux', travail[0].fichier);
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Travail non trouvé' });
         }
-        
-        const query = 'DELETE FROM travaux_etudiants WHERE id = ?';
-        db.query(query, [id], (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ error: 'Erreur lors de la suppression' });
-            }
-            res.status(200).json({ message: 'Travail supprimé avec succès' });
-        });
+        res.status(200).json(results[0]);
     });
 };
-
-// Télécharger un fichier
-export const getFichier = (req, res) => {
-    const { filename } = req.params;
-    const filePath = path.join(__dirname, '../uploads/travaux', filename);
-    
-    if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
-    } else {
-        res.status(404).json({ error: 'Fichier non trouvé' });
-    }
-};
-
