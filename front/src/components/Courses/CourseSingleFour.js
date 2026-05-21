@@ -105,7 +105,7 @@ const CourseSingleFour = ({
                         boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
                     }}
                 >
-                    <img width="16" height="16" src="https://img.icons8.com/ios-filled/50/FA5252/trash.png" alt="delete" />
+                    {isDeleting ? <span style={{fontSize:"12px"}}>⏳</span> : <img width="16" height="16" src="https://img.icons8.com/ios-filled/50/FA5252/trash.png" alt="delete" />}
                 </button>
             )}
 
