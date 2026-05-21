@@ -20,21 +20,10 @@ const CourseSingleFour = ({
 }) => {
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleDelete = async (e) => {
+    const handleDelete = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
-        
-        setIsDeleting(true);
-        try {
-            await axios.delete(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/cours/deleteCourse/${btnLink}`);
-            toast.success('Cours supprimé !');
-            if (onDelete) onDelete(btnLink);
-        } catch (error) {
-            toast.error('Erreur lors de la suppression');
-        } finally {
-            setIsDeleting(false);
-        }
+        if (onDelete) onDelete(btnLink);
     };
 
     const formatStudentCount = (count) => {
