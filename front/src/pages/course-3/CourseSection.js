@@ -148,10 +148,10 @@ const Courses = () => {
     const handleCourseDelete = useCallback(async (courseId) => {
         if (window.confirm("Voulez-vous vraiment supprimer ce cours ?")) {
             try {
-                await axios.delete(`${API_URL}/cours/deleteCourse/${courseId}`);
                 toast.success("Cours supprimé avec succès !");
                 setCourses(prev => prev.filter(c => c.id !== courseId));
                 setFilteredCourses(prev => prev.filter(c => c.id !== courseId));
+                await axios.delete(`${API_URL}/cours/deleteCourse/${courseId}`);
             } catch (error) {
                 toast.error("Erreur lors de la suppression du cours.");
             }
