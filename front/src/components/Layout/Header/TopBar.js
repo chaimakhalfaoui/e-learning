@@ -25,7 +25,7 @@ const TopHeader = (props) => {
     const handleLogout = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/logout');
+            await axios.post('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/logout');
         } catch (error) {
             console.error('Erreur lors de la déconnexion:', error);
         } finally {

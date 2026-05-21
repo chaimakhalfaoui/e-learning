@@ -21,7 +21,7 @@ import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/inner7.jpg';
 
 // URL de base pour AWS
-const BASE_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
+const BASE_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
 const INITIAL_INPUTS = {
     id: "",

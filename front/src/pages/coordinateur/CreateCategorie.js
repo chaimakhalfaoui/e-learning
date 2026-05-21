@@ -50,7 +50,7 @@ const CreateCategorie = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/categorie');
+                const response = await axios.get('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/categorie');
                 setCategories(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des catégories:", error);
@@ -105,7 +105,7 @@ const CreateCategorie = () => {
             formData.append("title", inputs.title);
             formData.append("image", inputs.image);
 
-            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/categorie", formData, {
+            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/categorie", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -120,7 +120,7 @@ const CreateCategorie = () => {
             setInputs({ title: "", image: null, imageUrl: null });
             
             // Recharger la liste des catégories
-            const response = await axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/categorie');
+            const response = await axios.get('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/categorie');
             setCategories(response.data);
             
             // Rediriger après 2 secondes
