@@ -15,7 +15,7 @@ import footerLogo from "../../assets/img/logo/lite-logo.png";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api';
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
 
 const ListCategorie = () => {
   const { role } = useAuth();

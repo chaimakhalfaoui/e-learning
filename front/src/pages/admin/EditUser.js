@@ -55,7 +55,7 @@ const EditUser = () => {
         const fetchUser = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/users/${id}`);
+                const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/users/${id}`);
                 setInputs(response.data);
                 setErr(null);
             } catch (error) {
@@ -83,7 +83,7 @@ const EditUser = () => {
         setErr(null);
         
         try {
-            await axios.put(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/users/${id}`, inputs);
+            await axios.put(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/users/${id}`, inputs);
             toast.success('Utilisateur modifié avec succès !', { 
                 autoClose: 3000,
                 position: "top-right"

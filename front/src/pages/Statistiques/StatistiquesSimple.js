@@ -45,11 +45,11 @@ const StatistiquesSimple = () => {
         (async () => {
             try {
                 const [sRes, mRes, cRes] = await Promise.all([
-                    axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/getStatistics')
+                    axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/getStatistics')
                         .catch(() => ({ data: null })),
-                    axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/monthlyInscriptions')
+                    axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/monthlyInscriptions')
                         .catch(() => ({ data: [] })),
-                    axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/coursParCategorie')
+                    axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/coursParCategorie')
                         .catch(() => ({ data: [] }))
                 ]);
 

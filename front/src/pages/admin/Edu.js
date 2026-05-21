@@ -33,7 +33,7 @@ const Edu = () => {
     const [err, setErr] = useState(null); 
     const fetchAllStudents = async () => {
         try {
-            const response = await axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/getAllStudents');
+            const response = await axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/getAllStudents');
             setStudents(response.data);
         } catch (error) {
             console.error("Erreur lors de la récupération des derniers enseignants :", error);
@@ -57,7 +57,7 @@ const Edu = () => {
         const fetchUserData = async () => {
             try {
                 const userId = await idUser(); // Récupérer l'ID de l'utilisateur à partir du contexte d'authentification
-                const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/checkUserRoleA/${userId}`);
+                const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/checkUserRoleA/${userId}`);
                 const userRole = response.data.role;
 
                 // Vérifier le rôle de l'utilisateur et agir en conséquence
@@ -78,7 +78,7 @@ const Edu = () => {
     const handleDeleteUser = async (userId) => {
         
         try {
-            await axios.delete(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/deleteUser/${userId}`);
+            await axios.delete(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/deleteUser/${userId}`);
             fetchAllStudents();
             toast.success("Utilisateur supprimé avec succès !");
         } catch (error) {
@@ -131,7 +131,7 @@ const Edu = () => {
                         <div key={index} className="col-lg-4 col-md-6 mb-30">
                         <SingleTeam
                             itemClass="team-item"
-                            Image={Student.image ? (Student.image.startsWith("http") ? Student.image : `http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/image/${Student.image}`) : getRandomImage()}
+                            Image={Student.image ? (Student.image.startsWith("http") ? Student.image : `http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/image/${Student.image}`) : getRandomImage()}
                             Title={Student.username}
                             Designation="Student"
                             email={Student.email}

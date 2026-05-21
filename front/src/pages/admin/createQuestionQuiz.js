@@ -17,7 +17,7 @@ import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/inner7.jpg';
 
-const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api';
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
 
 const CreateQuestionQuiz = () => {
     const [openModal, setOpenModal] = useState(false);

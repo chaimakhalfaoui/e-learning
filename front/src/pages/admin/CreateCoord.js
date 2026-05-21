@@ -97,7 +97,7 @@ const CreateCoord = () => {
             const { confirmPassword, ...registerData } = inputs;
             registerData.role = 'coordinateur';
             
-            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/register", registerData);
+            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/auth/register", registerData);
             
             toast.success('Coordinateur créé avec succès !', {
                 position: "top-right",

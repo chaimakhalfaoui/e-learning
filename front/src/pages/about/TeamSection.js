@@ -11,7 +11,7 @@ import teamimg4 from '../../assets/img/team/4.jpg';
 import teamimg5 from '../../assets/img/team/5.jpg';
 import teamimg6 from '../../assets/img/team/6.jpg';
 
-const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api';
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api';
 
 // Styles CSS
 const teamContainerStyle = {
