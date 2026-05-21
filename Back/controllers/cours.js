@@ -375,7 +375,7 @@ export const getStudentEnrolledCourses = (req, res) => {
         INNER JOIN categorie cat ON C.id_categorie = cat.id
         INNER JOIN level lvl ON C.id_level = lvl.id
         INNER JOIN users u ON C.id_user = u.id
-        INNER JOIN Lecture L ON C.id = L.id_cours
+        INNER JOIN lecture L ON C.id = L.id_cours
         WHERE L.id_user = ? AND C.status = 'published' AND C.validation_status = 'approved'
         GROUP BY C.id
         ORDER BY C.id DESC
@@ -411,8 +411,8 @@ export const getEtudiantsByCours = (req, res) => {
             COALESCE(a.avc, 0) AS progression,
             l.created_at AS date_inscription
         FROM users u
-        INNER JOIN Lecture l ON u.id = l.id_user
-        LEFT JOIN Avc a ON u.id = a.idUser AND a.idCours = ?
+        INNER JOIN lecture l ON u.id = l.id_user
+        LEFT JOIN avc a ON u.id = a.idUser AND a.idCours = ?
         WHERE l.id_cours = ? AND u.role = 'etudiant'
         ORDER BY l.id DESC
     `;
@@ -433,7 +433,7 @@ export const getEtudiantsByCours = (req, res) => {
                     u.username, 
                     u.email
                 FROM users u
-                INNER JOIN Lecture l ON u.id = l.id_user
+                INNER JOIN lecture l ON u.id = l.id_user
                 WHERE l.id_cours = ? AND u.role = 'etudiant'
                 ORDER BY u.username ASC
             `;
