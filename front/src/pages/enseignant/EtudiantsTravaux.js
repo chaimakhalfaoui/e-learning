@@ -49,7 +49,7 @@ const EtudiantsTravaux = () => {
 
     const fetchActivite = async () => {
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/activite/getActivite/${activiteId}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/activite/getActivite/${activiteId}`);
             setActivite(response.data);
             return response.data;
         } catch (error) {
@@ -61,7 +61,7 @@ const EtudiantsTravaux = () => {
 
     const fetchTravaux = async () => {
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/getByActivite/${activiteId}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/travaux/getByActivite/${activiteId}`);
             setTravaux(response.data);
         } catch (error) {
             console.error("Erreur fetchTravaux:", error);
@@ -71,7 +71,7 @@ const EtudiantsTravaux = () => {
 
     const fetchEtudiantsDuCours = async () => {
         try {
-            const activiteResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/activite/getActivite/${activiteId}`);
+            const activiteResponse = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/activite/getActivite/${activiteId}`);
             
             if (!activiteResponse.data || !activiteResponse.data.id_chapitre) {
                 console.error("Pas d'id_chapitre dans l'activité");
@@ -82,7 +82,7 @@ const EtudiantsTravaux = () => {
             
             const chapitreId = activiteResponse.data.id_chapitre;
             
-            const chapitreResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/chapitre/getChapitre/${chapitreId}`);
+            const chapitreResponse = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/chapitre/getChapitre/${chapitreId}`);
             
             if (!chapitreResponse.data || !chapitreResponse.data.id_cours) {
                 console.error("Pas d'id_cours dans le chapitre");
@@ -93,7 +93,7 @@ const EtudiantsTravaux = () => {
             
             const coursId = chapitreResponse.data.id_cours;
             
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/cours/getEtudiantsByCours/${coursId}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/cours/getEtudiantsByCours/${coursId}`);
             
             if (response.data && Array.isArray(response.data)) {
                 setEtudiants(response.data);
@@ -113,7 +113,7 @@ const EtudiantsTravaux = () => {
         }
 
         try {
-            await axios.put(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/noter/${idTravail}`, {
+            await axios.put(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/travaux/noter/${idTravail}`, {
                 note: noteValue,
                 commentaire: commentaireValue
             });
@@ -445,7 +445,7 @@ const EtudiantsTravaux = () => {
                                                         </a>
                                                     )}
                                                     {travail.fichier && (
-                                                        <a href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/fichier/${travail.fichier}`} className="btn btn-sm btn-primary">
+                                                        <a href={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/travaux/fichier/${travail.fichier}`} className="btn btn-sm btn-primary">
                                                             Télécharger
                                                         </a>
                                                     )}
@@ -536,7 +536,7 @@ const EtudiantsTravaux = () => {
                                                                         </a>
                                                                     )}
                                                                     {travail.fichier && (
-                                                                        <a href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/fichier/${travail.fichier}`} target="_blank" rel="noopener noreferrer" style={styles.downloadLink}>
+                                                                        <a href={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/travaux/fichier/${travail.fichier}`} target="_blank" rel="noopener noreferrer" style={styles.downloadLink}>
                                                                             <i className="fas fa-download"></i>
                                                                         </a>
                                                                     )}

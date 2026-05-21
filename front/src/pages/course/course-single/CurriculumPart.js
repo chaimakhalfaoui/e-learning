@@ -76,7 +76,7 @@ const CurriculumPart = () => {
     const fetchUserInfo = async () => {
         try {
             const userId = await idUser();
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/users/${userId}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/users/${userId}`);
             setUserInfo(response.data);
         } catch (error) {
             console.error("Erreur récupération user:", error);
@@ -85,7 +85,7 @@ const CurriculumPart = () => {
 
     const fetchCourse = async () => {
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/cours/getCourse/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/cours/getCourse/${id}`);
             setCourse(response.data[0]);
         } catch (error) {
             console.error("Erreur lors de la récupération des événements :", error);
@@ -95,7 +95,7 @@ const CurriculumPart = () => {
     const fetchTravauxByActivite = async (activiteId) => {
         try {
             const userId = await idUser();
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/getByActiviteAndEtudiant/${activiteId}/${userId}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/travaux/getByActiviteAndEtudiant/${activiteId}/${userId}`);
             setTravaux(prev => ({ ...prev, [activiteId]: response.data }));
         } catch (error) {
             console.error("Erreur chargement travaux:", error);
@@ -105,12 +105,12 @@ const CurriculumPart = () => {
 
     const getChapitreAndActivite = async () => {
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/chapitre/getChapitreAndActivite/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/chapitre/getChapitreAndActivite/${id}`);
             
             const chapitresAvecRessources = await Promise.all(
                 response.data.map(async (chap, chapIndex) => {
                     try {
-                        const resResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
+                        const resResponse = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
                         
                         // Charger les travaux pour chaque activité
                         if (chap.activites) {
@@ -123,7 +123,7 @@ const CurriculumPart = () => {
                         const userId = await idUser();
                         if (userId && userId !== 0) {
                             try {
-                                const avcResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/avc/avc/${id}/${userId}`);
+                                const avcResponse = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/avc/avc/${id}/${userId}`);
                                 const chapN = avcResponse.data?.chapN || 0;
                                 
                                 // Marquer comme complété si le chapitre est <= chapN
@@ -151,7 +151,7 @@ const CurriculumPart = () => {
 
     const fetchQuiz = async () => {
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/quiz/getQuiz/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/quiz/getQuiz/${id}`);
             setQuiz(response.data);
         } catch (error) {
             console.error("Erreur lors de la récupération des quiz :", error);
@@ -171,7 +171,7 @@ const CurriculumPart = () => {
             nch = nChapN.toString();
         }
         try {
-            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/avc/createOrUpdateAvc", {
+            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/avc/createOrUpdateAvc", {
                 idCours: id,
                 iduser: userid,
                 chapN: nch
@@ -224,7 +224,7 @@ const CurriculumPart = () => {
                 formData.append('fichier', nouveauTravail.fichier);
             }
             
-            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/create", formData, {
+            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/travaux/create", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             
@@ -257,7 +257,7 @@ const CurriculumPart = () => {
         
         try {
             const userId = await idUser();
-            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/reponses/create", {
+            await axios.post("http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/reponses/create", {
                 id_activite: activiteId,
                 id_etudiant: userId,
                 reponses: activiteReponses
@@ -305,7 +305,7 @@ const CurriculumPart = () => {
                         )}
                         {devoirData.fichier && (
                             <a 
-                                href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/activite/fichier/${devoirData.fichier}`} 
+                                href={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/activite/fichier/${devoirData.fichier}`} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
                                 style={{ background: '#dc3545', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}
@@ -329,7 +329,7 @@ const CurriculumPart = () => {
                             <i className="fa fa-play-circle"></i> Vidéo interactive
                         </h6>
                         <video controls style={styles.modalVideo}>
-                            <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/video/${videoData.video}`} type="video/mp4" />
+                            <source src={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/video/${videoData.video}`} type="video/mp4" />
                         </video>
                         {videoData.questions && videoData.questions.length > 0 && (
                             <div style={{ marginTop: '20px' }}>
@@ -347,7 +347,7 @@ const CurriculumPart = () => {
                 return (
                     <div>
                         <video controls style={styles.modalVideo}>
-                            <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/video/${activite.contenu}`} type="video/mp4" />
+                            <source src={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/video/${activite.contenu}`} type="video/mp4" />
                         </video>
                     </div>
                 );
@@ -364,7 +364,7 @@ const CurriculumPart = () => {
         if (activite.categorie === "video") {
             return (
                 <video controls style={styles.modalVideo}>
-                    <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/video/${activite.contenu}`} type="video/mp4" />
+                    <source src={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/video/${activite.contenu}`} type="video/mp4" />
                 </video>
             );
         }
@@ -382,7 +382,7 @@ const CurriculumPart = () => {
                         style={{ width: '100%', maxHeight: '300px', borderRadius: '8px' }}
                         poster="/video-poster-placeholder.jpg"
                     >
-                        <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/video/${ressource.fichier}`} type="video/mp4" />
+                        <source src={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/ressource/video/${ressource.fichier}`} type="video/mp4" />
                         Votre navigateur ne supporte pas la lecture de vidéos.
                     </video>
                 </div>
@@ -776,7 +776,7 @@ const CurriculumPart = () => {
                                                             </span>
                                                         ) : (
                                                             <a 
-                                                                href={ressource.fichier?.startsWith("http") ? ressource.fichier : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/fichier/${ressource.fichier}`}
+                                                                href={ressource.fichier?.startsWith("http") ? ressource.fichier : `http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/ressource/fichier/${ressource.fichier}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 style={styles.downloadBtn}
@@ -803,7 +803,7 @@ const CurriculumPart = () => {
                                                                         style={{ width: '100%', maxHeight: '400px', borderRadius: '8px', marginTop: '10px' }}
                                                                         controlsList="nodownload"
                                                                     >
-                                                                        <source src={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/video/${ressource.fichier}`} type="video/mp4" />
+                                                                        <source src={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/ressource/video/${ressource.fichier}`} type="video/mp4" />
                                                                         Votre navigateur ne supporte pas la lecture de vidéos.
                                                                     </video>
                                                                 </div>
@@ -895,7 +895,7 @@ const CurriculumPart = () => {
                                                                                         </a>
                                                                                     )}
                                                                                     {travailExistant.fichier && (
-                                                                                        <a href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/fichier/${travailExistant.fichier}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#ff5421', display: 'inline-block', marginLeft: '15px', marginTop: '8px' }}>
+                                                                                        <a href={`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/travaux/fichier/${travailExistant.fichier}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#ff5421', display: 'inline-block', marginLeft: '15px', marginTop: '8px' }}>
                                                                                             <i className="fa fa-download"></i> Télécharger
                                                                                         </a>
                                                                                     )}

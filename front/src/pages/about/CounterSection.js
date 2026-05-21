@@ -17,7 +17,7 @@ const AboutCounter = () => {
     useEffect(() => {
         const fetchStatistics = async () => {
             try {
-                const response = await axios.get('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/getStatistics');
+                const response = await axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/getStatistics');
                 setStats({
                     userCount: response.data.userCount || 0,
                     teacherCount: response.data.teacherCount || 0,

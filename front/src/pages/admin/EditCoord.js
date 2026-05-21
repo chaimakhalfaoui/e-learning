@@ -55,7 +55,7 @@ const EditCoord = () => {
         const fetchCoordinateur = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/coordinateurs/${id}`);
+                const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/coordinateurs/${id}`);
                 setInputs(response.data);
                 setErr(null);
             } catch (error) {
@@ -83,7 +83,7 @@ const EditCoord = () => {
         setErr(null);
         
         try {
-            await axios.put(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/coordinateurs/${id}`, inputs);
+            await axios.put(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/coordinateurs/${id}`, inputs);
             toast.success('Coordinateur modifié avec succès !', { 
                 autoClose: 3000,
                 position: "top-right"

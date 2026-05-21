@@ -22,7 +22,7 @@ const FaqPart = () => {
     const fetchQuiz = async () => {
         const userid = await idUser();
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/quiz/getQuiz/${id}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/quiz/getQuiz/${id}`);
             setQuiz(response.data);
             if(!countdown ){
                 setCountdown(response.data[0].duree)
@@ -32,13 +32,13 @@ const FaqPart = () => {
             setIdQuiz(response.data[0].id);
             const idq = response.data[0].id;
             try {
-                const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/repense/fetchFirstFalseResponseQuestion/${idq}/${userid}`);
+                const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/repense/fetchFirstFalseResponseQuestion/${idq}/${userid}`);
                 if (response.data !== 0) {
                     setQuestion(response.data);
                     console.log(response.data)
                 } else {
                     try {
-                        const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/repense/getQuizScore/${idq}/${userid}`);
+                        const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/repense/getQuizScore/${idq}/${userid}`);
                         setScore(response.data);
                         setCountdown(null)
                         if (response.data) {
@@ -59,7 +59,7 @@ const FaqPart = () => {
     const deleteResponses = async () => {
         const userid = await idUser();
         try {
-            await axios.delete(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/repense/deleteResponsesByQuizAndUser/${idQuiz}/${userid}`);
+            await axios.delete(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/repense/deleteResponsesByQuizAndUser/${idQuiz}/${userid}`);
             setScore(null);
             setCertificateAvailable(false); 
             setNumberQ(1);
@@ -89,12 +89,12 @@ const FaqPart = () => {
             console.log("User ID:", userid);
             
             // Récupérer toutes les questions du quiz
-            const quizResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/quiz/getQuiz/${id}`);
+            const quizResponse = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/quiz/getQuiz/${id}`);
             const idq = quizResponse.data[0].id;
             console.log("Quiz ID:", idq);
             
             // Récupérer la première question sans réponse de l'utilisateur
-            const firstFalseResponse = await axios.post(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/repense/create-false/${idq}/${userid}`);
+            const firstFalseResponse = await axios.post(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/repense/create-false/${idq}/${userid}`);
             
             
             console.log("Toutes les réponses ont été mises à jour comme étant fausses.");
@@ -120,7 +120,7 @@ const FaqPart = () => {
         const userid = await idUser();
         
         try {
-            await axios.post('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/repense/createRepense', {
+            await axios.post('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/repense/createRepense', {
                 resultat: selectedResponse,
                 idquestion: question.id,
                 idUser: userid
@@ -137,7 +137,7 @@ const FaqPart = () => {
         const userid = await idUser();
         const formattedScore = parseFloat(score.scorePercentage.toFixed(2));
         try {
-            await axios.post('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/certaficat/createCertificate', {
+            await axios.post('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/certaficat/createCertificate', {
                 idCours: id, 
                 idUser: userid,
                 note: formattedScore 
@@ -160,7 +160,7 @@ const FaqPart = () => {
     const exportCertificate = async () => {
         const userid = await idUser();
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/certaficat/getCertificateByIds/${id}/${userid}`);
+            const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/certaficat/getCertificateByIds/${id}/${userid}`);
             const certificateData = response.data;
     
             const doc = new jsPDF({

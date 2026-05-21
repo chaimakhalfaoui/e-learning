@@ -28,7 +28,7 @@ const CourseSingleFour = ({
         
         setIsDeleting(true);
         try {
-            await axios.delete(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/cours/deleteCourse/${btnLink}`);
+            await axios.delete(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/cours/deleteCourse/${btnLink}`);
             toast.success('Cours supprimé !');
             if (onDelete) onDelete(btnLink);
         } catch (error) {

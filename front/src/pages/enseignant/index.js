@@ -19,7 +19,7 @@ import Logo from '../../assets/img/logo/dark-logo.png';
 import footerLogo from '../../assets/img/logo/lite-logo.png';
 import bannerbg from '../../assets/img/breadcrumbs/2.jpg';
 
-const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api';
 
 const Enseignants = () => {
     const { role } = useAuth();
@@ -208,7 +208,7 @@ const Enseignants = () => {
         
         setUpdatingRole(true);
         try {
-            const response = await axios.put(`${API_URL}/users/${selectedEnseignant.id}/role`, {
+            const response = await axios.put(`${API_URL}/users/role/${selectedEnseignant.id}`, {
                 role: selectedRole
             });
             

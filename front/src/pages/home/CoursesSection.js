@@ -3,7 +3,7 @@ import axios from 'axios';
 import SectionTitle from '../../components/Common/SectionTitle';
 import CourseSingle from '../../components/Courses/CourseSingle';
 
-const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api';
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);

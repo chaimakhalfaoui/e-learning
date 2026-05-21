@@ -34,7 +34,7 @@ const Ens = () => {
         const fetchUserData = async () => {
             try {
                 const userId = await idUser(); // Récupérer l'ID de l'utilisateur à partir du contexte d'authentification
-                const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/checkUserRoleA/${userId}`);
+                const response = await axios.get(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/checkUserRoleA/${userId}`);
                 const userRole = response.data.role;
 
                 // Vérifier le rôle de l'utilisateur et agir en conséquence
@@ -54,7 +54,7 @@ const Ens = () => {
 
     const fetchAllTeachers = async () => {
         try {
-            const response = await axios.get('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/getAllTeachers');
+            const response = await axios.get('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/getAllTeachers');
             setTeachers(response.data);
             console.log(response.data)
         } catch (error) {
@@ -70,7 +70,7 @@ const Ens = () => {
     const handleDeleteUser = async (userId) => {
         
         try {
-            await axios.delete(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/deleteUser/${userId}`);
+            await axios.delete(`http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/deleteUser/${userId}`);
             fetchAllTeachers();
             toast.success("Utilisateur supprimé avec succès !");
         } catch (error) {
@@ -130,7 +130,7 @@ const Ens = () => {
                         <div key={index} className="col-lg-4 col-md-6 mb-30">
                             <SingleTeam
                                 itemClass="team-item"
-                                Image={teacher.image ? (teacher.image.startsWith("http") ? teacher.image : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/image/${teacher.image}`) : getRandomImage()}
+                                Image={teacher.image ? (teacher.image.startsWith("http") ? teacher.image : `http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/image/${teacher.image}`) : getRandomImage()}
                                 Title={teacher.username}
                                 Designation="teacher"
                                 email={teacher.email}

@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '../../../context/authContext';
 import { toast } from 'react-toastify';
 
-const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api';
 
 // ✅ CORRECTION PRINCIPALE : MessageItem sorti du composant parent
 // Avant, il était défini à l'intérieur de Q() → re-créé à chaque frappe → lag

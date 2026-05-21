@@ -63,7 +63,7 @@ const Header = (props) => {
         e.preventDefault();
         try {
           // Appel de l'API pour se déconnecter
-          const response = await axios.post('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/logout');
+          const response = await axios.post('http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api/auth/logout');
           if (response.status === 200) {
             localStorage.removeItem('access_token');
             navigate("/");

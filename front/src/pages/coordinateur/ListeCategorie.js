@@ -15,7 +15,7 @@ import footerLogo from "../../assets/img/logo/lite-logo.png";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
+const API_URL = 'http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/api';
 
 const ListCategorie = () => {
   const { role } = useAuth();
@@ -340,7 +340,7 @@ const ListCategorie = () => {
                       📚 {courseCounts[cat.id] || 0} cours
                     </div>
                     <img
-                      src={cat.image ? (cat.image.startsWith("http") ? cat.image : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/uploads/${cat.image}`) : "/placeholder.svg"}
+                      src={cat.image ? (cat.image.startsWith("http") ? cat.image : `http://isetso-backend-lb-667158618.us-east-1.elb.amazonaws.com:8801/api/uploads/${cat.image}`) : "/placeholder.svg"}
                       alt={cat.title}
                       style={imageStyle}
                       onError={(e) => {
