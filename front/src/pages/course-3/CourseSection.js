@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import CourseSingleFour from '../../components/Courses/CourseSingleFour';
 import { useAuth } from '../../context/authContext'; 
 import { Helmet } from 'react-helmet';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 
 const API_URL = 'http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api';
 
