@@ -196,6 +196,7 @@ const Courses = () => {
     }
 
     return (
+    <>
         <div className="rs-popular-courses style3 orange-style pt-100 pb-100 md-pt-70 md-pb-80">
             <div className="container">
                 <div className="d-flex justify-content-between align-items-center flex-wrap mb-30">
@@ -279,7 +280,8 @@ const Courses = () => {
             </div>
         </div>
         <ToastContainer position="top-right" autoClose={3000} />
-    );
+    </>
+);
 };
 
 export default Courses;
