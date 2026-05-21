@@ -24,7 +24,6 @@ const CourseSingleFour = ({
         e.preventDefault();
         e.stopPropagation();
         
-        if (!window.confirm("Supprimer ce cours ?")) return;
         
         setIsDeleting(true);
         try {
