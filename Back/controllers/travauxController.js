@@ -160,3 +160,30 @@ export const getTravailById = (req, res) => {
         res.status(200).json(results[0]);
     });
 };
+
+// Récupérer les travaux par activité et étudiant
+export const getTravauxByActiviteAndEtudiant = (req, res) => {
+    const { activiteId, etudiantId } = req.params;
+    const query = 'SELECT * FROM travaux_etudiants WHERE id_activite = ? AND id_etudiant = ? ORDER BY date_rendu DESC';
+    db.query(query, [activiteId, etudiantId], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Erreur lors de la récupération' });
+        }
+        res.status(200).json(results);
+    });
+};
+
+// Noter un travail
+export const noterTravail = (req, res) => {
+    const { id } = req.params;
+    const { note, commentaire } = req.body;
+    const query = 'UPDATE travaux_etudiants SET note = ?, commentaire_enseignant = ?, date_note = NOW() WHERE id = ?';
+    db.query(query, [note, commentaire, id], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Erreur lors de la notation' });
+        }
+        res.status(200).json({ message: 'Travail noté avec succès' });
+    });
+};
