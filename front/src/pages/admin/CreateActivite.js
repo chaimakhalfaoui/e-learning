@@ -842,7 +842,7 @@ setUploadingVideo(false);
                                                                             {devoirData.fichier && (
                                                                                 <div>
                                                                                     <p><strong>Document joint:</strong> {getDevoirFileIcon(devoirData.type_fichier)}</p>
-                                                                                    <a href={`${BASE_URL}/activite/fichier/${devoirData.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#17a2b8', color: '#fff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', display: 'inline-block' }}>
+                                                                                    <a href={devoirData.fichier && devoirData.fichier.includes("http") ? devoirData.fichier : `${BASE_URL}/activite/fichier/${devoirData.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#17a2b8', color: '#fff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', display: 'inline-block' }}>
                                                                                         <i className="fas fa-download me-2"></i>Télécharger le sujet
                                                                                     </a>
                                                                                 </div>
