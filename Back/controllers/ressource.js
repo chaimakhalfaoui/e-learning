@@ -1,75 +1,10 @@
 // controllers/ressource.js - Version complète et corrigée
 import { createS3Upload } from "../middleware/s3upload.js";
 import { db } from "../db.js";
-import path from "path";
-import fs from 'fs';
-import multer from "multer";
-import { v4 as uuidv4 } from 'uuid';
-
-// Créer le dossier uploads s'il n'existe pas
-const uploadDir = 'uploads/ressources/';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
 
 // Configuration multer pour les fichiers
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + uuidv4();
-        const ext = path.extname(file.originalname);
-        cb(null, uniqueSuffix + ext);
-    }
-});
-
-// Vérification du type de fichier
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-powerpoint',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'video/mp4',
-        'video/avi',
-        'video/quicktime',
-        'video/x-msvideo'
-    ];
-    allowedTypes.includes(file.mimetype) ? cb(null, true) : cb(new Error("Format de fichier non supporté."), false);
-};
-
-export const upload = multer({
-    storage,
-    fileFilter,
-    limits: { fileSize: 500 * 1024 * 1024 }
-});
-
-// Configuration pour les vidéos
-const videoStorage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + uuidv4();
-        const ext = path.extname(file.originalname);
-        cb(null, uniqueSuffix + ext);
-    }
-});
-
-const videoFilter = (req, file, cb) => {
-    const allowedVideoTypes = ['video/mp4', 'video/avi', 'video/quicktime', 'video/x-msvideo'];
-    allowedVideoTypes.includes(file.mimetype) ? cb(null, true) : cb(new Error("Format vidéo non supporté."), false);
-};
-
-export const uploadVideo = multer({
-    storage: videoStorage,
-    fileFilter: videoFilter,
-    limits: { fileSize: 500 * 1024 * 1024 }
-});
+export const upload = createS3Upload("uploads", { fileSize: 500 * 1024 * 1024 });
+export const uploadVideo = createS3Upload("uploads/videos", { fileSize: 500 * 1024 * 1024 });
 
 // ==================== CRUD RESSOURCES ====================
 
@@ -102,7 +37,7 @@ export const createRessource = (req, res) => {
         if (err) return res.status(500).json({ error: err.message || "Erreur upload" });
 
         const { titre, description, type_fichier, id_chapitre } = req.body;
-        const fichier = req.file ? req.file.filename : null;
+        const fichier = req.file ? req.file.location : null;
 
         if (!titre || !fichier || !id_chapitre) {
             return res.status(400).json({ error: "Titre, fichier et chapitre sont requis." });
@@ -122,7 +57,7 @@ export const createRessourceVideo = (req, res) => {
         if (err) return res.status(500).json({ error: err.message || "Erreur upload vidéo" });
 
         const { titre, description, id_chapitre } = req.body;
-        const video = req.file ? req.file.filename : null;
+        const video = req.file ? req.file.location : null;
 
         if (!titre || !video || !id_chapitre) {
             return res.status(400).json({ error: "Titre, vidéo et chapitre sont requis." });
@@ -143,7 +78,7 @@ export const updateRessource = (req, res) => {
 
         const { id } = req.params;
         const { titre, description, type_fichier, id_chapitre } = req.body;
-        const nouveauFichier = req.file ? req.file.filename : null;
+        const nouveauFichier = req.file ? req.file.location : null;
 
         db.query("SELECT fichier FROM ressources WHERE id = ?", [id], (err, result) => {
             if (err) return res.status(500).json({ error: "Erreur serveur" });
