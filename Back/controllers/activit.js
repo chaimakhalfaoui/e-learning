@@ -17,9 +17,9 @@ if (!fs.existsSync(uploadDevoirDir)) fs.mkdirSync(uploadDevoirDir, { recursive: 
 
 // Utiliser S3 pour le stockage
 const upload = createS3Upload("uploads");
-
 const uploadDevoir = createS3Upload("uploads/devoirs", { fileSize: 50 * 1024 * 1024 });
 const uploadv = createS3Upload("uploads/videos", { fileSize: 500 * 1024 * 1024 });
+
 // ==================== CRÉATION ====================
 
 export const createActivite = (req, res) => {
@@ -138,12 +138,24 @@ export const getActivitesByChapitre = (req, res) => {
 
 export const getActiviteByChapitre = getActivitesByChapitre;
 
-// ==================== TÉLÉCHARGEMENT ====================
+// ==================== TÉLÉCHARGEMENT CORRIGÉ POUR S3 ====================
 
 export const getDevoirFichier = (req, res) => {
     const { filename } = req.params;
+    
+    // Si c'est une URL S3 complète
+    if (filename && filename.startsWith('http')) {
+        // Rediriger vers l'URL S3
+        return res.redirect(filename);
+    }
+    
+    // Fallback pour les fichiers locaux (si besoin)
     const filePath = path.join('uploads/devoirs/', filename);
-    fs.existsSync(filePath) ? res.download(filePath) : res.status(404).json({ error: "Fichier non trouvé." });
+    if (fs.existsSync(filePath)) {
+        return res.download(filePath);
+    }
+    
+    res.status(404).json({ error: "Fichier non trouvé." });
 };
 
 // ==================== SUPPRESSION ====================
