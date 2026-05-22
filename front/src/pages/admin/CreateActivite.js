@@ -462,7 +462,12 @@ setUploadingVideo(false);
                 toast.success('Ressource supprimée');
                 fetchRessources();
             } catch (err) {
-                toast.error('Erreur lors de la suppression');
+                if (err.response && err.response.status === 404) {
+                    toast.success('Ressource supprimée');
+                    fetchRessources();
+                } else {
+                    toast.error('Erreur lors de la suppression');
+                }
             }
         }
     };
