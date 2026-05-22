@@ -141,34 +141,22 @@ export const getActiviteByChapitre = getActivitesByChapitre;
 // ==================== TÉLÉCHARGEMENT CORRIGÉ COMME DANS RESSOURCE.JS ====================
 
 export const getDevoirFichier = (req, res) => {
-    let { filename } = req.params;
+    const { filename } = req.params;
     
-    // Décoder l'URL
-    filename = decodeURIComponent(filename);
-    
-    // Si c'est déjà une URL S3 complète (comme dans votre erreur)
+    // Même logique simple que ressource.js
     if (filename.startsWith('http')) {
-        // Extraire le nom du fichier de l'URL S3
-        if (filename.includes('s3.us-east-1.amazonaws.com')) {
-            // Extraire tout après le dernier /
-            const parts = filename.split('/');
-            filename = parts[parts.length - 1];
-            // Enlever les paramètres query s'il y en a
-            filename = filename.split('?')[0];
-        } else {
-            // Rediriger directement si c'est une autre URL
-            return res.redirect(filename);
-        }
+        return res.redirect(filename);
     }
     
-    // Construire l'URL S3 comme dans ressource.js
+    // Si c'est juste un nom de fichier
     const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/devoirs/${filename}`;
-    
-    console.log(`Redirection vers: ${fileUrl}`); // Pour debug
-    
-    // Rediriger vers l'URL S3
     res.redirect(fileUrl);
 };
+    
+    
+    
+    
+    
 
 // ==================== SUPPRESSION ====================
 
