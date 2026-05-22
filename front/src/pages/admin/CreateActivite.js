@@ -734,8 +734,8 @@ setUploadingVideo(false);
                                                     <p><strong>Description :</strong> {item.description || 'Aucune description'}</p>
                                                     {item.type_ressource === 'video' ? (
                                                         <video controls style={{ width: '100%', borderRadius: '8px' }}>
-                                                            <source src={`${BASE_URL}/ressource/video/${item.fichier}`} type="video/mp4" />
-                                                        </video>
+        <source src={item.fichier && item.fichier.includes("http") ? item.fichier : `${BASE_URL}/ressource/video/${item.fichier}`} type="video/mp4" />
+    </video>
                                                     ) : (
                                                         <a href={item.fichier?.startsWith('http') ? item.fichier : `${BASE_URL}/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
                                                             <i className="fas fa-download me-2"></i>Télécharger
