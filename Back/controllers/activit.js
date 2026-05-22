@@ -141,23 +141,21 @@ export const getActiviteByChapitre = getActivitesByChapitre;
 // ==================== TÉLÉCHARGEMENT CORRIGÉ COMME DANS RESSOURCE.JS ====================
 
 export const getDevoirFichier = (req, res) => {
-    const { filename } = req.params;
+    let { filename } = req.params;
     
-    // Même logique simple que ressource.js
-    if (filename.startsWith('http')) {
-        return res.redirect(filename);
-    }
+    // Décoder l'URL
+    filename = decodeURIComponent(filename);
     
-    // Si c'est juste un nom de fichier
-    const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/devoirs/${filename}`;
+    // Extraire uniquement le nom du fichier (tout après le dernier /)
+    const parts = filename.split('/');
+    const fileName = parts[parts.length - 1].split('?')[0];
+    
+    // Construire l'URL S3
+    const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/devoirs/${fileName}`;
+    
+    console.log(`Redirection: ${fileUrl}`);
     res.redirect(fileUrl);
 };
-    
-    
-    
-    
-    
-
 // ==================== SUPPRESSION ====================
 
 export const deleteActivite = (req, res) => {
