@@ -220,3 +220,31 @@ export const updateActiviteVideo = (req, res) => {
 export const updateActiviteI = updateActiviteImage;
 
 export default { upload, uploadDevoir, uploadv };
+
+// ==================== VIDÉO POUR ACTIVITÉS ====================
+
+export const getActiviteVideo = (req, res) => {
+    let { filename } = req.params;
+    
+    // Décoder l'URL
+    try {
+        filename = decodeURIComponent(filename);
+    } catch(e) {}
+    
+    console.log("getActiviteVideo - Reçu:", filename);
+    
+    // Si c'est une URL S3 complète, extraire le nom
+    if (filename.includes('s3.amazonaws.com') || filename.includes('/uploads/videos/')) {
+        const parts = filename.split('/');
+        filename = parts[parts.length - 1];
+        filename = filename.split('?')[0];
+        console.log("getActiviteVideo - Nom extrait:", filename);
+    }
+    
+    // Construire l'URL S3
+    const videoUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/videos/${filename}`;
+    console.log("getActiviteVideo - Redirection vers:", videoUrl);
+    
+    // Rediriger vers l'URL S3
+    res.redirect(videoUrl);
+};

@@ -14,7 +14,8 @@ import {
   deleteActivite,
   updateActiviteText,
   updateActiviteI,
-  updateActiviteVideo
+  updateActiviteVideo,
+  getActiviteVideo,
 } from "../controllers/activit.js";
 
 const router = express.Router();
@@ -36,5 +37,6 @@ router.post("/createQuestionnaire", createQuestionnaire);
 router.post("/createDevoir", createDevoir);
 router.post("/createVideoInteractive", createVideoInteractive);
 router.get("/fichier/:filename", getDevoirFichier);
+router.get("/video/:filename", getActiviteVideo);
 
 export default router;
