@@ -863,9 +863,9 @@ setUploadingVideo(false);
                                                                     const videoData = JSON.parse(item.contenu);
                                                                     return (
                                                                         <div>
-                                                                            <video controls style={{ width: '100%', borderRadius: '8px', marginBottom: '15px' }}>
-                                                                                <source src={videoData.video <source src={`${BASE_URL}/video/${videoData.video}`}<source src={`${BASE_URL}/video/${videoData.video}`} videoData.video.includes("http") ? videoData.video : `${BASE_URL}/activite/video/${videoData.video}`} type="video/mp4" />
-                                                                            </video>
+                                                                          <video controls style={{ width: '100%', borderRadius: '8px', marginBottom: '15px' }}>
+    <source src={videoData.video && videoData.video.includes("http") ? videoData.video : `${BASE_URL}/activite/video/${videoData.video}`} type="video/mp4" />
+</video>
                                                                             <h6>Questions:</h6>
                                                                             {videoData.questions && videoData.questions.map((q, qIndex) => (
                                                                                 <div key={qIndex} style={{ marginBottom: '15px', padding: '10px', background: '#fff', borderRadius: '8px' }}>
