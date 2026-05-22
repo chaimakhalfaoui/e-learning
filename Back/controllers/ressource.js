@@ -230,8 +230,9 @@ export const getVideo = (req, res) => {
 // Obtenir l'URL du fichier (S3)
 export const getFichierUrl = (req, res) => {
     const { filename } = req.params;
+    if (filename.startsWith('http')) return res.redirect(filename);
     const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/${filename}`;
-    res.json({ url: fileUrl });
+    res.redirect(fileUrl);
 };
 
 // Statistiques
