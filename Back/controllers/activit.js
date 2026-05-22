@@ -138,24 +138,36 @@ export const getActivitesByChapitre = (req, res) => {
 
 export const getActiviteByChapitre = getActivitesByChapitre;
 
-// ==================== TÉLÉCHARGEMENT CORRIGÉ POUR S3 ====================
+// ==================== TÉLÉCHARGEMENT CORRIGÉ COMME DANS RESSOURCE.JS ====================
 
 export const getDevoirFichier = (req, res) => {
-    const { filename } = req.params;
+    let { filename } = req.params;
     
-    // Si c'est une URL S3 complète
-    if (filename && filename.startsWith('http')) {
-        // Rediriger vers l'URL S3
-        return res.redirect(filename);
+    // Décoder l'URL
+    filename = decodeURIComponent(filename);
+    
+    // Si c'est déjà une URL S3 complète (comme dans votre erreur)
+    if (filename.startsWith('http')) {
+        // Extraire le nom du fichier de l'URL S3
+        if (filename.includes('s3.us-east-1.amazonaws.com')) {
+            // Extraire tout après le dernier /
+            const parts = filename.split('/');
+            filename = parts[parts.length - 1];
+            // Enlever les paramètres query s'il y en a
+            filename = filename.split('?')[0];
+        } else {
+            // Rediriger directement si c'est une autre URL
+            return res.redirect(filename);
+        }
     }
     
-    // Fallback pour les fichiers locaux (si besoin)
-    const filePath = path.join('uploads/devoirs/', filename);
-    if (fs.existsSync(filePath)) {
-        return res.download(filePath);
-    }
+    // Construire l'URL S3 comme dans ressource.js
+    const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/devoirs/${filename}`;
     
-    res.status(404).json({ error: "Fichier non trouvé." });
+    console.log(`Redirection vers: ${fileUrl}`); // Pour debug
+    
+    // Rediriger vers l'URL S3
+    res.redirect(fileUrl);
 };
 
 // ==================== SUPPRESSION ====================
