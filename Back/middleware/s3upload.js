@@ -10,6 +10,7 @@ export const createS3Upload = (folder = "uploads", limits = { fileSize: 500 * 10
   const storage = multerS3({
     s3,
     bucket: BUCKET,
+    acl: "public-read",  // ← Ajout essentiel
     key: function (req, file, cb) {
       const uniqueSuffix = Date.now() + "-" + uuidv4();
       cb(null, `${folder}/${uniqueSuffix}-${file.originalname}`);
