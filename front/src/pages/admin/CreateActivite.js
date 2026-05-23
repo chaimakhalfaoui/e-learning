@@ -712,7 +712,7 @@ setUploadingVideo(false);
                                                             {item.titre}
                                                         </div>
                                                         <div style={styles.itemMeta}>
-                                                            {item.type_ressource === 'video' ? (
+                                                             {item.fichier && (item.fichier.endsWith('.mp4') || item.fichier.endsWith('.mov') || item.fichier.endsWith('.avi') || item.fichier.includes('video')) ? (
                                                                 <span>🎬 Vidéo</span>
                                                             ) : (
                                                                 <span>{getFileIcon(item.type_fichier)}</span>
