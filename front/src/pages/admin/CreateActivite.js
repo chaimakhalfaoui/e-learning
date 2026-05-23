@@ -732,15 +732,29 @@ setUploadingVideo(false);
                                             {openIndexRessource === index && (
                                                 <div style={styles.detailContent}>
                                                     <p><strong>Description :</strong> {item.description || 'Aucune description'}</p>
-                                                    {item.type_ressource === 'video' ? (
-                                                        <video controls style={{ width: '100%', borderRadius: '8px' }}>
-        <source src={item.fichier && item.fichier.includes("http") ? item.fichier : `${BASE_URL}/ressource/video/${item.fichier}`} type="video/mp4" />
-    </video>
-                                                    ) : (
-                                                        <a href={item.fichier?.startsWith('http') ? item.fichier : `${BASE_URL}/ressource/fichier/${item.fichier}`} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
-                                                            <i className="fas fa-download me-2"></i>Télécharger
-                                                        </a>
-                                                    )}
+                                                    {(() => {
+    // Vérifier si le fichier est une vidéo (par son extension)
+    const nomFichier = item.fichier || '';
+    const estVideo = nomFichier.endsWith('.mp4') || nomFichier.endsWith('.mov') || nomFichier.endsWith('.avi') || nomFichier.endsWith('.mkv') || nomFichier.includes('video');
+    
+    if (estVideo) {
+        // Afficher le lecteur vidéo
+        const sourceVideo = nomFichier.includes("http") ? nomFichier : `${BASE_URL}/ressource/video/${nomFichier}`;
+        return (
+            <video controls style={{ width: '100%', borderRadius: '8px' }}>
+                <source src={sourceVideo} type="video/mp4" />
+            </video>
+        );
+    } else {
+        // Afficher le bouton télécharger
+        const sourceFichier = nomFichier.startsWith('http') ? nomFichier : `${BASE_URL}/ressource/fichier/${nomFichier}`;
+        return (
+            <a href={sourceFichier} target="_blank" rel="noopener noreferrer" style={{ background: '#ff5421', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
+                <i className="fas fa-download me-2"></i>Télécharger
+            </a>
+        );
+    }
+})()}
                                                 </div>
                                             )}
                                         </div>
