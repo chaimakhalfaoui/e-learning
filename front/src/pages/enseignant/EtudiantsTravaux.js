@@ -445,7 +445,7 @@ const EtudiantsTravaux = () => {
                                                         </a>
                                                     )}
                                                     {travail.fichier && (
-                                                        <a href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/fichier/${travail.fichier}`} className="btn btn-sm btn-primary">
+                                                        <a href={travail.fichier} className="btn btn-sm btn-primary">
                                                             Télécharger
                                                         </a>
                                                     )}
@@ -536,7 +536,7 @@ const EtudiantsTravaux = () => {
                                                                         </a>
                                                                     )}
                                                                     {travail.fichier && (
-                                                                        <a href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/fichier/${travail.fichier}`} target="_blank" rel="noopener noreferrer" style={styles.downloadLink}>
+                                                                        <a href={travail.fichier} target="_blank" rel="noopener noreferrer" style={styles.downloadLink}>
                                                                             <i className="fas fa-download"></i>
                                                                         </a>
                                                                     )}
