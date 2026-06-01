@@ -121,7 +121,7 @@ export const getUserNameByCourseId = (req, res) => {
     const id_cours = req.params.id;
     const query = `
         SELECT users.username FROM
-        Cours JOIN users ON cours.id_user = users.id WHERE cours.id = ?;
+        cours JOIN users ON cours.id_user = users.id WHERE cours.id = ?;
     `;
 
     db.query(query, [id_cours], (err, data) => {
