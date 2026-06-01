@@ -21,7 +21,7 @@ const InstructorPart = () => {
             
             // Récupérer l'email de l'enseignant
             const idResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/cours/getUserIdByCourseId/${id}`);
-            const enseignantId = idResponse.data;
+            const enseignantId = idResponse.data.id_user;
             
             if (enseignantId) {
                 const userResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/users/${enseignantId}`);
