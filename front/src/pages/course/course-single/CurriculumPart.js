@@ -76,7 +76,7 @@ const CurriculumPart = () => {
     const fetchUserInfo = async () => {
         try {
             const userId = await idUser();
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/users/${userId}`);
+            const response = await axios.get(`http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/users/${userId}`);
             setUserInfo(response.data);
         } catch (error) {
             console.error("Erreur récupération user:", error);
@@ -85,7 +85,7 @@ const CurriculumPart = () => {
 
     const fetchCourse = async () => {
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/cours/getCourse/${id}`);
+            const response = await axios.get(`http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/cours/getCourse/${id}`);
             setCourse(response.data[0]);
         } catch (error) {
             console.error("Erreur lors de la récupération des événements :", error);
@@ -95,7 +95,7 @@ const CurriculumPart = () => {
     const fetchTravauxByActivite = async (activiteId) => {
         try {
             const userId = await idUser();
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/getByActiviteAndEtudiant/${activiteId}/${userId}`);
+            const response = await axios.get(`http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/travaux/getByActiviteAndEtudiant/${activiteId}/${userId}`);
             setTravaux(prev => ({ ...prev, [activiteId]: response.data }));
         } catch (error) {
             console.error("Erreur chargement travaux:", error);
@@ -105,12 +105,12 @@ const CurriculumPart = () => {
 
     const getChapitreAndActivite = async () => {
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/chapitre/getChapitreAndActivite/${id}`);
+            const response = await axios.get(`http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/chapitre/getChapitreAndActivite/${id}`);
 
             const chapitresAvecRessources = await Promise.all(
                 response.data.map(async (chap, chapIndex) => {
                     try {
-                        const resResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
+                        const resResponse = await axios.get(`http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/ressource/getAllRessourceId/${chap.id_chapitre}`);
 
                         if (chap.activites) {
                             chap.activites.forEach(act => {
@@ -121,7 +121,7 @@ const CurriculumPart = () => {
                         const userId = await idUser();
                         if (userId && userId !== 0) {
                             try {
-                                const avcResponse = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/avc/avc/${id}/${userId}`);
+                                const avcResponse = await axios.get(`http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/avc/avc/${id}/${userId}`);
                                 const chapN = avcResponse.data?.chapN || 0;
                                 const isCompleted = chapIndex + 1 <= chapN;
                                 setProgressionChapitres(prev => ({
@@ -147,7 +147,7 @@ const CurriculumPart = () => {
 
     const fetchQuiz = async () => {
         try {
-            const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/quiz/getQuiz/${id}`);
+            const response = await axios.get(`http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/quiz/getQuiz/${id}`);
             setQuiz(response.data);
         } catch (error) {
             console.error("Erreur lors de la récupération des quiz :", error);
@@ -167,7 +167,7 @@ const CurriculumPart = () => {
             nch = nChapN.toString();
         }
         try {
-            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/avc/createOrUpdateAvc", {
+            await axios.post("http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/avc/createOrUpdateAvc", {
                 idCours: id,
                 iduser: userid,
                 chapN: nch
@@ -218,7 +218,7 @@ const CurriculumPart = () => {
                 formData.append('fichier', nouveauTravail.fichier);
             }
 
-            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/create", formData, {
+            await axios.post("http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/travaux/create", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -249,7 +249,7 @@ const CurriculumPart = () => {
 
         try {
             const userId = await idUser();
-            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/reponses/create", {
+            await axios.post("http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/reponses/create", {
                 id_activite: activiteId,
                 id_etudiant: userId,
                 reponses: activiteReponses
@@ -297,7 +297,7 @@ const CurriculumPart = () => {
                         )}
                         {devoirData.fichier && (
                             <a
-                                href={devoirData.fichier && devoirData.fichier.includes("http") ? devoirData.fichier : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/activite/fichier/${devoirData.fichier}`}
+                                href={devoirData.fichier && devoirData.fichier.includes("http") ? devoirData.fichier : `http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/activite/fichier/${devoirData.fichier}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ background: '#dc3545', color: '#fff', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}
@@ -315,7 +315,7 @@ const CurriculumPart = () => {
         if (activite.categorie === "video_interactive") {
             try {
                 const videoData = JSON.parse(activite.contenu);
-                const videoSrc = videoData.video && videoData.video.includes("http") ? videoData.video : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/activite/video/${videoData.video}`;
+                const videoSrc = videoData.video && videoData.video.includes("http") ? videoData.video : `http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/activite/video/${videoData.video}`;
                 return (
                     <div>
                         <h6 style={{ marginBottom: '15px', color: '#fd7e14' }}>
@@ -337,7 +337,7 @@ const CurriculumPart = () => {
                     </div>
                 );
             } catch (e) {
-                const videoSrc = activite.contenu && activite.contenu.includes("http") ? activite.contenu : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/activite/video/${activite.contenu}`;
+                const videoSrc = activite.contenu && activite.contenu.includes("http") ? activite.contenu : `http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/activite/video/${activite.contenu}`;
                 return (
                     <div>
                         <video controls style={styles.modalVideo}>
@@ -355,7 +355,7 @@ const CurriculumPart = () => {
             return <img src={activite.contenu} alt="contenu" style={styles.modalImage} />;
         }
         if (activite.categorie === "video") {
-            const videoSrc = activite.contenu && activite.contenu.includes("http") ? activite.contenu : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/activite/video/${activite.contenu}`;
+            const videoSrc = activite.contenu && activite.contenu.includes("http") ? activite.contenu : `http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/activite/video/${activite.contenu}`;
             return (
                 <div>
                     <video controls style={styles.modalVideo}>
@@ -374,7 +374,7 @@ const CurriculumPart = () => {
         const estVideo = nomFichier.endsWith('.mp4') || nomFichier.endsWith('.mov') || nomFichier.endsWith('.avi') || nomFichier.includes('video');
 
         if (ressource.type_ressource === 'video' || estVideo) {
-            const videoSrc = nomFichier.includes("http") ? nomFichier : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/video/${nomFichier}`;
+            const videoSrc = nomFichier.includes("http") ? nomFichier : `http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/ressource/video/${nomFichier}`;
             return (
                 <div style={{ marginTop: '10px' }}>
                     <video controls style={{ width: '100%', maxHeight: '300px', borderRadius: '8px' }}>
@@ -523,7 +523,7 @@ const CurriculumPart = () => {
                                                                 <i className="fa fa-play"></i> Regarder
                                                             </span>
                                                         ) : (
-                                                            <a href={nomFichier.startsWith('http') ? nomFichier : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/fichier/${nomFichier}`} target="_blank" rel="noopener noreferrer" style={styles.downloadBtn} onClick={(e) => e.stopPropagation()}>
+                                                            <a href={nomFichier.startsWith('http') ? nomFichier : `http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/ressource/fichier/${nomFichier}`} target="_blank" rel="noopener noreferrer" style={styles.downloadBtn} onClick={(e) => e.stopPropagation()}>
                                                                 <i className="fa fa-download"></i> Télécharger
                                                             </a>
                                                         )}
@@ -539,7 +539,7 @@ const CurriculumPart = () => {
                                                             {estVideo && (
                                                                 <div style={styles.videoContainer}>
                                                                     <video controls style={{ width: '100%', maxHeight: '400px', borderRadius: '8px', marginTop: '10px' }} controlsList="nodownload">
-                                                                        <source src={nomFichier.includes("http") ? nomFichier : `http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/ressource/video/${nomFichier}`} type="video/mp4" />
+                                                                        <source src={nomFichier.includes("http") ? nomFichier : `http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/ressource/video/${nomFichier}`} type="video/mp4" />
                                                                         Votre navigateur ne supporte pas la lecture de vidéos.
                                                                     </video>
                                                                 </div>
@@ -614,7 +614,7 @@ const CurriculumPart = () => {
                                                                                         <i className="fa fa-calendar"></i> Soumis le: {new Date(travailExistant.date_rendu).toLocaleDateString()}
                                                                                     </div>
                                                                                     {travailExistant.lien && <a href={travailExistant.lien} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#ff5421', display: 'inline-block', marginTop: '8px' }}><i className="fa fa-link"></i> Voir le lien</a>}
-                                                                                    {travailExistant.fichier && <a href={`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/travaux/fichier/${travailExistant.fichier}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#ff5421', display: 'inline-block', marginLeft: '15px', marginTop: '8px' }}><i className="fa fa-download"></i> Télécharger</a>}
+                                                                                    {travailExistant.fichier && <a href={`http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/travaux/fichier/${travailExistant.fichier}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#ff5421', display: 'inline-block', marginLeft: '15px', marginTop: '8px' }}><i className="fa fa-download"></i> Télécharger</a>}
                                                                                 </div>
                                                                             </div>
                                                                             {travailExistant.note && <div style={styles.noteDisplay}><div style={styles.noteValue}>Note: {travailExistant.note}/20</div>{travailExistant.commentaire && <div style={{ fontSize: '12px', marginTop: '5px' }}><strong>Commentaire:</strong> {travailExistant.commentaire}</div>}</div>}

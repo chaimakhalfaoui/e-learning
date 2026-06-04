@@ -23,7 +23,7 @@ const CourseSingle = () => {
         const fetchUserData = async () => {
             try {
                 const userId = await idUser(); // Récupérer l'ID de l'utilisateur à partir du contexte d'authentification
-                const response = await axios.get(`http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/checkUserRole/${userId}`);
+                const response = await axios.get(`http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/auth/checkUserRole/${userId}`);
                 const userRole = response.data.role;
 
                 // Vérifier le rôle de l'utilisateur et agir en conséquence

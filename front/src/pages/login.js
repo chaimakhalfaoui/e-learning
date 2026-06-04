@@ -48,7 +48,7 @@ const Login = () => {
 
             const body = JSON.stringify({ email, password });
 
-            const res = await axios.post('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/login', body, config);
+            const res = await axios.post('http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/auth/login', body, config);
 
             // Vérifier si l'utilisateur doit vérifier son email
             if (res.data.needsVerification) {
@@ -93,7 +93,7 @@ const Login = () => {
                 code: verificationCode 
             });
 
-            const res = await axios.post('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/verify-code', body, config);
+            const res = await axios.post('http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/auth/verify-code', body, config);
 
             if (res.data.success) {
                 localStorage.setItem('access_token', res.data.token);
@@ -115,7 +115,7 @@ const Login = () => {
     const resendCode = async () => {
         setLoading(true);
         try {
-            await axios.post('http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/resend-code', { email: userEmail });
+            await axios.post('http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/auth/resend-code', { email: userEmail });
             toast.success("Un nouveau code a été envoyé à votre email.");
         } catch (err) {
             toast.error("Erreur lors de l'envoi du code. Veuillez réessayer.");

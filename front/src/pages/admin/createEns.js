@@ -89,7 +89,7 @@ const CreateEns = () => {
             const { confirmPassword, ...registerData } = inputs;
             registerData.role = 'enseignant';
             
-            await axios.post("http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api/auth/register", registerData);
+            await axios.post("http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/auth/register", registerData);
             
             toast.success('Enseignant créé avec succès !', {
                 position: "top-right",
