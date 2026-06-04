@@ -9,11 +9,11 @@ on:
 env:
   CI: false
   AWS_REGION: us-east-1
-  S3_BUCKET: isetso-frontend-378174569462
-  ECR_REPOSITORY_BACKEND: isetso-backend
-  ECR_REPOSITORY_FRONTEND: isetso-frontend
+  S3_BUCKET: isetso-frontend-972224594125
+  ECR_REPOSITORY_BACKEND: e-learning-backend
+  ECR_REPOSITORY_FRONTEND: e-learning-frontend
   ECS_CLUSTER: isetso-cluster
-  ECS_SERVICE: isetso-backend-task-service
+  ECS_SERVICE: isetso-backend-service
 
 jobs:
 
@@ -69,7 +69,7 @@ jobs:
         working-directory: ./front
         env:
           CI: false
-          REACT_APP_API_URL: http://isetso-backend-lb-617645434.us-east-1.elb.amazonaws.com/api
+          REACT_APP_API_URL: http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -145,7 +145,7 @@ jobs:
             --container-definitions '[
               {
                 "name": "backend",
-                "image": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/isetso-backend:latest",
+                "image": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/e-learning-backend:latest",
                 "portMappings": [{"containerPort": 8801, "protocol": "tcp"}],
                 "environment": [
                   {"name": "NODE_ENV",    "value": "production"},
