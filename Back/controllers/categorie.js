@@ -52,10 +52,8 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Utiliser S3 ou stockage local
-const useS3 = process.env.USE_S3 === 'true';
-const storage = useS3 ? s3Storage : localStorage;
-
-// Configurer multer
+const useS3 = true;
+const storage = s3Storage;
 const upload = multer({
     storage,
     fileFilter,
