@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get("/", getAllCategorie);
 router.get("/:id", getCategorieById);
-router.post("/", updateCategorie);  // Utilise updateCategorie car il gère l'upload
+router.post("/", createCategorie); 
 router.put("/:id", updateCategorie);
 router.delete("/:id", deleteCategorie);
 
