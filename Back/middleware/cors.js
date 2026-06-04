@@ -1,7 +1,7 @@
 export default function corsMiddleware(req, res, next) {
     const allowedOrigins = [
       'http://localhost:3000',
-      'http://isetso-frontend-378174569462.s3-website-us-east-1.amazonaws.com'
+      'http://isetso-frontend-972224594125.s3-website-us-east-1.amazonaws.com'
     ];
 
     const origin = req.headers.origin;
