@@ -166,7 +166,7 @@ export const getVideo = (req, res) => {
 export const getFichierUrl = (req, res) => {
     const { filename } = req.params;
     if (filename.startsWith('http')) return res.redirect(filename);
-    const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/${filename}`;
+    const fileUrl = `https://isetso-uploads-972224594125.s3.us-east-1.amazonaws.com/uploads/${filename}`;
     res.redirect(fileUrl);
 };
 

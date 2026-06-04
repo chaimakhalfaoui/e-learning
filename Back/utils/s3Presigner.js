@@ -11,7 +11,7 @@ const s3Client = new S3Client({
   }
 });
 
-const BUCKET = "isetso-uploads-378174569462";
+const BUCKET = "isetso-uploads-972224594125";
 
 export const presignGetObject = async (key, expiresIn = 3600) => {
   try {

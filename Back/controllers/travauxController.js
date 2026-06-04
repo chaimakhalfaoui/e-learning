@@ -141,7 +141,7 @@ export const deleteTravail = (req, res) => {
 export const getFichier = (req, res) => {
     const { filename } = req.params;
     // Rediriger vers l'URL S3
-    const s3Url = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/travaux/${filename}`;
+    const s3Url = `https://isetso-uploads-972224594125.s3.us-east-1.amazonaws.com/uploads/travaux/${filename}`;
     res.redirect(s3Url);
 };
 

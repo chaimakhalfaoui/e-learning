@@ -19,7 +19,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // Configuration S3
 const s3 = new S3Client({ region: "us-east-1" });
-const BUCKET = "isetso-uploads-378174569462";
+const BUCKET = "isetso-uploads-972224594125";
 
 const s3Storage = multerS3({
     s3,

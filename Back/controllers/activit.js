@@ -151,7 +151,7 @@ export const getDevoirFichier = (req, res) => {
     const fileName = parts[parts.length - 1].split('?')[0];
     
     // Construire l'URL S3
-    const fileUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/devoirs/${fileName}`;
+    const fileUrl = `https://isetso-uploads-972224594125.s3.us-east-1.amazonaws.com/uploads/devoirs/${fileName}`;
     
     console.log(`Redirection: ${fileUrl}`);
     res.redirect(fileUrl);
@@ -242,7 +242,7 @@ export const getActiviteVideo = (req, res) => {
     }
     
     // Construire l'URL S3
-    const videoUrl = `https://isetso-uploads-378174569462.s3.us-east-1.amazonaws.com/uploads/videos/${filename}`;
+    const videoUrl = `https://isetso-uploads-972224594125.s3.us-east-1.amazonaws.com/uploads/videos/${filename}`;
     console.log("getActiviteVideo - Redirection vers:", videoUrl);
     
     // Rediriger vers l'URL S3

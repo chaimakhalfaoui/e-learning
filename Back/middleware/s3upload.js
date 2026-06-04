@@ -4,7 +4,7 @@ import { S3Client, PutObjectAclCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 
 const s3 = new S3Client({ region: "us-east-1" });
-const BUCKET = "isetso-uploads-378174569462";
+const BUCKET = "isetso-uploads-972224594125";
 
 // Fonction pour déterminer le Content-Type en fonction du fichier
 const getContentType = (filename, mimetype) => {
