@@ -63,7 +63,7 @@ export const getCertificateByIds = (req, res) => {
     // Requête SQL corrigée - Utiliser id_categorie au lieu de categorie
     const getCertificateQuery = `
         SELECT Certificat.*, 
-               Cours.titre AS titreCours, 
+               cours.titre AS titreCours, 
                cat.title AS typeCours, 
                lvl.title AS level, 
                users.username,
@@ -100,7 +100,7 @@ export const getCertificatesByUser = (req, res) => {
 
     const query = `
         SELECT Certificat.*, 
-               Cours.titre AS titreCours, 
+               cours.titre AS titreCours, 
                cat.title AS typeCours, 
                lvl.title AS level
         FROM Certificat 
