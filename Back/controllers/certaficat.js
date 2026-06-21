@@ -66,13 +66,13 @@ export const getCertificateByIds = (req, res) => {
                Cours.titre AS titreCours, 
                cat.title AS typeCours, 
                lvl.title AS level, 
-               Users.username,
-               Users.email
+               users.username,
+               users.email
         FROM Certificat 
-        INNER JOIN Cours ON Certificat.idCours = Cours.id
-        INNER JOIN categorie AS cat ON Cours.id_categorie = cat.id
-        INNER JOIN level AS lvl ON Cours.id_level = lvl.id
-        INNER JOIN Users ON Certificat.idUser = Users.id
+        INNER JOIN cours ON Certificat.idCours = cours.id
+        INNER JOIN categorie AS cat ON cours.id_categorie = cat.id
+        INNER JOIN level AS lvl ON cours.id_level = lvl.id
+        INNER JOIN users ON Certificat.idUser = users.id
         WHERE Certificat.idCours = ? AND Certificat.idUser = ?
     `;
 
@@ -104,9 +104,9 @@ export const getCertificatesByUser = (req, res) => {
                cat.title AS typeCours, 
                lvl.title AS level
         FROM Certificat 
-        INNER JOIN Cours ON Certificat.idCours = Cours.id
+        INNER JOIN cours ON Certificat.idCours = cours.id
         INNER JOIN categorie AS cat ON Cours.id_categorie = cat.id
-        INNER JOIN level AS lvl ON Cours.id_level = lvl.id
+        INNER JOIN level AS lvl ON cours.id_level = lvl.id
         WHERE Certificat.idUser = ?
         ORDER BY Certificat.date_obtention DESC
     `;
