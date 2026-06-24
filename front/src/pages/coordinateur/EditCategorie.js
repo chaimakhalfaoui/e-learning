@@ -66,14 +66,17 @@ const EditCategorie = () => {
           
           // Stocker le nom de l'image actuelle
           if (data.image) {
-            setCurrentImage(data.image);
-            // CORRECTION : Utiliser UPLOADS_URL au lieu de API_URL
-            setImagePreview(`${UPLOADS_URL}/${data.image}`);
-            console.log("Image chargée:", `${UPLOADS_URL}/${data.image}`);
-          } else {
-            setCurrentImage(null);
-            setImagePreview(null);
-          }
+  setCurrentImage(data.image);
+  // data.image est déjà une URL S3 complète, on l'utilise telle quelle
+  const fullImageUrl = data.image.startsWith("http")
+    ? data.image
+    : `${UPLOADS_URL}/${data.image}`;
+  setImagePreview(fullImageUrl);
+  console.log("Image chargée:", fullImageUrl);
+} else {
+  setCurrentImage(null);
+  setImagePreview(null);
+}
           setError(null);
         } else {
           setError("Catégorie non trouvée");
