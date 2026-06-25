@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,8 +18,20 @@ import Logo from '../assets/img/logo/dark-logo.png';
 import footerLogo from '../assets/img/logo/lite-logo.png';
 import bannerbg from '../assets/img/breadcrumbs/inner7.jpg';
 
+// URL de l'API centralisée ici (au lieu d'être répétée dans chaque fonction)
+const API_BASE = 'http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/auth';
+
+// Petit utilitaire pour toujours afficher une string dans le toast,
+// même si le backend renvoie un objet d'erreur au lieu d'un message simple.
+const extractErrorMessage = (err, fallback) => {
+    const data = err?.response?.data;
+    if (!data) return fallback;
+    if (typeof data === 'string') return data;
+    if (typeof data?.message === 'string') return data.message;
+    return fallback;
+};
+
 const Login = () => {
-    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -32,7 +44,18 @@ const Login = () => {
 
     const { email, password, verificationCode } = formData;
 
-    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const onChange = e => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (error) setError(''); // on efface l'erreur dès que l'utilisateur retape
+    };
+
+    // Connexion immédiate (compte déjà connecté) : on stocke le token et on
+    // force un rechargement complet pour que le Header capte la session.
+    const completeLogin = (token, role) => {
+        localStorage.setItem('access_token', token);
+        localStorage.setItem('user_role', role);
+        window.location.href = "/";
+    };
 
     const login = async e => {
         e.preventDefault();
@@ -40,36 +63,25 @@ const Login = () => {
         setError('');
 
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
-
-            const body = JSON.stringify({ email, password });
-
-            const res = await axios.post('http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/auth/login', body, config);
+            const res = await axios.post(`${API_BASE}/login`, {
+                email: email.trim(),
+                password
+            });
 
             // Vérifier si l'utilisateur doit vérifier son email
             if (res.data.needsVerification) {
                 setNeedsVerification(true);
-                setUserEmail(email);
+                setUserEmail(email.trim());
                 toast.info("Un code de vérification a été envoyé à votre email. Veuillez le saisir pour continuer.");
                 setLoading(false);
                 return;
             }
 
-            // Si déjà vérifié, connexion directe
-            localStorage.setItem('access_token', res.data.token);
-            localStorage.setItem('user_role', res.data.role);
-            
             toast.success("Connexion réussie !");
-            
-            
-                navigate("/");
+            completeLogin(res.data.token, res.data.role);
 
         } catch (err) {
-            const errorMessage = err.response?.data?.message || 'Email ou mot de passe incorrect.';
+            const errorMessage = extractErrorMessage(err, 'Email ou mot de passe incorrect.');
             setError(errorMessage);
             toast.error(errorMessage);
             setLoading(false);
@@ -82,30 +94,23 @@ const Login = () => {
         setError('');
 
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
-
-            const body = JSON.stringify({ 
-                email: userEmail, 
-                code: verificationCode 
+            const res = await axios.post(`${API_BASE}/verify-code`, {
+                email: userEmail,
+                code: verificationCode.trim()
             });
 
-            const res = await axios.post('http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/auth/verify-code', body, config);
-
             if (res.data.success) {
-                localStorage.setItem('access_token', res.data.token);
-                localStorage.setItem('user_role', res.data.role);
-                
                 toast.success("Email vérifié avec succès ! Connexion en cours...");
-                
-             
-                    navigate("/");
+                // Connexion directe ici : pas besoin de repasser par /login
+                completeLogin(res.data.token, res.data.role);
+            } else {
+                const msg = 'Code de vérification invalide.';
+                setError(msg);
+                toast.error(msg);
+                setLoading(false);
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || 'Code de vérification invalide.';
+            const errorMessage = extractErrorMessage(err, 'Code de vérification invalide.');
             setError(errorMessage);
             toast.error(errorMessage);
             setLoading(false);
@@ -115,7 +120,7 @@ const Login = () => {
     const resendCode = async () => {
         setLoading(true);
         try {
-            await axios.post('http://isetso-alb-1947778921.us-east-1.elb.amazonaws.com/api/auth/resend-code', { email: userEmail });
+            await axios.post(`${API_BASE}/resend-code`, { email: userEmail });
             toast.success("Un nouveau code a été envoyé à votre email.");
         } catch (err) {
             toast.error("Erreur lors de l'envoi du code. Veuillez réessayer.");
@@ -178,7 +183,7 @@ const Login = () => {
                                 Veuillez saisir le code ci-dessous pour activer votre compte.
                             </p>
                         </div>
-                        
+
                         <form onSubmit={verifyCode}>
                             <input
                                 type="text"
@@ -189,14 +194,14 @@ const Login = () => {
                                 style={inputStyle}
                                 required
                             />
-                            
+
                             {error && (
                                 <p style={{ color: "red", fontSize: "14px", marginBottom: "15px", textAlign: "center" }}>
                                     <i className="fas fa-exclamation-triangle me-2"></i>
                                     {error}
                                 </p>
                             )}
-                            
+
                             <button type="submit" style={buttonStyle} disabled={loading}>
                                 {loading ? (
                                     <>
@@ -210,11 +215,11 @@ const Login = () => {
                                     </>
                                 )}
                             </button>
-                            
+
                             <div className="text-center mt-3">
-                                <button 
-                                    type="button" 
-                                    onClick={resendCode} 
+                                <button
+                                    type="button"
+                                    onClick={resendCode}
                                     style={{ background: "none", border: "none", color: "#ff5421", cursor: "pointer" }}
                                     disabled={loading}
                                 >
@@ -270,7 +275,7 @@ const Login = () => {
                             <h2 className="title mb-10">Connexion</h2>
                             <p style={{ color: '#666' }}>Connectez-vous pour accéder à votre espace</p>
                         </div>
-                        
+
                         <form onSubmit={login}>
                             <input
                                 type="email"
@@ -290,14 +295,14 @@ const Login = () => {
                                 style={inputStyle}
                                 required
                             />
-                            
+
                             {error && (
                                 <p style={{ color: "red", fontSize: "14px", marginBottom: "15px", textAlign: "center" }}>
                                     <i className="fas fa-exclamation-triangle me-2"></i>
                                     {error}
                                 </p>
                             )}
-                            
+
                             <button type="submit" style={buttonStyle} disabled={loading}>
                                 {loading ? (
                                     <>
@@ -311,7 +316,7 @@ const Login = () => {
                                     </>
                                 )}
                             </button>
-                            
+
                             <div className="text-center mt-4">
                                 <p>
                                     Pas encore inscrit ? <Link to="/register" style={{ color: '#ff5421' }}>Créer un compte</Link>
