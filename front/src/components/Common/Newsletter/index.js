@@ -1,12 +1,11 @@
 import React from 'react';
 import SubscribeForm from '../../Elements/Subscribe/SubscribeForm';
-
 import newsletterIcon from '../../../assets/img/newsletter.png'
-
 const Newsletter = (props) => {
     const { sectionClass, wrapperClass, titleClass, iconPath } = props;
-
     return (
+        null
+        /*
         <div className={sectionClass ? sectionClass : 'rs-newsletter style1 orange-color mb--90 sm-mb-0 sm-pb-70'}>
             <div className="container">
                 <div className={wrapperClass ? wrapperClass : 'newsletter-wrap'}>
@@ -30,7 +29,7 @@ const Newsletter = (props) => {
                 </div>
             </div>
         </div>
+        */
     );
 }
-
-export default Newsletter;
+export default Newsletter;$
