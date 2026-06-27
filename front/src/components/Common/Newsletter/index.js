@@ -32,4 +32,4 @@ const Newsletter = (props) => {
         */
     );
 }
-export default Newsletter;$
+export default Newsletter;
