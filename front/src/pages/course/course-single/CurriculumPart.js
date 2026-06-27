@@ -205,6 +205,14 @@ const CurriculumPart = () => {
 
     const handleSubmitTravail = async (e) => {
         e.preventDefault();
+         const activiteCourante = chapitre
+            .flatMap(c => c.activites || [])
+            .find(a => a.id === selectedActivite);
+
+        if (activiteCourante && isDateLimiteDepassee(activiteCourante)) {
+            toast.error('La date limite de ce devoir est dépassée. Vous ne pouvez plus soumettre votre travail.');
+            return;
+        }
         try {
             const userId = await idUser();
             const formData = new FormData();
@@ -228,6 +236,16 @@ const CurriculumPart = () => {
             fetchTravauxByActivite(selectedActivite);
         } catch (err) {
             toast.error(err.response?.data || 'Erreur lors de la soumission');
+        }
+    }; 
+const isDateLimiteDepassee = (activite) => {
+        if (activite.categorie !== 'devoir') return false;
+        try {
+            const devoirData = JSON.parse(activite.contenu);
+            if (!devoirData.date_limite) return false;
+            return new Date(devoirData.date_limite) < new Date();
+        } catch (e) {
+            return false;
         }
     };
 
@@ -329,7 +347,7 @@ const CurriculumPart = () => {
                                 <h6 style={{ marginBottom: '10px' }}>Questions interactives:</h6>
                                 {videoData.questions.map((q, qIndex) => (
                                     <div key={qIndex} style={{ marginBottom: '15px', padding: '10px', background: '#fff', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
-                                        <p><strong>À {q.timestamp} secondes:</strong> {q.texte}</p>
+                                        <p>{q.texte}</p>
                                     </div>
                                 ))}
                             </div>
@@ -646,7 +664,16 @@ const CurriculumPart = () => {
                     <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <div style={styles.modalHeader}>
                             <h3>Déposer mon travail</h3>
-                            <button onClick={() => setShowTravailModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                            {isDateLimiteDepassee(activite) ? (
+    <span style={{ fontSize: '12px', color: '#dc3545', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <i className="fa fa-lock"></i> Date limite dépassée
+    </span>
+) : (
+    <button onClick={() => { setSelectedActivite(activite.id); setShowTravailModal(true); }} style={styles.submitButton}>
+        <i className="fa fa-plus"></i>
+        {travailExistant ? 'Modifier mon travail' : 'Déposer mon travail'}
+    </button>
+)}
                         </div>
                         <form onSubmit={handleSubmitTravail}>
                             <div style={styles.modalBody}>
