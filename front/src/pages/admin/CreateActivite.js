@@ -1182,7 +1182,7 @@ setUploadingVideo(false);
                                 </button>
                             </div>
                             <div style={styles.modalFooter}>
-                                <button type="button" onClick={closModalVideoInteracte} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
+                                <button type="button" onClick={closModalVideoInteractive} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
                                 <button type="submit" disabled={uploading} style={{ background: '#fd7e14', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>
     {uploading ? `Upload... ${uploadProgress}%` : 'Créer la vidéo interactive'}
 </button>
