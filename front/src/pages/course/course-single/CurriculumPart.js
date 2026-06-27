@@ -611,10 +611,16 @@ const isDateLimiteDepassee = (activite) => {
                                                                             <i className="fa fa-upload" style={{ marginRight: '8px' }}></i>
                                                                             Mon travail
                                                                         </h5>
-                                                                        <button onClick={() => { setSelectedActivite(activite.id); setShowTravailModal(true); }} style={styles.submitButton}>
-                                                                            <i className="fa fa-plus"></i>
-                                                                            {travailExistant ? 'Modifier mon travail' : 'Déposer mon travail'}
-                                                                        </button>
+                                                                        {isDateLimiteDepassee(activite) ? (
+                                                            <span style={{ fontSize: '12px', color: '#dc3545', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                <i className="fa fa-lock"></i> Date limite dépassée
+                                                            </span>
+                                                        ) : (
+                                                            <button onClick={() => { setSelectedActivite(activite.id); setShowTravailModal(true); }} style={styles.submitButton}>
+                                                                <i className="fa fa-plus"></i>
+                                                                {travailExistant ? 'Modifier mon travail' : 'Déposer mon travail'}
+                                                            </button>
+                                                        )}
                                                                     </div>
 
                                                                     {travailExistant ? (
@@ -664,16 +670,7 @@ const isDateLimiteDepassee = (activite) => {
                     <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <div style={styles.modalHeader}>
                             <h3>Déposer mon travail</h3>
-                            {isDateLimiteDepassee(activite) ? (
-    <span style={{ fontSize: '12px', color: '#dc3545', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <i className="fa fa-lock"></i> Date limite dépassée
-    </span>
-) : (
-    <button onClick={() => { setSelectedActivite(activite.id); setShowTravailModal(true); }} style={styles.submitButton}>
-        <i className="fa fa-plus"></i>
-        {travailExistant ? 'Modifier mon travail' : 'Déposer mon travail'}
-    </button>
-)}
+<button onClick={() => setShowTravailModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
                         </div>
                         <form onSubmit={handleSubmitTravail}>
                             <div style={styles.modalBody}>
