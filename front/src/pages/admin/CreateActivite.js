@@ -307,6 +307,11 @@ const CreateActivite = () => {
         e.preventDefault();
 
         if (!inputs.titre || !inputs.fichierDevoir) {
+
+        if (inputs.date_limite && new Date(inputs.date_limite) < new Date()) {
+            toast.error("La date limite ne peut pas être dans le passé.");
+            return;
+        }
             toast.error('Le titre et le fichier sont requis.');
             return;
         }
@@ -1098,7 +1103,7 @@ setUploadingVideo(false);
                         <form onSubmit={handleSubmitDevoir}>
                             <div style={styles.modalBody}>
                                 <input type="text" name="titre" placeholder="Titre du devoir" value={inputs.titre} onChange={handleInputChange} style={styles.input} required />
-                                <input type="datetime-local" name="date_limite" value={inputs.date_limite} onChange={handleInputChange} style={styles.input} placeholder="Date de rendu" />
+                                <input type="datetime-local" name="date_limite" value={inputs.date_limite} onChange={handleInputChange} style={styles.input} placeholder="Date de rendu" min={new Date().toISOString().slice(0, 16)} />
                                 
                                 <h4 style={{ marginTop: '15px' }}>Fichier du devoir</h4>
                                 <div style={styles.uploadArea} onClick={() => document.getElementById('devoirFichierInput').click()}>
