@@ -404,7 +404,7 @@ setUploading(false);
             formData.append('fichier', inputs.fichier);
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('type_ressource', 'fichier');
-r            formData.append('id_chapitre', id);
+            formData.append('id_chapitre', id);
             setUploadingFile(true);
 await axios.post(`${BASE_URL}/ressource/createRessource`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
