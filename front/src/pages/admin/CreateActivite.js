@@ -404,7 +404,7 @@ setUploading(false);
             formData.append('fichier', inputs.fichier);
             formData.append('type_fichier', inputs.type_fichier);
             formData.append('type_ressource', 'fichier');
-            formData.append('id_chapitre', id);
+r            formData.append('id_chapitre', id);
             setUploadingFile(true);
 await axios.post(`${BASE_URL}/ressource/createRessource`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -883,7 +883,7 @@ setUploadingVideo(false);
                                                                             <h6>Questions:</h6>
                                                                             {videoData.questions && videoData.questions.map((q, qIndex) => (
                                                                                 <div key={qIndex} style={{ marginBottom: '15px', padding: '10px', background: '#fff', borderRadius: '8px' }}>
-                                                                                    <p><strong>À {q.timestamp} secondes:</strong> {q.texte}</p>
+                                                                                    <p>{q.texte}</p>
                                                                                 </div>
                                                                             ))}
                                                                         </div>
@@ -1168,14 +1168,6 @@ setUploadingVideo(false);
                                                 </button>
                                             )}
                                         </div>
-                                        <input 
-                                            type="number" 
-                                            placeholder="Timestamp (secondes)" 
-                                            value={q.timestamp} 
-                                            onChange={(e) => handleVideoQuestionChange(qIndex, 'timestamp', parseInt(e.target.value) || 0)}
-                                            style={styles.input} 
-                                            required 
-                                        />
                                         <textarea 
                                             placeholder="Texte de la question" 
                                             value={q.texte} 
@@ -1190,7 +1182,7 @@ setUploadingVideo(false);
                                 </button>
                             </div>
                             <div style={styles.modalFooter}>
-                                <button type="button" onClick={closModalVideoInteractive} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
+                                <button type="button" onClick={closModalVideoInteracte} style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '8px' }}>Annuler</button>
                                 <button type="submit" disabled={uploading} style={{ background: '#fd7e14', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px' }}>
     {uploading ? `Upload... ${uploadProgress}%` : 'Créer la vidéo interactive'}
 </button>
