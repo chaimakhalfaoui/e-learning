@@ -1,7 +1,9 @@
 // controllers/ressource.js - Version complète et corrigée
 import { createS3Upload } from "../middleware/s3upload.js";
 import { db } from "../db.js";
-
+import fs from "fs";
+import path from "path";
+const uploadDir = path.join(process.cwd(), "uploads");
 // Configuration multer pour les fichiers
 export const upload = createS3Upload("uploads", { fileSize: 500 * 1024 * 1024 });
 export const uploadVideo = createS3Upload("uploads/videos", { fileSize: 500 * 1024 * 1024 });
