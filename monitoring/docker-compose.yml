@@ -1,6 +1,22 @@
 version: '3.8'
 
 services:
+  # NOUVEAU ! Va chercher les métriques sur AWS
+  cloudwatch-exporter:
+    image: prom/cloudwatch-exporter:latest
+    container_name: cloudwatch-exporter
+    restart: always
+    ports:
+      - "9106:9106"
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_REGION=us-east-1
+    volumes:
+      - ./cloudwatch.yml:/config/config.yml
+
+  # Prometheus (déjà existant)
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -9,13 +25,21 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
+  # Node Exporter (métriques de votre VM)
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+
+  # Grafana (déjà existant)
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

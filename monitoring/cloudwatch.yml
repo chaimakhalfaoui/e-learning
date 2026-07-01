@@ -1,0 +1,41 @@
+# Ce fichier dit à CloudWatch Exporter quelles métriques récupérer sur AWS
+region: us-east-1
+period_seconds: 60
+delay_seconds: 120
+
+metrics:
+  # Métriques ECS (vos conteneurs)
+  - aws_namespace: AWS/ECS
+    aws_metric_name: CPUUtilization
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Average]
+    aws_period_seconds: 300
+    aws_dimension_select:
+      ClusterName: [isetso-cluster]
+      ServiceName: [.*]
+
+  - aws_namespace: AWS/ECS
+    aws_metric_name: MemoryUtilization
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Average]
+    aws_period_seconds: 300
+    aws_dimension_select:
+      ClusterName: [isetso-cluster]
+      ServiceName: [.*]
+
+  # Métriques RDS (votre base de données)
+  - aws_namespace: AWS/RDS
+    aws_metric_name: CPUUtilization
+    aws_dimensions: [DBInstanceIdentifier]
+    aws_statistics: [Average]
+    aws_period_seconds: 300
+    aws_dimension_select:
+      DBInstanceIdentifier: [isetso-database]
+
+  - aws_namespace: AWS/RDS
+    aws_metric_name: DatabaseConnections
+    aws_dimensions: [DBInstanceIdentifier]
+    aws_statistics: [Average]
+    aws_period_seconds: 300
+    aws_dimension_select:
+      DBInstanceIdentifier: [isetso-database]

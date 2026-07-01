@@ -2,7 +2,17 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'backend'
+  # Surveiller CloudWatch Exporter (AWS)
+  - job_name: 'cloudwatch'
     static_configs:
-      - targets: ['host.docker.internal:8801']
-    metrics_path: '/metrics'
+      - targets: ['cloudwatch-exporter:9106']
+
+  # Surveiller votre VM
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Surveiller Prometheus lui-même
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
